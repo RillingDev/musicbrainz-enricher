@@ -3,9 +3,9 @@ import { IArtist } from "musicbrainz-api";
 import { DiscogsDatabaseService } from "../api/discogs/DiscogsDatabaseService";
 import { DiscogsArtist } from "../api/discogs/schema/DiscogsArtist";
 import { MusicbrainzDatabaseService } from "../api/musicbrainz/MusicbrainzDatabaseService";
-import { MusicbrainzService } from "../api/musicbrainz/MusicbrainzService";
 import { chevron } from "../chevron";
 import { rootLogger } from "../logger";
+import { MusicbrainzService } from "../util/MusicbrainzService";
 
 @Injectable(chevron, {
     dependencies: [
@@ -28,7 +28,7 @@ class ArtistEnrichmentService {
     public async enrich(mbId: string): Promise<void> {
         const mbArtist = await this.musicbrainzDatabaseService.getArtist(mbId);
         ArtistEnrichmentService.logger.debug(
-            `Found artist '${mbArtist.name}'.`
+            `Found artist '${mbArtist.name}' for Musicbrainz ID ${mbId}.`
         );
 
         const discogsId = this.musicbrainzService.getDiscogsId(mbArtist);
@@ -57,7 +57,7 @@ class ArtistEnrichmentService {
             );
             return;
         }
-        ArtistEnrichmentService.logger.debug(`Found discogs artist by id.`);
+        ArtistEnrichmentService.logger.silly(`Found discogs artist by id.`);
 
         this.enrichLegalNameFromDiscogs(mbArtist, discogsArtist);
     }
@@ -72,22 +72,31 @@ class ArtistEnrichmentService {
         );
         const discogsLegalName = discogsArtist.realname;
 
-        if (discogsLegalName != null) {
-            if (mbLegalNames.length === 0) {
+        if (discogsLegalName == null) {
+            ArtistEnrichmentService.logger.debug(
+                `No Discogs name found for'${mbArtist.name}'.`
+            );
+            return;
+        }
+
+        if (discogsLegalName === mbArtist.name) {
+            ArtistEnrichmentService.logger.debug(
+                `Legal name ${discogsLegalName} is already used as main name '${mbArtist.name}'.`
+            );
+        } else if (mbLegalNames.length === 0) {
+            ArtistEnrichmentService.logger.info(
+                `Found new legal name ${discogsLegalName} for Musicbrainz artist '${mbArtist.name}'.`
+            );
+        } else {
+            const differentLegalNames = mbLegalNames.filter(
+                alias => alias.name !== discogsLegalName
+            );
+            if (differentLegalNames.length > 0) {
                 ArtistEnrichmentService.logger.info(
-                    `Found new legal name ${discogsLegalName}.`
+                    `Found legal name '${discogsLegalName}' that is different from existing '${differentLegalNames.map(
+                        alias => alias.name
+                    )}'.`
                 );
-            } else {
-                const differentLegalNames = mbLegalNames.filter(
-                    alias => alias.name !== discogsLegalName
-                );
-                if (differentLegalNames.length > 0) {
-                    ArtistEnrichmentService.logger.info(
-                        `Found legal name '${discogsLegalName}' that is different from existing '${differentLegalNames.map(
-                            alias => alias.name
-                        )}'.`
-                    );
-                }
             }
         }
     }

@@ -20,16 +20,8 @@ chevron_1.chevron.registerInjectable({
 }, { name: "musicbrainzConfig" });
 const musicbrainzDatabaseService = chevron_1.chevron.getInjectableInstance(MusicbrainzDatabaseService_1.MusicbrainzDatabaseService);
 const artistEnrichmentService = chevron_1.chevron.getInjectableInstance(ArtistEnrichmentService_1.ArtistEnrichmentService);
-// ArtistEnrichmentService
-//     .enrich("488adff4-0b5c-41c9-aa8c-570aeae15737")
-//     .catch(logger.error);
 musicbrainzDatabaseService
-    .search({
+    .searchArtist({
     type: "person"
-})
-    .then(result => {
-    for (const artist of result.artists) {
-        artistEnrichmentService.enrich(artist.id).catch(logger.error);
-    }
-})
-    .catch(logger.error);
+}, artist => artistEnrichmentService.enrich(artist.id))
+    .catch(console.error);

@@ -1,1 +1,1 @@
-declare module "disconnect"
+declare module "disconnect";

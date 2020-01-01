@@ -1,5 +1,3 @@
-import { IArtist } from "musicbrainz-api";
-import { DiscogsDatabaseService } from "./api/discogs/DiscogsDatabaseService";
 import { MusicbrainzDatabaseService } from "./api/musicbrainz/MusicbrainzDatabaseService";
 import { chevron } from "./chevron";
 import { ArtistEnrichmentService } from "./enrichment/ArtistEnrichmentService";
@@ -33,16 +31,12 @@ const musicbrainzDatabaseService: MusicbrainzDatabaseService = chevron.getInject
 const artistEnrichmentService: ArtistEnrichmentService = chevron.getInjectableInstance(
     ArtistEnrichmentService
 );
-// ArtistEnrichmentService
-//     .enrich("488adff4-0b5c-41c9-aa8c-570aeae15737")
-//     .catch(logger.error);
+
 musicbrainzDatabaseService
-    .search({
-        type: "person"
-    })
-    .then(result => {
-        for (const artist of result.artists) {
-            artistEnrichmentService.enrich(artist.id).catch(logger.error);
-        }
-    })
-    .catch(logger.error);
+    .searchArtist(
+        {
+            type: "person"
+        },
+        artist => artistEnrichmentService.enrich(artist.id)
+    )
+    .catch(console.error);

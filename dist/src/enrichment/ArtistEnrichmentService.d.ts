@@ -1,6 +1,6 @@
 import { DiscogsDatabaseService } from "../api/discogs/DiscogsDatabaseService";
 import { MusicbrainzDatabaseService } from "../api/musicbrainz/MusicbrainzDatabaseService";
-import { MusicbrainzService } from "../api/musicbrainz/MusicbrainzService";
+import { MusicbrainzService } from "../util/MusicbrainzService";
 declare class ArtistEnrichmentService {
     private readonly musicbrainzDatabaseService;
     private readonly discogsDatabaseService;

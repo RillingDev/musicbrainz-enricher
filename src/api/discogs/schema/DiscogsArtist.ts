@@ -6,6 +6,7 @@ interface DiscogsArtistImage {
     uri150: string;
     width: number;
 }
+
 interface DiscogsArtistMember {
     active: boolean;
     id: number;

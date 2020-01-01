@@ -8,23 +8,40 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var MusicbrainzDatabaseService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevronjs_1 = require("chevronjs");
 const musicbrainz_api_1 = require("musicbrainz-api");
 const chevron_1 = require("../../chevron");
-let MusicbrainzDatabaseService = class MusicbrainzDatabaseService {
-    constructor(musicbrainzConfig) {
+const logger_1 = require("../../logger");
+const AsyncService_1 = require("../../util/AsyncService");
+let MusicbrainzDatabaseService = MusicbrainzDatabaseService_1 = class MusicbrainzDatabaseService {
+    constructor(musicbrainzConfig, asyncService) {
+        this.asyncService = asyncService;
         this.client = new musicbrainz_api_1.MusicBrainzApi(musicbrainzConfig);
     }
-    getArtist(mbId) {
+    async getArtist(mbId) {
+        await this.asyncService.throttle(1000);
         return this.client.getArtist(mbId, ["aliases", "url-rels"]);
     }
-    search(formData) {
-        return this.client.searchArtist(formData);
+    async searchArtist(formData, consumer) {
+        let offset = 0;
+        let totalCount;
+        do {
+            MusicbrainzDatabaseService_1.logger.debug(`Searching artist with form data '${JSON.stringify(formData)}' and offset ${offset}.`);
+            await this.asyncService.throttle(1000);
+            const response = await this.client.searchArtist(formData, offset);
+            totalCount = response.count;
+            offset += response.artists.length;
+            await this.asyncService.queue(response.artists.map(artist => () => consumer(artist)));
+        } while (offset < totalCount);
     }
 };
-MusicbrainzDatabaseService = __decorate([
-    chevronjs_1.Injectable(chevron_1.chevron, { dependencies: ["musicbrainzConfig"] }),
-    __metadata("design:paramtypes", [Object])
+MusicbrainzDatabaseService.logger = logger_1.rootLogger.child({
+    target: MusicbrainzDatabaseService_1
+});
+MusicbrainzDatabaseService = MusicbrainzDatabaseService_1 = __decorate([
+    chevronjs_1.Injectable(chevron_1.chevron, { dependencies: ["musicbrainzConfig", AsyncService_1.AsyncService] }),
+    __metadata("design:paramtypes", [Object, AsyncService_1.AsyncService])
 ], MusicbrainzDatabaseService);
 exports.MusicbrainzDatabaseService = MusicbrainzDatabaseService;

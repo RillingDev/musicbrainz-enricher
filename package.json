@@ -1,8 +1,8 @@
 {
-    "name": "discbrains",
+    "name": "musicbrainz-enricher",
     "version": "1.0.0",
     "private": true,
-    "description": "A discord bot with miscellaneous features",
+    "description": "Bot to enrich musicbrainz data from linked sources",
     "main": "./dist/src/main.js",
     "types": "./dist/src/main.d.ts",
     "scripts": {
@@ -17,13 +17,13 @@
         "test": "jasmine"
     },
     "keywords": [],
-    "homepage": "https://github.com/FelixRilling/lisa-bot",
+    "homepage": "https://github.com/FelixRilling/musicbrainz-enricher",
     "author": {
         "name": "Felix Rilling",
         "email": "contact@rilling.dev",
         "url": "https://rilling.dev"
     },
-    "repository": "https://github.com/FelixRilling/lisa-bot",
+    "repository": "https://github.com/FelixRilling/musicbrainz-enricher",
     "license": "MIT",
     "dependencies": {
         "chevronjs": "^12.0.0",
