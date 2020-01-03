@@ -1,9 +1,9 @@
 import { MusicbrainzDatabaseService } from "./api/musicbrainz/MusicbrainzDatabaseService";
 import { chevron } from "./chevron";
-import { ArtistEnrichmentService } from "./enrichment/ArtistEnrichmentService";
+import { ArtistEnrichmentService } from "./enrichment/artist/ArtistEnrichmentService";
 import { rootLogger } from "./logger";
 
-const logger = rootLogger.child({ target: "main" });
+//const logger = rootLogger.child({ target: "main" });
 
 chevron.registerInjectable(
     {
@@ -39,4 +39,5 @@ musicbrainzDatabaseService
         },
         artist => artistEnrichmentService.enrich(artist.id)
     )
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     .catch(console.error);

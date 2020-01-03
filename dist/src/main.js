@@ -2,9 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const MusicbrainzDatabaseService_1 = require("./api/musicbrainz/MusicbrainzDatabaseService");
 const chevron_1 = require("./chevron");
-const ArtistEnrichmentService_1 = require("./enrichment/ArtistEnrichmentService");
-const logger_1 = require("./logger");
-const logger = logger_1.rootLogger.child({ target: "main" });
+const ArtistEnrichmentService_1 = require("./enrichment/artist/ArtistEnrichmentService");
+//const logger = rootLogger.child({ target: "main" });
 chevron_1.chevron.registerInjectable({
     // MusicBrainz bot account username & password (optional)
     botAccount: {
@@ -24,4 +23,5 @@ musicbrainzDatabaseService
     .searchArtist({
     type: "person"
 }, artist => artistEnrichmentService.enrich(artist.id))
+    // eslint-disable-next-line @typescript-eslint/unbound-method
     .catch(console.error);

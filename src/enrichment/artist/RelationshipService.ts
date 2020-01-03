@@ -1,9 +1,9 @@
 import { Injectable } from "chevronjs";
 import { IArtist } from "musicbrainz-api";
-import { chevron } from "../chevron";
+import { chevron } from "../../chevron";
 
 @Injectable(chevron)
-class MusicbrainzService {
+class RelationshipService {
     private static readonly DISCOGS_URL_ID_PATTERN = /\/(\d+)$/;
 
     private static readonly DISCOGS_TYPE = "discogs";
@@ -14,13 +14,13 @@ class MusicbrainzService {
         }
 
         const discogsRelation = artist.relations.find(
-            rel => rel.type === MusicbrainzService.DISCOGS_TYPE
+            rel => rel.type === RelationshipService.DISCOGS_TYPE
         );
         if (discogsRelation?.url == null) {
             return null;
         }
 
-        const exec = MusicbrainzService.DISCOGS_URL_ID_PATTERN.exec(
+        const exec = RelationshipService.DISCOGS_URL_ID_PATTERN.exec(
             discogsRelation.url.resource
         );
         if (exec == null) {
@@ -31,4 +31,4 @@ class MusicbrainzService {
     }
 }
 
-export { MusicbrainzService };
+export { RelationshipService };
