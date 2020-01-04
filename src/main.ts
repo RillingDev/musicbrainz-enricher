@@ -1,9 +1,10 @@
 import { MusicbrainzDatabaseService } from "./api/musicbrainz/MusicbrainzDatabaseService";
 import { chevron } from "./chevron";
 import { ArtistEnrichmentService } from "./enrichment/artist/ArtistEnrichmentService";
+import { ProposedEditService } from "./enrichment/ProposedEditService";
 import { rootLogger } from "./logger";
 
-//const logger = rootLogger.child({ target: "main" });
+//Const logger = rootLogger.child({ target: "main" });
 
 chevron.registerInjectable(
     {
@@ -31,13 +32,35 @@ const musicbrainzDatabaseService: MusicbrainzDatabaseService = chevron.getInject
 const artistEnrichmentService: ArtistEnrichmentService = chevron.getInjectableInstance(
     ArtistEnrichmentService
 );
+const proposedEditService: ProposedEditService = chevron.getInjectableInstance(
+    ProposedEditService
+);
+artistEnrichmentService
+    .enrich("95e27e73-7863-4d01-b3d4-214bcafe3688")
+    .then(edits => {
+        for (const edit of edits) {
+            rootLogger.info(
+                proposedEditService.stringifyProposedArtistEdit(edit)
+            );
+        }
+    })
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    .catch(console.error);
 
 musicbrainzDatabaseService
     .searchArtist(
         {
             type: "person"
         },
-        artist => artistEnrichmentService.enrich(artist.id)
+        // eslint-disable-next-line @typescript-eslint/unbound-method
+        artist =>
+            artistEnrichmentService.enrich(artist.id).then(edits => {
+                for (const edit of edits) {
+                    rootLogger.info(
+                        proposedEditService.stringifyProposedArtistEdit(edit)
+                    );
+                }
+            })
     )
     // eslint-disable-next-line @typescript-eslint/unbound-method
     .catch(console.error);

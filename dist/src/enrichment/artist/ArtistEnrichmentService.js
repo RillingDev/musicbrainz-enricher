@@ -11,59 +11,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var ArtistEnrichmentService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevronjs_1 = require("chevronjs");
-const DiscogsDatabaseService_1 = require("../../api/discogs/DiscogsDatabaseService");
 const MusicbrainzDatabaseService_1 = require("../../api/musicbrainz/MusicbrainzDatabaseService");
 const chevron_1 = require("../../chevron");
 const logger_1 = require("../../logger");
-const RelationshipService_1 = require("./RelationshipService");
+const DiscogsArtistEnricherService_1 = require("./enricher/DiscogsArtistEnricherService");
 let ArtistEnrichmentService = ArtistEnrichmentService_1 = class ArtistEnrichmentService {
-    constructor(musicbrainzDatabaseService, discogsDatabaseService, relationshipService) {
+    constructor(musicbrainzDatabaseService, discogsArtistEnricherService) {
         this.musicbrainzDatabaseService = musicbrainzDatabaseService;
-        this.discogsDatabaseService = discogsDatabaseService;
-        this.relationshipService = relationshipService;
+        this.enrichers = [discogsArtistEnricherService];
     }
     async enrich(mbId) {
         const mbArtist = await this.musicbrainzDatabaseService.getArtist(mbId);
         ArtistEnrichmentService_1.logger.debug(`Found artist '${mbArtist.name}' for Musicbrainz ID ${mbId}.`);
-        const discogsId = this.relationshipService.getDiscogsId(mbArtist);
-        if (discogsId != null) {
-            ArtistEnrichmentService_1.logger.debug(`Found discogs ID ${discogsId} for artist '${mbArtist.name}'.`);
-            await this.enrichFromDiscogs(mbArtist, discogsId);
-        }
-        else {
-            ArtistEnrichmentService_1.logger.debug(`Could not find '${mbArtist.name}' discogs ID.`);
-        }
-    }
-    async enrichFromDiscogs(mbArtist, discogsId) {
-        const discogsArtist = await this.discogsDatabaseService.getArtist(discogsId);
-        if (discogsArtist == null) {
-            ArtistEnrichmentService_1.logger.debug(`Could not find discogs artist by id.`);
-            return;
-        }
-        ArtistEnrichmentService_1.logger.silly(`Found discogs artist by id.`);
-        this.enrichLegalNameFromDiscogs(mbArtist, discogsArtist);
-    }
-    enrichLegalNameFromDiscogs(mbArtist, discogsArtist) {
-        var _a;
-        const aliases = (_a = mbArtist.aliases, (_a !== null && _a !== void 0 ? _a : []));
-        const mbLegalNames = aliases.filter(alias => alias.type === "Legal name");
-        const discogsLegalName = discogsArtist.realname;
-        if (discogsLegalName == null) {
-            ArtistEnrichmentService_1.logger.debug(`No Discogs name found for'${mbArtist.name}'.`);
-            return;
-        }
-        if (discogsLegalName === mbArtist.name) {
-            ArtistEnrichmentService_1.logger.debug(`Legal name ${discogsLegalName} is already used as main name '${mbArtist.name}'.`);
-        }
-        else if (mbLegalNames.length === 0) {
-            ArtistEnrichmentService_1.logger.info(`Found new legal name ${discogsLegalName} for Musicbrainz artist '${mbArtist.name}'.`);
-        }
-        else {
-            const differentLegalNames = mbLegalNames.filter(alias => alias.name !== discogsLegalName);
-            if (differentLegalNames.length > 0) {
-                ArtistEnrichmentService_1.logger.info(`Found legal name '${discogsLegalName}' that is different from existing '${differentLegalNames.map(alias => alias.name)}'.`);
+        const proposedEdits = [];
+        for (const enricher of this.enrichers) {
+            if (enricher.canEnrich(mbArtist)) {
+                ArtistEnrichmentService_1.logger.debug(`Enricher ${enricher.name} can enrich '${mbArtist.name}'.`);
+                const enricherEdits = await enricher.enrich(mbArtist);
+                proposedEdits.push(...enricherEdits);
+            }
+            else {
+                ArtistEnrichmentService_1.logger.debug(`Enricher ${enricher.name} cannot enrich '${mbArtist.name}', skipping.`);
             }
         }
+        return proposedEdits;
     }
 };
 ArtistEnrichmentService.logger = logger_1.rootLogger.child({
@@ -71,14 +42,9 @@ ArtistEnrichmentService.logger = logger_1.rootLogger.child({
 });
 ArtistEnrichmentService = ArtistEnrichmentService_1 = __decorate([
     chevronjs_1.Injectable(chevron_1.chevron, {
-        dependencies: [
-            MusicbrainzDatabaseService_1.MusicbrainzDatabaseService,
-            DiscogsDatabaseService_1.DiscogsDatabaseService,
-            RelationshipService_1.RelationshipService
-        ]
+        dependencies: [MusicbrainzDatabaseService_1.MusicbrainzDatabaseService, DiscogsArtistEnricherService_1.DiscogsArtistEnricherService]
     }),
     __metadata("design:paramtypes", [MusicbrainzDatabaseService_1.MusicbrainzDatabaseService,
-        DiscogsDatabaseService_1.DiscogsDatabaseService,
-        RelationshipService_1.RelationshipService])
+        DiscogsArtistEnricherService_1.DiscogsArtistEnricherService])
 ], ArtistEnrichmentService);
 exports.ArtistEnrichmentService = ArtistEnrichmentService;
