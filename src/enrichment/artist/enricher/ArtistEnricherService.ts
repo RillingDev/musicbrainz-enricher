@@ -1,5 +1,5 @@
 import { IArtist } from "musicbrainz-api";
-import { ProposedEdit } from "../../ProposedEdit";
+import { ProposedEdit } from "../../../edit/ProposedEdit.js";
 
 type ProposedArtistEdit = ProposedEdit<IArtist, string | string[]>;
 

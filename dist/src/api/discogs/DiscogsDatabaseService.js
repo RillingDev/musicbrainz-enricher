@@ -20,7 +20,7 @@ const pRetry = require("p-retry");
 let DiscogsDatabaseService = DiscogsDatabaseService_1 = class DiscogsDatabaseService {
     constructor(discogsConfig, asyncService) {
         this.asyncService = asyncService;
-        this.database = new disconnect_1.Client().database();
+        this.database = new disconnect_1.Client(discogsConfig.userAgent, discogsConfig.auth).database();
     }
     getArtist(id) {
         return this.request(() => this.database.getArtist(id));

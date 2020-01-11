@@ -1,7 +1,7 @@
 import { Injectable } from "chevronjs";
-import { chevron } from "../chevron";
-import { ProposedArtistEdit } from "./artist/enricher/ArtistEnricherService";
-import { EditType } from "./ProposedEdit";
+import { chevron } from "../chevron.js";
+import { ProposedArtistEdit } from "../enrichment/artist/enricher/ArtistEnricherService.js";
+import { EditType } from "./ProposedEdit.js";
 
 @Injectable(chevron)
 class ProposedEditService {

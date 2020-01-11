@@ -13,8 +13,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevronjs_1 = require("chevronjs");
 const DiscogsDatabaseService_1 = require("../../../api/discogs/DiscogsDatabaseService");
 const chevron_1 = require("../../../chevron");
+const ProposedEdit_js_1 = require("../../../edit/ProposedEdit.js");
 const logger_1 = require("../../../logger");
-const ProposedEdit_1 = require("../../ProposedEdit");
 let DiscogsArtistEnricherService = DiscogsArtistEnricherService_1 = class DiscogsArtistEnricherService {
     constructor(discogsDatabaseService) {
         this.discogsDatabaseService = discogsDatabaseService;
@@ -57,7 +57,7 @@ let DiscogsArtistEnricherService = DiscogsArtistEnricherService_1 = class Discog
         else if (mbLegalNames.length === 0) {
             DiscogsArtistEnricherService_1.logger.debug(`Found new legal name ${discogsLegalName} for Musicbrainz artist '${mbArtist.name}'.`);
             return {
-                type: ProposedEdit_1.EditType.ADD,
+                type: ProposedEdit_js_1.EditType.ADD,
                 target: mbArtist,
                 property: "legal name",
                 new: discogsLegalName
@@ -67,7 +67,7 @@ let DiscogsArtistEnricherService = DiscogsArtistEnricherService_1 = class Discog
         if (differentLegalNames.length > 0) {
             DiscogsArtistEnricherService_1.logger.debug(`Found legal name '${discogsLegalName}' that is different from existing '${differentLegalNames.map(alias => alias.name)}'.`);
             return {
-                type: ProposedEdit_1.EditType.CHANGE,
+                type: ProposedEdit_js_1.EditType.CHANGE,
                 target: mbArtist,
                 property: "legal name",
                 old: mbLegalNames.map(alias => alias.name),

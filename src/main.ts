@@ -1,8 +1,8 @@
 import { MusicbrainzDatabaseService } from "./api/musicbrainz/MusicbrainzDatabaseService";
 import { chevron } from "./chevron";
 import { initConfig } from "./config.js";
+import { ProposedEditService } from "./edit/ProposedEditService.js";
 import { ArtistEnrichmentService } from "./enrichment/artist/ArtistEnrichmentService";
-import { ProposedEditService } from "./enrichment/ProposedEditService";
 import { rootLogger } from "./logger";
 
 const main = async (): Promise<void> => {

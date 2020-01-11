@@ -10,7 +10,9 @@ import { musicbrainzConfigInjectableName } from "../../config.js";
 import { rootLogger } from "../../logger";
 import { AsyncService } from "../../util/AsyncService";
 
-@Injectable(chevron, { dependencies: [musicbrainzConfigInjectableName, AsyncService] })
+@Injectable(chevron, {
+    dependencies: [musicbrainzConfigInjectableName, AsyncService]
+})
 class MusicbrainzDatabaseService {
     private static readonly logger = rootLogger.child({
         target: MusicbrainzDatabaseService

@@ -3,8 +3,8 @@ import { IArtist } from "musicbrainz-api";
 import { DiscogsDatabaseService } from "../../../api/discogs/DiscogsDatabaseService";
 import { DiscogsArtist } from "../../../api/discogs/schema/DiscogsArtist";
 import { chevron } from "../../../chevron";
+import { EditType } from "../../../edit/ProposedEdit.js";
 import { rootLogger } from "../../../logger";
-import { EditType } from "../../ProposedEdit";
 import {
     ArtistEnricherService,
     ProposedArtistEdit

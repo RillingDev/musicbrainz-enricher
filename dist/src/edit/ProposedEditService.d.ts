@@ -1,4 +1,4 @@
-import { ProposedArtistEdit } from "./artist/enricher/ArtistEnricherService";
+import { ProposedArtistEdit } from "../enrichment/artist/enricher/ArtistEnricherService.js";
 declare class ProposedEditService {
     stringifyProposedArtistEdit(proposedEdit: ProposedArtistEdit): string;
 }

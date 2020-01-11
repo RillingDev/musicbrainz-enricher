@@ -7,17 +7,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevronjs_1 = require("chevronjs");
-const chevron_1 = require("../chevron");
-const ProposedEdit_1 = require("./ProposedEdit");
+const chevron_js_1 = require("../chevron.js");
+const ProposedEdit_js_1 = require("./ProposedEdit.js");
 let ProposedEditService = class ProposedEditService {
     stringifyProposedArtistEdit(proposedEdit) {
         const prefix = `${proposedEdit.type}: '${proposedEdit.target.name}' ${proposedEdit.property}`;
-        return proposedEdit.type === ProposedEdit_1.EditType.CHANGE
+        return proposedEdit.type === ProposedEdit_js_1.EditType.CHANGE
             ? `${prefix} ${JSON.stringify(proposedEdit.old)} -> ${JSON.stringify(proposedEdit.new)}`
             : `${prefix} ${JSON.stringify(proposedEdit.new)}`;
     }
 };
 ProposedEditService = __decorate([
-    chevronjs_1.Injectable(chevron_1.chevron)
+    chevronjs_1.Injectable(chevron_js_1.chevron)
 ], ProposedEditService);
 exports.ProposedEditService = ProposedEditService;

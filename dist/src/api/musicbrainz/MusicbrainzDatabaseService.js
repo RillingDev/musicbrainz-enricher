@@ -40,7 +40,9 @@ MusicbrainzDatabaseService.logger = logger_1.rootLogger.child({
     target: MusicbrainzDatabaseService_1
 });
 MusicbrainzDatabaseService = MusicbrainzDatabaseService_1 = __decorate([
-    chevronjs_1.Injectable(chevron_1.chevron, { dependencies: [config_js_1.musicbrainzConfigInjectableName, AsyncService_1.AsyncService] }),
+    chevronjs_1.Injectable(chevron_1.chevron, {
+        dependencies: [config_js_1.musicbrainzConfigInjectableName, AsyncService_1.AsyncService]
+    }),
     __metadata("design:paramtypes", [Object, AsyncService_1.AsyncService])
 ], MusicbrainzDatabaseService);
 exports.MusicbrainzDatabaseService = MusicbrainzDatabaseService;
