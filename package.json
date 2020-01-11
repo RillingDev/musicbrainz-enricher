@@ -31,6 +31,7 @@
         "lightdash": "^11.1.2",
         "lodash": "^4.17.15",
         "musicbrainz-api": "^0.5.2",
+        "read-pkg": "^5.2.0",
         "winston": "^3.2.1"
     },
     "devDependencies": {

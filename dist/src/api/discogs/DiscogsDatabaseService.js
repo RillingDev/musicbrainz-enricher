@@ -12,19 +12,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevronjs_1 = require("chevronjs");
 const disconnect_1 = require("disconnect");
 const chevron_1 = require("../../chevron");
+const config_js_1 = require("../../config.js");
 const AsyncService_1 = require("../../util/AsyncService");
 let DiscogsDatabaseService = class DiscogsDatabaseService {
-    constructor(asyncService) {
+    constructor(discogsConfig, asyncService) {
         this.asyncService = asyncService;
-        this.database = new disconnect_1.Client().database();
+        this.database = new disconnect_1.Client(discogsConfig.userAgent, discogsConfig.auth).database();
     }
     async getArtist(id) {
-        await this.asyncService.throttle(1000);
+        //await this.asyncService.throttle(1000);
         return this.database.getArtist(String(id));
     }
 };
 DiscogsDatabaseService = __decorate([
-    chevronjs_1.Injectable(chevron_1.chevron, { dependencies: [AsyncService_1.AsyncService] }),
-    __metadata("design:paramtypes", [AsyncService_1.AsyncService])
+    chevronjs_1.Injectable(chevron_1.chevron, {
+        dependencies: [config_js_1.discogsConfigInjectableName, AsyncService_1.AsyncService]
+    }),
+    __metadata("design:paramtypes", [Object, AsyncService_1.AsyncService])
 ], DiscogsDatabaseService);
 exports.DiscogsDatabaseService = DiscogsDatabaseService;

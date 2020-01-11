@@ -1,6 +1,6 @@
 import { IArtist } from "musicbrainz-api";
-import { ArtistEnricherService, ProposedArtistEdit } from "./ArtistEnricherService";
 import { DiscogsDatabaseService } from "../../../api/discogs/DiscogsDatabaseService";
+import { ArtistEnricherService, ProposedArtistEdit } from "./ArtistEnricherService";
 declare class DiscogsArtistEnricherService implements ArtistEnricherService {
     private readonly discogsDatabaseService;
     private static readonly logger;

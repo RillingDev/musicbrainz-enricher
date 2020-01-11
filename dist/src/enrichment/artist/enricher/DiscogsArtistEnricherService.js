@@ -10,10 +10,10 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 var DiscogsArtistEnricherService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
-const logger_1 = require("../../../logger");
 const chevronjs_1 = require("chevronjs");
-const chevron_1 = require("../../../chevron");
 const DiscogsDatabaseService_1 = require("../../../api/discogs/DiscogsDatabaseService");
+const chevron_1 = require("../../../chevron");
+const logger_1 = require("../../../logger");
 const ProposedEdit_1 = require("../../ProposedEdit");
 let DiscogsArtistEnricherService = DiscogsArtistEnricherService_1 = class DiscogsArtistEnricherService {
     constructor(discogsDatabaseService) {

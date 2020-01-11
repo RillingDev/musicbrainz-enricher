@@ -6,10 +6,11 @@ import {
     MusicBrainzApi
 } from "musicbrainz-api";
 import { chevron } from "../../chevron";
+import { musicbrainzConfigInjectableName } from "../../config.js";
 import { rootLogger } from "../../logger";
 import { AsyncService } from "../../util/AsyncService";
 
-@Injectable(chevron, { dependencies: ["musicbrainzConfig", AsyncService] })
+@Injectable(chevron, { dependencies: [musicbrainzConfigInjectableName, AsyncService] })
 class MusicbrainzDatabaseService {
     private static readonly logger = rootLogger.child({
         target: MusicbrainzDatabaseService
@@ -25,7 +26,6 @@ class MusicbrainzDatabaseService {
     }
 
     public async getArtist(mbId: string): Promise<IArtist> {
-        await this.asyncService.throttle(1000);
         return this.client.getArtist(mbId, ["aliases", "url-rels"]);
     }
 
@@ -41,7 +41,6 @@ class MusicbrainzDatabaseService {
                     formData
                 )}' and offset ${offset}.`
             );
-            await this.asyncService.throttle(1000);
             const response = await this.client.searchArtist(formData, offset);
             totalCount = response.count;
             offset += response.artists.length;

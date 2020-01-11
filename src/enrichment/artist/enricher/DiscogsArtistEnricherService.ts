@@ -1,14 +1,14 @@
+import { Injectable } from "chevronjs";
 import { IArtist } from "musicbrainz-api";
+import { DiscogsDatabaseService } from "../../../api/discogs/DiscogsDatabaseService";
+import { DiscogsArtist } from "../../../api/discogs/schema/DiscogsArtist";
+import { chevron } from "../../../chevron";
+import { rootLogger } from "../../../logger";
+import { EditType } from "../../ProposedEdit";
 import {
     ArtistEnricherService,
     ProposedArtistEdit
 } from "./ArtistEnricherService";
-import { DiscogsArtist } from "../../../api/discogs/schema/DiscogsArtist";
-import { rootLogger } from "../../../logger";
-import { Injectable } from "chevronjs";
-import { chevron } from "../../../chevron";
-import { DiscogsDatabaseService } from "../../../api/discogs/DiscogsDatabaseService";
-import { EditType } from "../../ProposedEdit";
 
 @Injectable(chevron, { dependencies: [DiscogsDatabaseService] })
 class DiscogsArtistEnricherService implements ArtistEnricherService {
