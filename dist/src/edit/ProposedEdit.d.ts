@@ -1,4 +1,4 @@
-declare enum EditType {
+declare const enum EditType {
     ADD = "ADD",
     CHANGE = "CHECK/CHANGE"
 }

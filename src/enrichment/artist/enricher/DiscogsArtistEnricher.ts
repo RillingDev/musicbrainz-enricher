@@ -5,15 +5,12 @@ import { DiscogsArtist } from "../../../api/discogs/schema/DiscogsArtist";
 import { chevron } from "../../../chevron";
 import { EditType } from "../../../edit/ProposedEdit.js";
 import { rootLogger } from "../../../logger";
-import {
-    ArtistEnricherService,
-    ProposedArtistEdit
-} from "./ArtistEnricherService";
+import { ArtistEnricher, ProposedArtistEdit } from "./ArtistEnricher.js";
 
 @Injectable(chevron, { dependencies: [DiscogsDatabaseService] })
-class DiscogsArtistEnricherService implements ArtistEnricherService {
+class DiscogsArtistEnricher implements ArtistEnricher {
     private static readonly logger = rootLogger.child({
-        target: DiscogsArtistEnricherService
+        target: DiscogsArtistEnricher
     });
     private static readonly DISCOGS_URL_ID_PATTERN = /\/(\d+)$/;
 
@@ -37,14 +34,12 @@ class DiscogsArtistEnricherService implements ArtistEnricherService {
             discogsId
         );
         if (discogsArtist == null) {
-            DiscogsArtistEnricherService.logger.debug(
+            DiscogsArtistEnricher.logger.debug(
                 `Could not find discogs artist by id.`
             );
             return [];
         }
-        DiscogsArtistEnricherService.logger.silly(
-            `Found discogs artist by id.`
-        );
+        DiscogsArtistEnricher.logger.silly(`Found discogs artist by id.`);
 
         const proposedEdits = [];
 
@@ -69,19 +64,19 @@ class DiscogsArtistEnricherService implements ArtistEnricherService {
         const discogsLegalName = discogsArtist.realname;
 
         if (discogsLegalName == null) {
-            DiscogsArtistEnricherService.logger.debug(
+            DiscogsArtistEnricher.logger.debug(
                 `No Discogs name found for'${mbArtist.name}'.`
             );
             return null;
         }
 
         if (discogsLegalName === mbArtist.name) {
-            DiscogsArtistEnricherService.logger.debug(
+            DiscogsArtistEnricher.logger.debug(
                 `Legal name ${discogsLegalName} is already used as main name '${mbArtist.name}'.`
             );
             return null;
         } else if (mbLegalNames.length === 0) {
-            DiscogsArtistEnricherService.logger.debug(
+            DiscogsArtistEnricher.logger.debug(
                 `Found new legal name ${discogsLegalName} for Musicbrainz artist '${mbArtist.name}'.`
             );
             return {
@@ -95,7 +90,7 @@ class DiscogsArtistEnricherService implements ArtistEnricherService {
             alias => alias.name !== discogsLegalName
         );
         if (differentLegalNames.length > 0) {
-            DiscogsArtistEnricherService.logger.debug(
+            DiscogsArtistEnricher.logger.debug(
                 `Found legal name '${discogsLegalName}' that is different from existing '${differentLegalNames.map(
                     alias => alias.name
                 )}'.`
@@ -123,7 +118,7 @@ class DiscogsArtistEnricherService implements ArtistEnricherService {
             return null;
         }
 
-        const exec = DiscogsArtistEnricherService.DISCOGS_URL_ID_PATTERN.exec(
+        const exec = DiscogsArtistEnricher.DISCOGS_URL_ID_PATTERN.exec(
             discogsRelation.url.resource
         );
         if (exec == null) {
@@ -134,4 +129,4 @@ class DiscogsArtistEnricherService implements ArtistEnricherService {
     }
 }
 
-export { DiscogsArtistEnricherService };
+export { DiscogsArtistEnricher };

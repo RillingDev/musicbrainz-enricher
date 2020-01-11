@@ -3,7 +3,7 @@ import { ProposedEdit } from "../../../edit/ProposedEdit.js";
 
 type ProposedArtistEdit = ProposedEdit<IArtist, string | string[]>;
 
-interface ArtistEnricherService {
+interface ArtistEnricher {
     readonly name: string;
 
     canEnrich(mbArtist: IArtist): boolean;
@@ -11,4 +11,4 @@ interface ArtistEnricherService {
     enrich(mbArtist: IArtist): Promise<ProposedArtistEdit[]>;
 }
 
-export { ArtistEnricherService, ProposedArtistEdit };
+export { ArtistEnricher, ProposedArtistEdit };

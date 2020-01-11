@@ -14,7 +14,6 @@ const main = async (): Promise<void> => {
     const proposedEditService: ProposedEditService = chevron.getInjectableInstance(
         ProposedEditService
     );
-    const exampleMbid = "95e27e73-7863-4d01-b3d4-214bcafe3688";
 
     await musicbrainzDatabaseService.searchArtist(
         {

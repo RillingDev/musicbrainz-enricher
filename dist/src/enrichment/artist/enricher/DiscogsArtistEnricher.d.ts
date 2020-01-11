@@ -1,7 +1,7 @@
 import { IArtist } from "musicbrainz-api";
 import { DiscogsDatabaseService } from "../../../api/discogs/DiscogsDatabaseService";
-import { ArtistEnricherService, ProposedArtistEdit } from "./ArtistEnricherService";
-declare class DiscogsArtistEnricherService implements ArtistEnricherService {
+import { ArtistEnricher, ProposedArtistEdit } from "./ArtistEnricher.js";
+declare class DiscogsArtistEnricher implements ArtistEnricher {
     private readonly discogsDatabaseService;
     private static readonly logger;
     private static readonly DISCOGS_URL_ID_PATTERN;
@@ -12,4 +12,4 @@ declare class DiscogsArtistEnricherService implements ArtistEnricherService {
     private enrichLegalNameFromDiscogs;
     private getDiscogsId;
 }
-export { DiscogsArtistEnricherService };
+export { DiscogsArtistEnricher };

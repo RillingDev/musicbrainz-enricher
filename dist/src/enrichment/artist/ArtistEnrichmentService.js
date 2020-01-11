@@ -14,7 +14,7 @@ const chevronjs_1 = require("chevronjs");
 const MusicbrainzDatabaseService_1 = require("../../api/musicbrainz/MusicbrainzDatabaseService");
 const chevron_1 = require("../../chevron");
 const logger_1 = require("../../logger");
-const DiscogsArtistEnricherService_1 = require("./enricher/DiscogsArtistEnricherService");
+const DiscogsArtistEnricher_js_1 = require("./enricher/DiscogsArtistEnricher.js");
 let ArtistEnrichmentService = ArtistEnrichmentService_1 = class ArtistEnrichmentService {
     constructor(musicbrainzDatabaseService, discogsArtistEnricherService) {
         this.musicbrainzDatabaseService = musicbrainzDatabaseService;
@@ -42,9 +42,9 @@ ArtistEnrichmentService.logger = logger_1.rootLogger.child({
 });
 ArtistEnrichmentService = ArtistEnrichmentService_1 = __decorate([
     chevronjs_1.Injectable(chevron_1.chevron, {
-        dependencies: [MusicbrainzDatabaseService_1.MusicbrainzDatabaseService, DiscogsArtistEnricherService_1.DiscogsArtistEnricherService]
+        dependencies: [MusicbrainzDatabaseService_1.MusicbrainzDatabaseService, DiscogsArtistEnricher_js_1.DiscogsArtistEnricher]
     }),
     __metadata("design:paramtypes", [MusicbrainzDatabaseService_1.MusicbrainzDatabaseService,
-        DiscogsArtistEnricherService_1.DiscogsArtistEnricherService])
+        DiscogsArtistEnricher_js_1.DiscogsArtistEnricher])
 ], ArtistEnrichmentService);
 exports.ArtistEnrichmentService = ArtistEnrichmentService;

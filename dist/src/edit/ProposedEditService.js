@@ -8,13 +8,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevronjs_1 = require("chevronjs");
 const chevron_js_1 = require("../chevron.js");
-const ProposedEdit_js_1 = require("./ProposedEdit.js");
 let ProposedEditService = class ProposedEditService {
     stringifyProposedArtistEdit(proposedEdit) {
         const prefix = `${proposedEdit.type}: '${proposedEdit.target.name}' ${proposedEdit.property}`;
-        return proposedEdit.type === ProposedEdit_js_1.EditType.CHANGE
-            ? `${prefix} ${JSON.stringify(proposedEdit.old)} -> ${JSON.stringify(proposedEdit.new)}`
-            : `${prefix} ${JSON.stringify(proposedEdit.new)}`;
+        if (proposedEdit.type === "CHECK/CHANGE" /* CHANGE */) {
+            return `${prefix} ${JSON.stringify(proposedEdit.old)} -> ${JSON.stringify(proposedEdit.new)}`;
+        }
+        return `${prefix} ${JSON.stringify(proposedEdit.new)}`;
     }
 };
 ProposedEditService = __decorate([

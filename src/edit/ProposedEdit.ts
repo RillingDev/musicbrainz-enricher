@@ -1,4 +1,4 @@
-enum EditType {
+const enum EditType {
     ADD = "ADD",
     CHANGE = "CHECK/CHANGE"
 }

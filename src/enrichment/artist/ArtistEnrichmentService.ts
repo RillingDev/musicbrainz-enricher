@@ -3,23 +3,23 @@ import { MusicbrainzDatabaseService } from "../../api/musicbrainz/MusicbrainzDat
 import { chevron } from "../../chevron";
 import { rootLogger } from "../../logger";
 import {
-    ArtistEnricherService,
+    ArtistEnricher,
     ProposedArtistEdit
-} from "./enricher/ArtistEnricherService";
-import { DiscogsArtistEnricherService } from "./enricher/DiscogsArtistEnricherService";
+} from "./enricher/ArtistEnricher.js";
+import { DiscogsArtistEnricher } from "./enricher/DiscogsArtistEnricher.js";
 
 @Injectable(chevron, {
-    dependencies: [MusicbrainzDatabaseService, DiscogsArtistEnricherService]
+    dependencies: [MusicbrainzDatabaseService, DiscogsArtistEnricher]
 })
 class ArtistEnrichmentService {
     private static readonly logger = rootLogger.child({
         target: ArtistEnrichmentService
     });
-    private readonly enrichers: ArtistEnricherService[];
+    private readonly enrichers: ArtistEnricher[];
 
     constructor(
         private readonly musicbrainzDatabaseService: MusicbrainzDatabaseService,
-        discogsArtistEnricherService: DiscogsArtistEnricherService
+        discogsArtistEnricherService: DiscogsArtistEnricher
     ) {
         this.enrichers = [discogsArtistEnricherService];
     }

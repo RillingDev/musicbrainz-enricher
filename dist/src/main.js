@@ -9,7 +9,6 @@ const main = async () => {
     const musicbrainzDatabaseService = chevron_1.chevron.getInjectableInstance(MusicbrainzDatabaseService_1.MusicbrainzDatabaseService);
     const artistEnrichmentService = chevron_1.chevron.getInjectableInstance(ArtistEnrichmentService_1.ArtistEnrichmentService);
     const proposedEditService = chevron_1.chevron.getInjectableInstance(ProposedEditService_js_1.ProposedEditService);
-    const exampleMbid = "95e27e73-7863-4d01-b3d4-214bcafe3688";
     await musicbrainzDatabaseService.searchArtist({
         type: "person"
     }, artist => artistEnrichmentService.enrich(artist.id).then(edits => {
