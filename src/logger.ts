@@ -1,5 +1,4 @@
 import { createLogger, format, transports } from "winston";
-import { isProductionMode } from "./mode";
 
 const logFormat = format.combine(
     format.timestamp(),
@@ -9,7 +8,7 @@ const logFormat = format.combine(
 );
 
 const rootLogger = createLogger({
-    level: isProductionMode() ? "info" : "silly",
+    level: "info",
     format: logFormat,
     defaultMeta: { target: "root" },
     transports: [new transports.Console()]
