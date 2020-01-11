@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const chevronjs_1 = require("chevronjs");
-const chevron_1 = require("../chevron");
+const chevron_js_1 = require("../chevron.js");
 let AsyncService = class AsyncService {
     throttle(timeout) {
         return new Promise(resolve => setTimeout(resolve, timeout));
@@ -19,6 +19,6 @@ let AsyncService = class AsyncService {
     }
 };
 AsyncService = __decorate([
-    chevronjs_1.Injectable(chevron_1.chevron)
+    chevronjs_1.Injectable(chevron_js_1.chevron)
 ], AsyncService);
 exports.AsyncService = AsyncService;

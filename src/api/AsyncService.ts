@@ -1,5 +1,5 @@
 import { Injectable } from "chevronjs";
-import { chevron } from "../chevron";
+import { chevron } from "../chevron.js";
 
 @Injectable(chevron)
 class AsyncService {

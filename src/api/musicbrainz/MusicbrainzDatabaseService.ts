@@ -1,40 +1,33 @@
 import { Injectable } from "chevronjs";
-import {
-    IArtist,
-    IFormData,
-    IMusicBrainzConfig,
-    MusicBrainzApi
-} from "musicbrainz-api";
+import { IArtist, IFormData, MusicBrainzApi } from "musicbrainz-api";
 import { chevron } from "../../chevron";
-import { musicbrainzConfigInjectableName } from "../../config.js";
+import { MusicbrainzConfigProvider } from "../../config/MusicbrainzConfigProvider.js";
 import { rootLogger } from "../../logger";
-import { AsyncService } from "../../util/AsyncService";
+import { AsyncService } from "../AsyncService.js";
 
 @Injectable(chevron, {
-    dependencies: [musicbrainzConfigInjectableName, AsyncService]
+    dependencies: [MusicbrainzConfigProvider, AsyncService]
 })
 class MusicbrainzDatabaseService {
     private static readonly logger = rootLogger.child({
         target: MusicbrainzDatabaseService
     });
 
-    private client: MusicBrainzApi;
-
     constructor(
-        musicbrainzConfig: IMusicBrainzConfig,
+        private readonly musicbrainzConfigProvider: MusicbrainzConfigProvider,
         private readonly asyncService: AsyncService
-    ) {
-        this.client = new MusicBrainzApi(musicbrainzConfig);
-    }
+    ) {}
 
     public async getArtist(mbId: string): Promise<IArtist> {
-        return this.client.getArtist(mbId, ["aliases", "url-rels"]);
+        const client = await this.createClient();
+        return client.getArtist(mbId, ["aliases", "url-rels"]);
     }
 
     public async searchArtist(
         formData: IFormData,
         consumer: (artist: IArtist) => Promise<void>
     ): Promise<void> {
+        const client = await this.createClient();
         let offset = 0;
         let totalCount: number;
         do {
@@ -43,7 +36,7 @@ class MusicbrainzDatabaseService {
                     formData
                 )}' and offset ${offset}.`
             );
-            const response = await this.client.searchArtist(formData, offset);
+            const response = await client.searchArtist(formData, offset);
             totalCount = response.count;
             offset += response.artists.length;
             await this.asyncService.queue(
@@ -52,6 +45,12 @@ class MusicbrainzDatabaseService {
                 )
             );
         } while (offset < totalCount);
+    }
+
+    private async createClient(): Promise<MusicBrainzApi> {
+        return new MusicBrainzApi(
+            await this.musicbrainzConfigProvider.getInstance()
+        );
     }
 }
 

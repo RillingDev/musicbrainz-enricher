@@ -1,14 +1,14 @@
 import { Injectable } from "chevronjs";
 import { Client as DiscogsClient } from "disconnect";
 import { chevron } from "../../chevron";
-import { DiscogsConfig, discogsConfigInjectableName } from "../../config.js";
+import { DiscogsConfigProvider } from "../../config/DiscogsConfigProvider.js";
 import { rootLogger } from "../../logger.js";
-import { AsyncService } from "../../util/AsyncService";
+import { AsyncService } from "../AsyncService.js";
 import { DiscogsArtist } from "./schema/DiscogsArtist";
 import pRetry = require("p-retry");
 
 @Injectable(chevron, {
-    dependencies: [discogsConfigInjectableName, AsyncService]
+    dependencies: [DiscogsConfigProvider, AsyncService]
 })
 class DiscogsDatabaseService {
     private static readonly logger = rootLogger.child({
@@ -18,20 +18,14 @@ class DiscogsDatabaseService {
     private static readonly RETRY_MAX = 6;
     private static readonly RATE_LIMIT_EXCEEDED_STATUS_CODE = 429;
 
-    private readonly database: any;
-
     constructor(
-        discogsConfig: DiscogsConfig,
+        private readonly discogsConfigProvider: DiscogsConfigProvider,
         private readonly asyncService: AsyncService
-    ) {
-        this.database = new DiscogsClient(
-            discogsConfig.userAgent,
-            discogsConfig.auth
-        ).database();
-    }
+    ) {}
 
-    public getArtist(id: string): Promise<DiscogsArtist> {
-        return this.request<DiscogsArtist>(() => this.database.getArtist(id));
+    public async getArtist(id: string): Promise<DiscogsArtist> {
+        const database = (await this.createDiscogsClient()).database();
+        return this.request<DiscogsArtist>(() => database.getArtist(id));
     }
 
     private async request<T>(requestProducer: () => Promise<T>): Promise<T> {
@@ -64,6 +58,14 @@ class DiscogsDatabaseService {
                 retries: DiscogsDatabaseService.RETRY_MAX
             }
         );
+    }
+
+    private async createDiscogsClient(): Promise<any> {
+        const {
+            userAgent,
+            auth
+        } = await this.discogsConfigProvider.getInstance();
+        return new DiscogsClient(userAgent, auth);
     }
 }
 

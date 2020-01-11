@@ -2,12 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const MusicbrainzDatabaseService_1 = require("./api/musicbrainz/MusicbrainzDatabaseService");
 const chevron_1 = require("./chevron");
-const config_js_1 = require("./config.js");
 const ProposedEditService_js_1 = require("./edit/ProposedEditService.js");
 const ArtistEnrichmentService_1 = require("./enrichment/artist/ArtistEnrichmentService");
 const logger_1 = require("./logger");
 const main = async () => {
-    await config_js_1.initConfig();
     const musicbrainzDatabaseService = chevron_1.chevron.getInjectableInstance(MusicbrainzDatabaseService_1.MusicbrainzDatabaseService);
     const artistEnrichmentService = chevron_1.chevron.getInjectableInstance(ArtistEnrichmentService_1.ArtistEnrichmentService);
     const proposedEditService = chevron_1.chevron.getInjectableInstance(ProposedEditService_js_1.ProposedEditService);

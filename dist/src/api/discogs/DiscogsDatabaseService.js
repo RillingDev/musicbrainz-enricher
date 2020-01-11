@@ -13,17 +13,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chevronjs_1 = require("chevronjs");
 const disconnect_1 = require("disconnect");
 const chevron_1 = require("../../chevron");
-const config_js_1 = require("../../config.js");
+const DiscogsConfigProvider_js_1 = require("../../config/DiscogsConfigProvider.js");
 const logger_js_1 = require("../../logger.js");
-const AsyncService_1 = require("../../util/AsyncService");
+const AsyncService_js_1 = require("../AsyncService.js");
 const pRetry = require("p-retry");
 let DiscogsDatabaseService = DiscogsDatabaseService_1 = class DiscogsDatabaseService {
-    constructor(discogsConfig, asyncService) {
+    constructor(discogsConfigProvider, asyncService) {
+        this.discogsConfigProvider = discogsConfigProvider;
         this.asyncService = asyncService;
-        this.database = new disconnect_1.Client(discogsConfig.userAgent, discogsConfig.auth).database();
     }
-    getArtist(id) {
-        return this.request(() => this.database.getArtist(id));
+    async getArtist(id) {
+        const database = (await this.createDiscogsClient()).database();
+        return this.request(() => database.getArtist(id));
     }
     async request(requestProducer) {
         return pRetry(async () => {
@@ -49,6 +50,10 @@ let DiscogsDatabaseService = DiscogsDatabaseService_1 = class DiscogsDatabaseSer
             retries: DiscogsDatabaseService_1.RETRY_MAX
         });
     }
+    async createDiscogsClient() {
+        const { userAgent, auth } = await this.discogsConfigProvider.getInstance();
+        return new disconnect_1.Client(userAgent, auth);
+    }
 };
 DiscogsDatabaseService.logger = logger_js_1.rootLogger.child({
     target: DiscogsDatabaseService_1
@@ -58,8 +63,9 @@ DiscogsDatabaseService.RETRY_MAX = 6;
 DiscogsDatabaseService.RATE_LIMIT_EXCEEDED_STATUS_CODE = 429;
 DiscogsDatabaseService = DiscogsDatabaseService_1 = __decorate([
     chevronjs_1.Injectable(chevron_1.chevron, {
-        dependencies: [config_js_1.discogsConfigInjectableName, AsyncService_1.AsyncService]
+        dependencies: [DiscogsConfigProvider_js_1.DiscogsConfigProvider, AsyncService_js_1.AsyncService]
     }),
-    __metadata("design:paramtypes", [Object, AsyncService_1.AsyncService])
+    __metadata("design:paramtypes", [DiscogsConfigProvider_js_1.DiscogsConfigProvider,
+        AsyncService_js_1.AsyncService])
 ], DiscogsDatabaseService);
 exports.DiscogsDatabaseService = DiscogsDatabaseService;
