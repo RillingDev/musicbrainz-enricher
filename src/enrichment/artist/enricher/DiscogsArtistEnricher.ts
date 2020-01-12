@@ -1,4 +1,5 @@
 import { Injectable } from "chevronjs";
+import { isEmpty } from "lodash";
 import { IArtist } from "musicbrainz-api";
 import { DiscogsDatabaseService } from "../../../api/discogs/DiscogsDatabaseService";
 import { DiscogsArtist } from "../../../api/discogs/schema/DiscogsArtist";
@@ -20,11 +21,11 @@ class DiscogsArtistEnricher implements ArtistEnricher {
         private readonly discogsDatabaseService: DiscogsDatabaseService
     ) {}
 
-    canEnrich(mbArtist: IArtist): boolean {
+    public canEnrich(mbArtist: IArtist): boolean {
         return this.getDiscogsId(mbArtist) != null;
     }
 
-    async enrich(mbArtist: IArtist): Promise<ProposedArtistEdit[]> {
+    public async enrich(mbArtist: IArtist): Promise<ProposedArtistEdit[]> {
         if (!this.canEnrich(mbArtist)) {
             throw new TypeError("Cannot enrich this artist!");
         }
@@ -34,76 +35,85 @@ class DiscogsArtistEnricher implements ArtistEnricher {
             discogsId
         );
         if (discogsArtist == null) {
-            DiscogsArtistEnricher.logger.debug(
-                `Could not find discogs artist by id.`
+            DiscogsArtistEnricher.logger.warn(
+                `Could not find discogs artist by ID.`
             );
             return [];
         }
-        DiscogsArtistEnricher.logger.silly(`Found discogs artist by id.`);
+        DiscogsArtistEnricher.logger.silly(`Found discogs artist by ID.`);
 
-        const proposedEdits = [];
-
-        const proposedLegalNameEdit = this.enrichLegalNameFromDiscogs(
-            mbArtist,
-            discogsArtist
-        );
-        if (proposedLegalNameEdit != null) {
-            proposedEdits.push(proposedLegalNameEdit);
-        }
-        return proposedEdits;
+        return [...this.enrichLegalNameFromDiscogs(mbArtist, discogsArtist)];
     }
 
     private enrichLegalNameFromDiscogs(
         mbArtist: IArtist,
         discogsArtist: DiscogsArtist
-    ): ProposedArtistEdit | null {
-        const aliases = mbArtist.aliases ?? [];
-        const mbLegalNames = aliases.filter(
+    ): ProposedArtistEdit[] {
+        const mbAliases = mbArtist.aliases ?? [];
+        const mbLegalNames = mbAliases.filter(
             alias => alias.type === "Legal name"
         );
         const discogsLegalName = discogsArtist.realname;
 
+        // No Discogs legal name was found.
         if (discogsLegalName == null) {
-            DiscogsArtistEnricher.logger.debug(
-                `No Discogs name found for'${mbArtist.name}'.`
-            );
-            return null;
+            DiscogsArtistEnricher.logger.info(`No legal name found.`);
+            return [];
         }
 
+        // Discogs legal name was found, but is same as Musicbrainz name.
         if (discogsLegalName === mbArtist.name) {
-            DiscogsArtistEnricher.logger.debug(
-                `Legal name ${discogsLegalName} is already used as main name '${mbArtist.name}'.`
+            DiscogsArtistEnricher.logger.info(
+                `Legal name '${discogsLegalName}' is already used as main name in Musicbrainz.`
             );
-            return null;
-        } else if (mbLegalNames.length === 0) {
-            DiscogsArtistEnricher.logger.debug(
-                `Found new legal name ${discogsLegalName} for Musicbrainz artist '${mbArtist.name}'.`
-            );
-            return {
-                type: EditType.ADD,
-                target: mbArtist,
-                property: "legal name",
-                new: discogsLegalName
-            };
+            return [];
         }
+
+        // Discogs legal name was found, no Musicbrainz legal name names exist
+        // yet.
+        if (isEmpty(mbLegalNames)) {
+            DiscogsArtistEnricher.logger.info(
+                `Found new legal name '${discogsLegalName}'.`
+            );
+            return [
+                {
+                    type: EditType.ADD,
+                    target: mbArtist,
+                    property: "legal name",
+                    new: discogsLegalName
+                }
+            ];
+        }
+
         const differentLegalNames = mbLegalNames.filter(
             alias => alias.name !== discogsLegalName
         );
-        if (differentLegalNames.length > 0) {
-            DiscogsArtistEnricher.logger.debug(
-                `Found legal name '${discogsLegalName}' that is different from existing '${differentLegalNames.map(
+        // Discogs legal name was found, but Musicbrainz legal name also
+        // exist with same value
+        if (isEmpty(differentLegalNames)) {
+            DiscogsArtistEnricher.logger.info(
+                `Found legal name '${discogsLegalName}' that already exist as legal name in Musicbrainz.`
+            );
+            return [];
+        }
+
+        // Discogs legal name was found, but Musicbrainz legal name(s) also
+        // exist with different values
+        DiscogsArtistEnricher.logger.info(
+            `Found legal name '${discogsLegalName}' that is different from existing Musicbrainz` +
+                ` legal name(s) '${differentLegalNames.map(
                     alias => alias.name
                 )}'.`
-            );
-            return {
+        );
+        return [
+            {
                 type: EditType.CHANGE,
                 target: mbArtist,
                 property: "legal name",
                 old: mbLegalNames.map(alias => alias.name),
                 new: discogsLegalName
-            };
-        }
-        return null;
+            }
+        ];
     }
 
     private getDiscogsId(artist: IArtist): string | null {

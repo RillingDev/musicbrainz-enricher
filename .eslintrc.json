@@ -23,7 +23,6 @@
         "node": true
     },
     "rules": {
-        "capitalized-comments": "warn",
         "curly": [
             "warn",
             "all"

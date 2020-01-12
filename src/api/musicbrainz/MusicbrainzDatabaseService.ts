@@ -1,5 +1,11 @@
 import { Injectable } from "chevronjs";
-import { IArtist, IFormData, MusicBrainzApi } from "musicbrainz-api";
+import {
+    IArtist,
+    IArtistList,
+    IFormData,
+    MusicBrainzApi
+} from "musicbrainz-api";
+import { ISearchResult } from "musicbrainz-api/lib/musicbrainz.types.js";
 import { chevron } from "../../chevron";
 import { MusicbrainzConfigProvider } from "../../config/MusicbrainzConfigProvider.js";
 import { rootLogger } from "../../logger";
@@ -28,23 +34,31 @@ class MusicbrainzDatabaseService {
         consumer: (artist: IArtist) => Promise<void>
     ): Promise<void> {
         const client = await this.createClient();
+        await this.fetchAll<IArtist>(
+            offset => client.searchArtist(formData, offset),
+            result => (<IArtistList>result).artists,
+            consumer
+        );
+    }
+
+    private async fetchAll<T>(
+        searchProvider: (offset: number) => Promise<ISearchResult>,
+        itemListExtractor: (result: ISearchResult) => T[],
+        consumer: (value: T) => Promise<void>
+    ): Promise<void> {
         let offset = 0;
-        let totalCount: number;
+        let totalCount: number | null = null;
         do {
-            MusicbrainzDatabaseService.logger.debug(
-                `Searching artist with form data '${JSON.stringify(
-                    formData
-                )}' and offset ${offset}.`
-            );
-            const response = await client.searchArtist(formData, offset);
-            totalCount = response.count;
-            offset += response.artists.length;
+            const response = await searchProvider(offset);
+            if (totalCount == null) {
+                totalCount = response.count;
+            }
+            const itemList = itemListExtractor(response);
+            offset += itemList.length;
             await this.asyncService.queue(
-                response.artists.map(artist => (): Promise<void> =>
-                    consumer(artist)
-                )
+                itemList.map(item => (): Promise<void> => consumer(item))
             );
-        } while (offset < totalCount);
+        } while (totalCount != null && offset < totalCount);
     }
 
     private async createClient(): Promise<MusicBrainzApi> {

@@ -8,6 +8,7 @@ declare class MusicbrainzDatabaseService {
     constructor(musicbrainzConfigProvider: MusicbrainzConfigProvider, asyncService: AsyncService);
     getArtist(mbId: string): Promise<IArtist>;
     searchArtist(formData: IFormData, consumer: (artist: IArtist) => Promise<void>): Promise<void>;
+    private fetchAll;
     private createClient;
 }
 export { MusicbrainzDatabaseService };

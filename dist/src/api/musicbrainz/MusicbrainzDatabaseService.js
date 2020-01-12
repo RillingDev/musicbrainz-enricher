@@ -27,15 +27,20 @@ let MusicbrainzDatabaseService = MusicbrainzDatabaseService_1 = class Musicbrain
     }
     async searchArtist(formData, consumer) {
         const client = await this.createClient();
+        await this.fetchAll(offset => client.searchArtist(formData, offset), result => result.artists, consumer);
+    }
+    async fetchAll(searchProvider, itemListExtractor, consumer) {
         let offset = 0;
-        let totalCount;
+        let totalCount = null;
         do {
-            MusicbrainzDatabaseService_1.logger.debug(`Searching artist with form data '${JSON.stringify(formData)}' and offset ${offset}.`);
-            const response = await client.searchArtist(formData, offset);
-            totalCount = response.count;
-            offset += response.artists.length;
-            await this.asyncService.queue(response.artists.map(artist => () => consumer(artist)));
-        } while (offset < totalCount);
+            const response = await searchProvider(offset);
+            if (totalCount == null) {
+                totalCount = response.count;
+            }
+            const itemList = itemListExtractor(response);
+            offset += itemList.length;
+            await this.asyncService.queue(itemList.map(item => () => consumer(item)));
+        } while (totalCount != null && offset < totalCount);
     }
     async createClient() {
         return new musicbrainz_api_1.MusicBrainzApi(await this.musicbrainzConfigProvider.getInstance());
