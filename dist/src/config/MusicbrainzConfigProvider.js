@@ -13,11 +13,19 @@ const AbstractCachingAsyncProvider_js_1 = require("./AbstractCachingAsyncProvide
 let MusicbrainzConfigProvider = class MusicbrainzConfigProvider extends AbstractCachingAsyncProvider_js_1.AbstractCachingAsyncProvider {
     async createInstance() {
         var _a;
+        const username = process.env.MUSICBRAINZ_USERNAME;
+        const password = process.env.MUSICBRAINZ_PASSWORD;
+        if (username == null) {
+            throw new TypeError("Environment variable 'MUSICBRAINZ_USERNAME' is not set!");
+        }
+        if (password == null) {
+            throw new TypeError("Environment variable 'MUSICBRAINZ_PASSWORD' is not set!");
+        }
         const { version, name, author } = await readPkg();
         return {
             botAccount: {
-                username: process.env.MUSICBRAINZ_USERNAME,
-                password: process.env.MUSICBRAINZ_PASSWORD
+                username,
+                password
             },
             baseUrl: "https://musicbrainz.org/",
             appName: name,

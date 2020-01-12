@@ -8,7 +8,7 @@ const logFormat = format.combine(
 );
 
 const rootLogger = createLogger({
-    level: "debug",
+    level: "info",
     format: logFormat,
     defaultMeta: { target: "root" },
     transports: [new transports.Console()]
