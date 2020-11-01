@@ -44,7 +44,7 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
     }
 
     private List<String> extractTags(Document document) {
-        Elements tagsMatches = document.body().getElementsByClass("tralbum-tags");
+        Elements tagsMatches = document.getElementsByClass("tralbum-tags");
         if (tagsMatches.size() != 1) {
             throw new IllegalStateException("Unexpected match size.");
         }

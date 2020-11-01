@@ -47,12 +47,12 @@ public class ReleaseEnricherService {
         }
 
         Set<ReleaseEnricher> availableEnrichers = new HashSet<>(releaseEnrichers);
-        for (RelationWs2 relation : releaseEntity.getRelationList().getRelations()) {
+        relationLoop: for (RelationWs2 relation : releaseEntity.getRelationList().getRelations()) {
             for (ReleaseEnricher releaseEnricher : availableEnrichers) {
                 if (releaseEnricher.relationFits(relation)) {
                     executeEnrichment(releaseEntity, relation, releaseEnricher);
                     availableEnrichers.remove(releaseEnricher);
-                    break;
+                    continue relationLoop;
                 }
             }
             logger.debug("No fitting enricher found for release '{}'.", relation.getTargetId());
@@ -68,19 +68,19 @@ public class ReleaseEnricherService {
 
     private void executeGenreEnrichment(ReleaseWs2 releaseEntity, RelationWs2 relation, GenreReleaseEnricher releaseEnricher) throws Exception {
         ReleaseGroupWs2 releaseGroup = releaseEntity.getReleaseGroup();
-        Set<String> oldTags = releaseGroup.getUserTags().stream().map(TagWs2::getName).collect(Collectors.toSet());
+        Set<String> oldTags = releaseGroup.getTags().stream().map(TagWs2::getName).collect(Collectors.toSet());
 
         Set<String> foundTags = releaseEnricher.fetchGenres(relation.getTargetId());
-        logger.info("Enricher '{}' found genres '{}' (Old: '{}') for release '{}'.", releaseEnricher
-                .getClass().getSimpleName(), foundTags, oldTags, releaseEntity.getId());
+        logger.info("Enricher '{}' found genres '{}' (Old: '{}') for release group '{}'.", releaseEnricher
+                .getClass().getSimpleName(), foundTags, oldTags, releaseGroup.getId());
 
         Set<String> newTags = foundTags.stream().filter(newTag -> !oldTags.contains(newTag)).collect(Collectors.toSet());
         if (newTags.isEmpty()) {
-            logger.info("No new tags for release '{}'.", releaseEntity.getId());
+            logger.info("No new tags for release group'{}'.", releaseGroup.getId());
             return;
         }
-        logger.info("Submitting new tags '{}' for release '{}'.", newTags, releaseEntity
-                .getTitle());
+        logger.info("Submitting new tags '{}' for release group '{}'.", newTags, releaseGroup
+                .getId());
         musicbrainzService.addReleaseGroupUserTags(releaseGroup.getId(), newTags);
     }
 }
