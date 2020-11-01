@@ -55,7 +55,9 @@ public class ReleaseEnricherService {
                     break;
                 }
             }
+            logger.debug("No fitting enricher found for release '{}'.", relation.getTargetId());
         }
+        logger.debug("Completed enrichment for '{}'.", releaseEntity.getId());
     }
 
     private void executeEnrichment(ReleaseWs2 releaseEntity, RelationWs2 relation, ReleaseEnricher releaseEnricher) throws Exception {
@@ -70,12 +72,11 @@ public class ReleaseEnricherService {
 
         Set<String> foundTags = releaseEnricher.fetchGenres(relation.getTargetId());
         logger.info("Enricher '{}' found genres '{}' (Old: '{}') for release '{}'.", releaseEnricher
-                .getClass().getSimpleName(), foundTags, oldTags, releaseEntity
-                .getTitle());
+                .getClass().getSimpleName(), foundTags, oldTags, releaseEntity.getId());
 
         Set<String> newTags = foundTags.stream().filter(newTag -> !oldTags.contains(newTag)).collect(Collectors.toSet());
         if (newTags.isEmpty()) {
-            logger.info("No new tags for release '{}'.", releaseEntity.getTitle());
+            logger.info("No new tags for release '{}'.", releaseEntity.getId());
             return;
         }
         logger.info("Submitting new tags '{}' for release '{}'.", newTags, releaseEntity

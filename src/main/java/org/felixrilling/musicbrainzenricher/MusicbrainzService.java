@@ -76,7 +76,7 @@ public class MusicbrainzService {
         releaseGroup.AddTags(tags.toArray(new String[0]));
     }
 
-    private WebService createWebService() {
+    public WebService createWebService() {
         HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2(applicationName, applicationVersion, applicationContact);
         webService.setClient(client);
         webService.setUsername(username);

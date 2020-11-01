@@ -33,7 +33,7 @@ public class GenreMatcherService {
         for (String unmatchedGenre : unmatchedGenres) {
             matchSingle(unmatchedGenre).ifPresent(matches::add);
         }
-        logger.info("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
+        logger.debug("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
 
         return Collections.unmodifiableSet(matches);
     }
