@@ -9,11 +9,9 @@
 *.vi
 *.zip
 *~
-_key.*
 
 # OS or Editor folders
 ._*
-.DS_Store
 .idea
 .project
 .settings
@@ -21,9 +19,7 @@ _key.*
 *.esproj
 *.sublime-project
 *.sublime-workspace
-nbproject
-Thumbs.db
-desktop.ini
+*.iml
 
 # Vendor Files
 node_modules/
@@ -32,14 +28,21 @@ node_modules/
 npm-debug.*
 
 # Temp Files
-spec/dist/
 tsconfig.tsbuildinfo
-
-# Safe files
-_key*
+tsconfig.*.tsbuildinfo
 
 
 
-# Project files
-log/
-data/*.json
+# Build Output files
+target
+
+main.js
+main.js.map
+main.js.LICENSE.txt
+
+main.css
+main.css.map
+
+
+
+keystore/

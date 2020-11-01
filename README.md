@@ -1,11 +1,7 @@
-# Musicbrainz-enricher
+# Musicbrainz Enricher
 
 > Bot to enrich musicbrainz data from linked source
 
-## Environment variables
+## Dependencies
 
-- MUSICBRAINZ_USERNAME
-- MUSICBRAINZ_PASSWORD
-
-- DISCOGS_KEY
-- DISCOGS_SECRET
+Manually install <https://github.com/schnatterer/musicbrainzws2-java>.
