@@ -1,6 +1,6 @@
 package org.felixrilling.musicbrainzenricher.genre;
 
-import org.apache.commons.text.similarity.LevenshteinDistance;
+import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,20 +13,24 @@ import java.util.Set;
 @Service
 public class GenreMatcherService {
 
-
     private static final Logger logger = LoggerFactory.getLogger(GenreMatcherService.class);
 
-    private static final double SHORT_STRING_PENALTY_BASE = 5.0;
-    private static final double WEIGHTED_DISTANCE_LIMIT = 2.0;
+    private static final double SIMILARITY_MINIMUM = 0.85;
 
-    private final LevenshteinDistance levenshteinDistance = LevenshteinDistance
-            .getDefaultInstance();
+    private final NormalizedLevenshtein normalizedLevenshtein = new NormalizedLevenshtein();
     private final GenreProviderService genreProviderService;
 
     GenreMatcherService(GenreProviderService genreProviderService) {
         this.genreProviderService = genreProviderService;
     }
 
+    /**
+     * Finds the associated canonical genre names for the provided genres.
+     * If no good match is found it is dropped from the final result.
+     *
+     * @param unmatchedGenres Unmatched genres to look up canonical genre names for.
+     * @return Matching canonical genre names.
+     */
     public Set<String> match(Set<String> unmatchedGenres) {
         Set<String> matches = new HashSet<>();
 
@@ -38,15 +42,23 @@ public class GenreMatcherService {
         return Collections.unmodifiableSet(matches);
     }
 
+    /**
+     * Finds the first of genres the highest normalized levenshtein similarity,
+     * but at least {@link #SIMILARITY_MINIMUM}.
+     *
+     * @param unmatchedGenre Unmatched genre to look up canonical genre name for.
+     * @return Matching canonical genre name.
+     */
     private Optional<String> matchSingle(String unmatchedGenre) {
+        String bestMatch = null;
+        double bestMatchSimilarity = 0.0;
         for (String knownGenre : genreProviderService.getGenres()) {
-            int distance = levenshteinDistance.apply(knownGenre, unmatchedGenre);
-            // Penalise short strings, due the impact a single difference has (e.g. 'idm' and 'edm').
-            double lengthPenalty = SHORT_STRING_PENALTY_BASE / unmatchedGenre.length();
-            if (distance + lengthPenalty <= WEIGHTED_DISTANCE_LIMIT) {
-                return Optional.of(knownGenre);
+            double similarity = normalizedLevenshtein.similarity(knownGenre.toLowerCase(), unmatchedGenre.toLowerCase());
+            if (similarity > bestMatchSimilarity && similarity >= SIMILARITY_MINIMUM) {
+                bestMatch = knownGenre;
+                bestMatchSimilarity = similarity;
             }
         }
-        return Optional.empty();
+        return Optional.ofNullable(bestMatch);
     }
 }
