@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.musicbrainz;
 
+import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.webservice.WebService;
 import org.musicbrainz.webservice.impl.HttpClientWebServiceWs2;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +30,7 @@ class MusicbrainzService {
     @Value("${musicbrainz.enricher.password}")
     private String password;
 
-    WebService createWebService() {
+    @NotNull WebService createWebService() {
         HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2(applicationName, applicationVersion, applicationContact);
         webService.setClient(client);
         webService.setUsername(username);

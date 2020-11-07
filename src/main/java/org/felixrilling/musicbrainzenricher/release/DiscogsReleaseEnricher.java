@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher.release;
 
 import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -41,12 +42,12 @@ public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
     }
 
     @Override
-    public Set<String> fetchGenres(String relationUrl) throws IOException {
+    public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) throws IOException {
         Document document = Jsoup.connect(relationUrl).get();
         return genreMatcherService.match(extractTags(document));
     }
 
-    private Set<String> extractTags(Document document) {
+    private @NotNull Set<String> extractTags(@NotNull Document document) {
         Elements profileMatches = document.getElementsByClass("profile");
         if (profileMatches.size() != 1) {
             throw new IllegalStateException("Unexpected match size.");
@@ -59,7 +60,7 @@ public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
         return genreLikes;
     }
 
-    private Set<String> extractGenreLike(Elements genreLikeLinks, Pattern genreLinkRegex) {
+    private @NotNull Set<String> extractGenreLike(@NotNull Elements genreLikeLinks, @NotNull Pattern genreLinkRegex) {
         Set<String> genreLikes = new HashSet<>();
         for (Element genreLikeLink : genreLikeLinks) {
             String href = genreLikeLink.attr("href");
@@ -83,7 +84,7 @@ public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
     }
 
     @Override
-    public boolean relationFits(RelationWs2 relationWs2) {
+    public boolean relationFits(@NotNull RelationWs2 relationWs2) {
         URL url;
         try {
             url = new URL(relationWs2.getTargetId());

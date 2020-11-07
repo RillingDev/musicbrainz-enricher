@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher.release;
 
 import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,13 +38,13 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
     }
 
     @Override
-    public Set<String> fetchGenres(String relationUrl) throws IOException {
+    public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) throws IOException {
         Document document = Jsoup.connect(relationUrl).get();
         Set<String> tagsText = new HashSet<>(extractTags(document));
         return genreMatcherService.match(tagsText);
     }
 
-    private List<String> extractTags(Document document) {
+    private List<String> extractTags(@NotNull Document document) {
         Elements tagsMatches = document.getElementsByClass("tralbum-tags");
         if (tagsMatches.size() != 1) {
             throw new IllegalStateException("Unexpected match size.");
@@ -53,7 +54,7 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
     }
 
     @Override
-    public boolean relationFits(RelationWs2 relationWs2) {
+    public boolean relationFits(@NotNull RelationWs2 relationWs2) {
         URL url;
         try {
             url = new URL(relationWs2.getTargetId());

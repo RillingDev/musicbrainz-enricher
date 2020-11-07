@@ -3,6 +3,7 @@ package org.felixrilling.musicbrainzenricher.release;
 import org.felixrilling.musicbrainzenricher.RateLimitAwareEditExecutorService;
 import org.felixrilling.musicbrainzenricher.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.musicbrainz.MusicbrainzQueryService;
+import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.musicbrainz.model.RelationWs2;
@@ -28,7 +29,8 @@ public class ReleaseEnricherService {
     private final MusicbrainzQueryService musicbrainzQueryService;
     private final MusicbrainzEditService musicbrainzEditService;
     private final RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService;
-    private final Set<ReleaseEnricher> releaseEnrichers;
+
+    private final @NotNull Set<ReleaseEnricher> releaseEnrichers;
 
     ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService, RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService) {
         this.musicbrainzQueryService = musicbrainzQueryService;
@@ -68,13 +70,13 @@ public class ReleaseEnricherService {
         logger.debug("Completed enrichment for '{}'.", releaseEntity.getId());
     }
 
-    private void executeEnrichment(ReleaseWs2 releaseEntity, RelationWs2 relation, ReleaseEnricher releaseEnricher) throws Exception {
+    private void executeEnrichment(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, ReleaseEnricher releaseEnricher) throws Exception {
         if (releaseEnricher instanceof GenreReleaseEnricher) {
             executeGenreEnrichment(releaseEntity, relation, (GenreReleaseEnricher) releaseEnricher);
         }
     }
 
-    private void executeGenreEnrichment(ReleaseWs2 releaseEntity, RelationWs2 relation, GenreReleaseEnricher releaseEnricher) throws Exception {
+    private void executeGenreEnrichment(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, @NotNull GenreReleaseEnricher releaseEnricher) throws Exception {
         ReleaseGroupWs2 releaseGroup = releaseEntity.getReleaseGroup();
         Set<String> oldTags = releaseGroup.getTags().stream().map(TagWs2::getName).collect(Collectors.toSet());
 

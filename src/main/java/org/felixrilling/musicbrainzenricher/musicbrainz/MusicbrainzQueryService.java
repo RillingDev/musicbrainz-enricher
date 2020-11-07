@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.musicbrainz;
 
+import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.Artist;
 import org.musicbrainz.controller.Release;
@@ -18,7 +19,7 @@ public class MusicbrainzQueryService {
         this.musicbrainzService = musicbrainzService;
     }
 
-    public ArtistWs2 lookUpArtist(String mbid, ArtistIncludesWs2 includes) throws MBWS2Exception {
+    public ArtistWs2 lookUpArtist(@NotNull String mbid, @NotNull ArtistIncludesWs2 includes) throws MBWS2Exception {
         Artist artist = new Artist();
         artist.setQueryWs(musicbrainzService.createWebService());
 
@@ -27,7 +28,7 @@ public class MusicbrainzQueryService {
         return artist.lookUp(mbid);
     }
 
-    public ReleaseWs2 lookUpRelease(String mbid, ReleaseIncludesWs2 includes) throws MBWS2Exception {
+    public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) throws MBWS2Exception {
         Release release = new Release();
         release.setQueryWs(musicbrainzService.createWebService());
 

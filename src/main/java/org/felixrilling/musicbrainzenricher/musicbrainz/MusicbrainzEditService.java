@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.musicbrainz;
 
+import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.ReleaseGroup;
 import org.musicbrainz.includes.IncludesWs2;
@@ -17,7 +18,7 @@ public class MusicbrainzEditService {
         this.musicbrainzService = musicbrainzService;
     }
 
-    public void addReleaseGroupUserTags(String mbid, Set<String> tags) throws MBWS2Exception {
+    public void addReleaseGroupUserTags(@NotNull String mbid, @NotNull Set<String> tags) throws MBWS2Exception {
         ReleaseGroup releaseGroup = new ReleaseGroup();
         releaseGroup.setQueryWs(musicbrainzService.createWebService());
 

@@ -3,6 +3,7 @@ package org.felixrilling.musicbrainzenricher;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.local.LocalBucket;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ public class RateLimitAwareEditExecutorService {
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public void submit(Runnable editRunnable) {
+    public void submit(@NotNull Runnable editRunnable) {
         executorService.submit(() -> {
             logger.debug("Attempting to consume token...");
             try {

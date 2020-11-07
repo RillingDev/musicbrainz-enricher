@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher.genre;
 
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,7 +32,7 @@ public class GenreMatcherService {
      * @param unmatchedGenres Unmatched genres to look up canonical genre names for.
      * @return Matching canonical genre names.
      */
-    public Set<String> match(Set<String> unmatchedGenres) {
+    public @NotNull Set<String> match(@NotNull Set<String> unmatchedGenres) {
         Set<String> matches = new HashSet<>();
 
         for (String unmatchedGenre : unmatchedGenres) {
@@ -49,7 +50,7 @@ public class GenreMatcherService {
      * @param unmatchedGenre Unmatched genre to look up canonical genre name for.
      * @return Matching canonical genre name.
      */
-    private Optional<String> matchSingle(String unmatchedGenre) {
+    private Optional<String> matchSingle(@NotNull String unmatchedGenre) {
         String bestMatch = null;
         double bestMatchSimilarity = 0.0;
         for (String knownGenre : genreProviderService.getGenres()) {

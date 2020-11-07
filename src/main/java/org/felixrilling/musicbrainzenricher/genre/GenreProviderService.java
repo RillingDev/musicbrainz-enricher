@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.genre;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -16,7 +17,7 @@ public class GenreProviderService {
 
     private static final Set<String> SORTED_GENRES = Collections.unmodifiableSortedSet(new TreeSet<>(GENRES));
 
-    public Set<String> getGenres() {
+    public @NotNull Set<String> getGenres() {
         return SORTED_GENRES;
     }
 }
