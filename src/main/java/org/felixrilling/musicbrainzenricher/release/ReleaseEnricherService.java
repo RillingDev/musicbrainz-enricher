@@ -1,7 +1,8 @@
 package org.felixrilling.musicbrainzenricher.release;
 
 import org.felixrilling.musicbrainzenricher.RateLimitAwareEditExecutorService;
-import org.felixrilling.musicbrainzenricher.MusicbrainzService;
+import org.felixrilling.musicbrainzenricher.musicbrainz.MusicbrainzEditService;
+import org.felixrilling.musicbrainzenricher.musicbrainz.MusicbrainzQueryService;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.musicbrainz.model.RelationWs2;
@@ -24,12 +25,14 @@ public class ReleaseEnricherService {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseEnricherService.class);
 
-    private final Set<ReleaseEnricher> releaseEnrichers;
-    private final MusicbrainzService musicbrainzService;
+    private final MusicbrainzQueryService musicbrainzQueryService;
+    private final MusicbrainzEditService musicbrainzEditService;
     private final RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService;
+    private final Set<ReleaseEnricher> releaseEnrichers;
 
-    public ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzService musicbrainzService, RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService) {
-        this.musicbrainzService = musicbrainzService;
+    ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService, RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService) {
+        this.musicbrainzQueryService = musicbrainzQueryService;
+        this.musicbrainzEditService = musicbrainzEditService;
         this.rateLimitAwareEditExecutorService = rateLimitAwareEditExecutorService;
 
         Map<String, ReleaseEnricher> enricherMap = applicationContext
@@ -45,7 +48,7 @@ public class ReleaseEnricherService {
         includes.setReleaseGroups(true);
         ReleaseWs2 releaseEntity;
         try {
-            releaseEntity = musicbrainzService.lookUpRelease(mbid, includes);
+            releaseEntity = musicbrainzQueryService.lookUpRelease(mbid, includes);
         } catch (MBWS2Exception e) {
             throw new IOException(e);
         }
@@ -88,7 +91,7 @@ public class ReleaseEnricherService {
             logger.info("Submitting new tags '{}' for release group '{}'.", newTags, releaseGroup
                     .getId());
             try {
-                musicbrainzService.addReleaseGroupUserTags(releaseGroup.getId(), newTags);
+                musicbrainzEditService.addReleaseGroupUserTags(releaseGroup.getId(), newTags);
             } catch (MBWS2Exception e) {
                 logger.error("Could not submit tags.", e);
             }
