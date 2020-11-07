@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.release;
 
+import org.felixrilling.musicbrainzenricher.RateLimitAwareEditExecutorService;
 import org.felixrilling.musicbrainzenricher.MusicbrainzService;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
@@ -25,9 +26,12 @@ public class ReleaseEnricherService {
 
     private final Set<ReleaseEnricher> releaseEnrichers;
     private final MusicbrainzService musicbrainzService;
+    private final RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService;
 
-    public ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzService musicbrainzService) {
+    public ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzService musicbrainzService, RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService) {
         this.musicbrainzService = musicbrainzService;
+        this.rateLimitAwareEditExecutorService = rateLimitAwareEditExecutorService;
+
         Map<String, ReleaseEnricher> enricherMap = applicationContext
                 .getBeansOfType(ReleaseEnricher.class);
         releaseEnrichers = new HashSet<>(enricherMap.values());
@@ -47,7 +51,8 @@ public class ReleaseEnricherService {
         }
 
         Set<ReleaseEnricher> availableEnrichers = new HashSet<>(releaseEnrichers);
-        relationLoop: for (RelationWs2 relation : releaseEntity.getRelationList().getRelations()) {
+        relationLoop:
+        for (RelationWs2 relation : releaseEntity.getRelationList().getRelations()) {
             for (ReleaseEnricher releaseEnricher : availableEnrichers) {
                 if (releaseEnricher.relationFits(relation)) {
                     executeEnrichment(releaseEntity, relation, releaseEnricher);
@@ -79,8 +84,14 @@ public class ReleaseEnricherService {
             logger.info("No new tags for release group'{}'.", releaseGroup.getId());
             return;
         }
-        logger.info("Submitting new tags '{}' for release group '{}'.", newTags, releaseGroup
-                .getId());
-        musicbrainzService.addReleaseGroupUserTags(releaseGroup.getId(), newTags);
+        rateLimitAwareEditExecutorService.submit(() -> {
+            logger.info("Submitting new tags '{}' for release group '{}'.", newTags, releaseGroup
+                    .getId());
+            try {
+                musicbrainzService.addReleaseGroupUserTags(releaseGroup.getId(), newTags);
+            } catch (MBWS2Exception e) {
+                logger.error("Could not submit tags.", e);
+            }
+        });
     }
 }
