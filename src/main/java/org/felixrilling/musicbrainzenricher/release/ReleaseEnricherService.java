@@ -42,7 +42,7 @@ public class ReleaseEnricherService {
         releaseEnrichers = new HashSet<>(enricherMap.values());
     }
 
-    public void enrichRelease(String mbid) throws Exception {
+    public void enrichRelease(@NotNull String mbid) throws Exception {
         ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
         includes.setUrlRelations(true);
         includes.setTags(true);
@@ -55,49 +55,59 @@ public class ReleaseEnricherService {
             throw new IOException(e);
         }
 
-        Set<ReleaseEnricher> availableEnrichers = new HashSet<>(releaseEnrichers);
-        relationLoop:
+        logger.debug("Starting enrichment for '{}'.", releaseEntity.getId());
+        ReleaseEnrichmentResult result = new ReleaseEnrichmentResult();
         for (RelationWs2 relation : releaseEntity.getRelationList().getRelations()) {
-            for (ReleaseEnricher releaseEnricher : availableEnrichers) {
-                if (releaseEnricher.relationFits(relation)) {
-                    executeEnrichment(releaseEntity, relation, releaseEnricher);
-                    availableEnrichers.remove(releaseEnricher);
-                    continue relationLoop;
-                }
+            for (ReleaseEnricher releaseEnricher : releaseEnrichers) {
+                executeEnrichment(releaseEntity, relation, releaseEnricher, result);
             }
-            logger.debug("No fitting enricher found for release '{}'.", relation.getTargetId());
         }
+        updateEntity(releaseEntity, result);
         logger.debug("Completed enrichment for '{}'.", releaseEntity.getId());
     }
 
-    private void executeEnrichment(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, ReleaseEnricher releaseEnricher) throws Exception {
+    private void executeEnrichment(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, @NotNull ReleaseEnricher releaseEnricher, @NotNull ReleaseEnrichmentResult result) throws Exception {
+        if (!releaseEnricher.relationFits(relation)) {
+            return;
+        }
+
         if (releaseEnricher instanceof GenreReleaseEnricher) {
-            executeGenreEnrichment(releaseEntity, relation, (GenreReleaseEnricher) releaseEnricher);
+            executeGenreEnrichment(releaseEntity, relation, (GenreReleaseEnricher) releaseEnricher, result);
         }
     }
 
-    private void executeGenreEnrichment(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, @NotNull GenreReleaseEnricher releaseEnricher) throws Exception {
+    private void executeGenreEnrichment(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, @NotNull GenreReleaseEnricher releaseEnricher, @NotNull ReleaseEnrichmentResult result) throws Exception {
         ReleaseGroupWs2 releaseGroup = releaseEntity.getReleaseGroup();
         Set<String> oldTags = releaseGroup.getTags().stream().map(TagWs2::getName).collect(Collectors.toSet());
 
         Set<String> foundTags = releaseEnricher.fetchGenres(relation.getTargetId());
-        logger.info("Enricher '{}' found genres '{}' (Old: '{}') for release group '{}'.", releaseEnricher
+        logger.debug("Enricher '{}' found genres '{}' (Old: '{}') for release group '{}'.", releaseEnricher
                 .getClass().getSimpleName(), foundTags, oldTags, releaseGroup.getId());
 
-        Set<String> newTags = foundTags.stream().filter(newTag -> !oldTags.contains(newTag)).collect(Collectors.toSet());
-        if (newTags.isEmpty()) {
-            logger.info("No new tags for release group'{}'.", releaseGroup.getId());
-            return;
+        result.getNewGenres().addAll(foundTags.stream().filter(foundTag -> !oldTags.contains(foundTag)).collect(Collectors.toSet()));
+    }
+
+    private void updateEntity(@NotNull ReleaseWs2 releaseEntity, @NotNull ReleaseEnrichmentResult result) {
+        if (!result.getNewGenres().isEmpty()) {
+            musicBrainzEditExecutor.submit(() -> {
+                ReleaseGroupWs2 releaseGroup = releaseEntity.getReleaseGroup();
+                logger.info("Submitting new tags '{}' for release group '{}'.", result.getNewGenres(), releaseGroup
+                        .getId());
+                try {
+                    musicbrainzEditService.addReleaseGroupUserTags(releaseGroup.getId(), result.getNewGenres());
+                } catch (MBWS2Exception e) {
+                    logger.error("Could not submit tags.", e);
+                }
+                return null;
+            });
         }
-        musicBrainzEditExecutor.submit(() -> {
-            logger.info("Submitting new tags '{}' for release group '{}'.", newTags, releaseGroup
-                    .getId());
-            try {
-                musicbrainzEditService.addReleaseGroupUserTags(releaseGroup.getId(), newTags);
-            } catch (MBWS2Exception e) {
-                logger.error("Could not submit tags.", e);
-            }
-            return null;
-        });
+    }
+
+    private static class ReleaseEnrichmentResult {
+        private final Set<String> newGenres = new HashSet<>();
+
+        public @NotNull Set<String> getNewGenres() {
+            return newGenres;
+        }
     }
 }
