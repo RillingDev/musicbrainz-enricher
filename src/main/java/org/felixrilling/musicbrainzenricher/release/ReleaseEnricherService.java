@@ -1,6 +1,6 @@
 package org.felixrilling.musicbrainzenricher.release;
 
-import org.felixrilling.musicbrainzenricher.RateLimitAwareEditExecutorService;
+import org.felixrilling.musicbrainzenricher.io.MusicBrainzExecutor;
 import org.felixrilling.musicbrainzenricher.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.musicbrainz.MusicbrainzQueryService;
 import org.jetbrains.annotations.NotNull;
@@ -28,14 +28,14 @@ public class ReleaseEnricherService {
 
     private final MusicbrainzQueryService musicbrainzQueryService;
     private final MusicbrainzEditService musicbrainzEditService;
-    private final RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService;
+    private final MusicBrainzExecutor musicBrainzExecutor;
 
     private final @NotNull Set<ReleaseEnricher> releaseEnrichers;
 
-    ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService, RateLimitAwareEditExecutorService rateLimitAwareEditExecutorService) {
+    ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService, MusicBrainzExecutor musicBrainzExecutor) {
         this.musicbrainzQueryService = musicbrainzQueryService;
         this.musicbrainzEditService = musicbrainzEditService;
-        this.rateLimitAwareEditExecutorService = rateLimitAwareEditExecutorService;
+        this.musicBrainzExecutor = musicBrainzExecutor;
 
         Map<String, ReleaseEnricher> enricherMap = applicationContext
                 .getBeansOfType(ReleaseEnricher.class);
@@ -89,7 +89,7 @@ public class ReleaseEnricherService {
             logger.info("No new tags for release group'{}'.", releaseGroup.getId());
             return;
         }
-        rateLimitAwareEditExecutorService.submit(() -> {
+        musicBrainzExecutor.submit(() -> {
             logger.info("Submitting new tags '{}' for release group '{}'.", newTags, releaseGroup
                     .getId());
             try {
@@ -97,6 +97,7 @@ public class ReleaseEnricherService {
             } catch (MBWS2Exception e) {
                 logger.error("Could not submit tags.", e);
             }
+            return null;
         });
     }
 }
