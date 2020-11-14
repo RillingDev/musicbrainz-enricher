@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.io.musicbrainz;
 
+import org.felixrilling.musicbrainzenricher.io.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.ReleaseGroup;
@@ -13,12 +14,18 @@ import java.util.Set;
 public class MusicbrainzEditService {
 
     private final MusicbrainzService musicbrainzService;
+    private final MusicbrainzBucketProvider musicbrainzBucketProvider;
+    private final BucketService bucketService;
 
-    MusicbrainzEditService(MusicbrainzService musicbrainzService) {
+    MusicbrainzEditService(MusicbrainzService musicbrainzService, MusicbrainzBucketProvider musicbrainzBucketProvider, BucketService bucketService) {
         this.musicbrainzService = musicbrainzService;
+        this.musicbrainzBucketProvider = musicbrainzBucketProvider;
+        this.bucketService = bucketService;
     }
 
     public void addReleaseGroupUserTags(@NotNull String mbid, @NotNull Set<String> tags) throws MBWS2Exception {
+        bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+
         ReleaseGroup releaseGroup = new ReleaseGroup();
         releaseGroup.setQueryWs(musicbrainzService.createWebService());
 

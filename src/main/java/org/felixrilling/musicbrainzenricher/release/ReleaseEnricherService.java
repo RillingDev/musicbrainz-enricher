@@ -1,6 +1,6 @@
 package org.felixrilling.musicbrainzenricher.release;
 
-import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicBrainzExecutor;
+import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzEditExecutor;
 import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzQueryService;
 import org.jetbrains.annotations.NotNull;
@@ -28,14 +28,14 @@ public class ReleaseEnricherService {
 
     private final MusicbrainzQueryService musicbrainzQueryService;
     private final MusicbrainzEditService musicbrainzEditService;
-    private final MusicBrainzExecutor musicBrainzExecutor;
+    private final MusicbrainzEditExecutor musicBrainzEditExecutor;
 
     private final @NotNull Set<ReleaseEnricher> releaseEnrichers;
 
-    ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService, MusicBrainzExecutor musicBrainzExecutor) {
+    ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService, MusicbrainzEditExecutor musicBrainzEditExecutor) {
         this.musicbrainzQueryService = musicbrainzQueryService;
         this.musicbrainzEditService = musicbrainzEditService;
-        this.musicBrainzExecutor = musicBrainzExecutor;
+        this.musicBrainzEditExecutor = musicBrainzEditExecutor;
 
         Map<String, ReleaseEnricher> enricherMap = applicationContext
                 .getBeansOfType(ReleaseEnricher.class);
@@ -89,7 +89,7 @@ public class ReleaseEnricherService {
             logger.info("No new tags for release group'{}'.", releaseGroup.getId());
             return;
         }
-        musicBrainzExecutor.submit(() -> {
+        musicBrainzEditExecutor.submit(() -> {
             logger.info("Submitting new tags '{}' for release group '{}'.", newTags, releaseGroup
                     .getId());
             try {

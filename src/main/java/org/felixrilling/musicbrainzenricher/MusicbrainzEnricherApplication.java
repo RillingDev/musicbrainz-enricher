@@ -32,7 +32,6 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
         ArtistWs2 artistWs2 = musicbrainzQueryService.lookUpArtist("b7ffd2af-418f-4be2-bdd1-22f8b48613da", includes);
         for (ReleaseWs2 release : artistWs2.getReleases()) {
             releaseEnricherService.enrichRelease(release.getId());
-            Thread.sleep(1000L);
         }
     }
 }

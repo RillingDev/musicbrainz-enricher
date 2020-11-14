@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.io.musicbrainz;
 
+import org.felixrilling.musicbrainzenricher.io.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.Artist;
@@ -14,12 +15,18 @@ import org.springframework.stereotype.Service;
 public class MusicbrainzQueryService {
 
     private final MusicbrainzService musicbrainzService;
+    private final MusicbrainzBucketProvider musicbrainzBucketProvider;
+    private final BucketService bucketService;
 
-    MusicbrainzQueryService(MusicbrainzService musicbrainzService) {
+    MusicbrainzQueryService(MusicbrainzService musicbrainzService, MusicbrainzBucketProvider musicbrainzBucketProvider, BucketService bucketService) {
         this.musicbrainzService = musicbrainzService;
+        this.musicbrainzBucketProvider = musicbrainzBucketProvider;
+        this.bucketService = bucketService;
     }
 
     public ArtistWs2 lookUpArtist(@NotNull String mbid, @NotNull ArtistIncludesWs2 includes) throws MBWS2Exception {
+        bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+
         Artist artist = new Artist();
         artist.setQueryWs(musicbrainzService.createWebService());
 
@@ -29,6 +36,8 @@ public class MusicbrainzQueryService {
     }
 
     public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) throws MBWS2Exception {
+        bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+
         Release release = new Release();
         release.setQueryWs(musicbrainzService.createWebService());
 
