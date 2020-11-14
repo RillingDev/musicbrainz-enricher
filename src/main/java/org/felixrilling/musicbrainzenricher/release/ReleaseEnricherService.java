@@ -37,9 +37,8 @@ public class ReleaseEnricherService {
         this.musicbrainzEditService = musicbrainzEditService;
         this.musicBrainzEditExecutor = musicBrainzEditExecutor;
 
-        Map<String, ReleaseEnricher> enricherMap = applicationContext
-                .getBeansOfType(ReleaseEnricher.class);
-        releaseEnrichers = new HashSet<>(enricherMap.values());
+        releaseEnrichers = new HashSet<>(applicationContext
+                .getBeansOfType(ReleaseEnricher.class).values());
     }
 
     public void enrichRelease(@NotNull String mbid) throws Exception {
@@ -55,22 +54,29 @@ public class ReleaseEnricherService {
             throw new IOException(e);
         }
 
-        logger.debug("Starting enrichment for '{}'.", releaseEntity.getId());
+        logger.info("Starting enrichment for '{}'.", releaseEntity.getId());
         ReleaseEnrichmentResult result = new ReleaseEnrichmentResult();
         for (RelationWs2 relation : releaseEntity.getRelationList().getRelations()) {
-            for (ReleaseEnricher releaseEnricher : releaseEnrichers) {
+            enrichForRelation(releaseEntity, relation, result);
+        }
+        updateEntity(releaseEntity, result);
+        logger.info("Completed enrichment for '{}'.", releaseEntity.getId());
+    }
+
+    private void enrichForRelation(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, @NotNull ReleaseEnrichmentResult result) throws Exception {
+        boolean atLeastOneEnricherCompleted = false;
+        for (ReleaseEnricher releaseEnricher : releaseEnrichers) {
+            if (releaseEnricher.relationFits(relation)) {
+                atLeastOneEnricherCompleted = true;
                 executeEnrichment(releaseEntity, relation, releaseEnricher, result);
             }
         }
-        updateEntity(releaseEntity, result);
-        logger.debug("Completed enrichment for '{}'.", releaseEntity.getId());
+        if (!atLeastOneEnricherCompleted) {
+            logger.debug("Could not find any enricher for '{}'.", relation.getTargetId());
+        }
     }
 
     private void executeEnrichment(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, @NotNull ReleaseEnricher releaseEnricher, @NotNull ReleaseEnrichmentResult result) throws Exception {
-        if (!releaseEnricher.relationFits(relation)) {
-            return;
-        }
-
         if (releaseEnricher instanceof GenreReleaseEnricher) {
             executeGenreEnrichment(releaseEntity, relation, (GenreReleaseEnricher) releaseEnricher, result);
         }

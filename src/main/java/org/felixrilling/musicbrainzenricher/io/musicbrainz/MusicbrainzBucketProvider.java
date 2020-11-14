@@ -14,8 +14,9 @@ import java.time.Duration;
 @Scope("singleton")
 public class MusicbrainzBucketProvider implements BucketProvider {
 
-    // Based on per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
-    private static final Bandwidth BANDWIDTH = Bandwidth.simple(50, Duration.ofSeconds(1));
+    // See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
+    // Reduced quite a bit (from 1/s) to not cause issues.
+    private static final Bandwidth BANDWIDTH = Bandwidth.simple(1, Duration.ofSeconds(2));
 
     private final Bucket bucket = Bucket4j.builder().addLimit(BANDWIDTH).withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE).build();
 
