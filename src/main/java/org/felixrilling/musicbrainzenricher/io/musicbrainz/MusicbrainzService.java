@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.musicbrainz;
+package org.felixrilling.musicbrainzenricher.io.musicbrainz;
 
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.webservice.WebService;
@@ -21,7 +21,7 @@ class MusicbrainzService {
     @Value("${musicbrainz.enricher.contact}")
     private String applicationContact;
 
-    @Value("${musicbrainz.enricher.client}")
+    @Value("${musicbrainz.enricher.client.mb}")
     private String client;
 
     @Value("${musicbrainz.enricher.username}")

@@ -1,22 +1,16 @@
 package org.felixrilling.musicbrainzenricher.release;
 
 import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
+import org.felixrilling.musicbrainzenricher.io.discogs.DiscogsQueryService;
+import org.felixrilling.musicbrainzenricher.io.discogs.DiscogsRelease;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -30,57 +24,36 @@ public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
 
     private static final Logger logger = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
 
-    private static final Pattern HOST_REGEX = Pattern.compile("www\\.discogs\\.com");
-
-    private static final Pattern GENRE_LINK_REGEX = Pattern.compile("/genre/(.*)");
-    private static final Pattern STYLE_LINK_REGEX = Pattern.compile("/style/(.*)");
+    private static final Pattern URL_REGEX = Pattern.compile("http(:s?)://www\\.discogs\\.com/release/(?<id>\\d+)");
 
     private final GenreMatcherService genreMatcherService;
+    private final DiscogsQueryService discogsQueryService;
 
-    DiscogsReleaseEnricher(GenreMatcherService genreMatcherService) {
+    DiscogsReleaseEnricher(GenreMatcherService genreMatcherService, DiscogsQueryService discogsQueryService) {
         this.genreMatcherService = genreMatcherService;
+        this.discogsQueryService = discogsQueryService;
     }
 
     @Override
-    public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) throws IOException {
-        Document document = Jsoup.connect(relationUrl).get();
-        return genreMatcherService.match(extractTags(document));
+    public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) {
+        return discogsQueryService.lookUpRelease(findReleaseId(relationUrl)).map(release -> genreMatcherService.match(extractGenres(release)))
+                .orElse(Set.of());
     }
 
-    private @NotNull Set<String> extractTags(@NotNull Document document) {
-        Elements profileMatches = document.getElementsByClass("profile");
-        if (profileMatches.size() != 1) {
-            throw new IllegalStateException("Unexpected match size.");
-        }
-        Element profile = profileMatches.get(0);
 
-        Set<String> genreLikes = new HashSet<>();
-        genreLikes.addAll(extractGenreLike(profile.getElementsByAttributeValueStarting("href", "/genre/"), GENRE_LINK_REGEX));
-        genreLikes.addAll(extractGenreLike(profile.getElementsByAttributeValueStarting("href", "/style/"), STYLE_LINK_REGEX));
-        return genreLikes;
+    private @NotNull String findReleaseId(@NotNull String relationUrl) {
+        Matcher matcher = URL_REGEX.matcher(relationUrl);
+        //noinspection ResultOfMethodCallIgnored We know we matched in #relationFits
+        matcher.matches();
+        return matcher.group("id");
     }
 
-    private @NotNull Set<String> extractGenreLike(@NotNull Elements genreLikeLinks, @NotNull Pattern genreLinkRegex) {
-        Set<String> genreLikes = new HashSet<>();
-        for (Element genreLikeLink : genreLikeLinks) {
-            String href = genreLikeLink.attr("href");
-            Matcher matcher = genreLinkRegex.matcher(href);
-            if (!matcher.matches()) {
-                logger.warn("Could not find genre-like value in URL: '{}'.", href);
-                continue;
-            }
-
-            /*
-             * The genre-like links have their last path extracted by regex,
-             * Then any query params dropped and finally their value decoded.
-             */
-            String extracted = matcher.group(1);
-            String path = URI.create(extracted).getPath();
-            String decodedPath = URLDecoder.decode(path, StandardCharsets.UTF_8);
-
-            genreLikes.add(decodedPath);
-        }
-        return genreLikes;
+    private
+    @NotNull Set<String> extractGenres(@NotNull DiscogsRelease release) {
+        Set<String> genres = new HashSet<>();
+        genres.addAll(release.getGenres());
+        genres.addAll(release.getStyles());
+        return genres;
     }
 
     @Override
@@ -92,6 +65,6 @@ public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
             logger.warn("Could not parse as URL: '{}'.", relationWs2.getTargetId());
             return false;
         }
-        return HOST_REGEX.matcher(url.getHost()).matches();
+        return URL_REGEX.matcher(url.toString()).matches();
     }
 }

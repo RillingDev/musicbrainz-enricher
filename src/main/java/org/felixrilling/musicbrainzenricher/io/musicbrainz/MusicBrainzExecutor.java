@@ -1,6 +1,7 @@
-package org.felixrilling.musicbrainzenricher.io;
+package org.felixrilling.musicbrainzenricher.io.musicbrainz;
 
 import io.github.bucket4j.Bandwidth;
+import org.felixrilling.musicbrainzenricher.io.RateLimitAwareExecutorCompletionService;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 

@@ -3,8 +3,7 @@
 > Bot to enrich musicbrainz data from linked source
 
 ## Dependencies
-
-Manually install latest version of <https://github.com/schnatterer/musicbrainzws2-java>.
+WIP
 
 ## Config
 

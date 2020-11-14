@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.musicbrainz;
+package org.felixrilling.musicbrainzenricher.io.musicbrainz;
 
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;

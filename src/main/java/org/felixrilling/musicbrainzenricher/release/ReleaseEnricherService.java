@@ -1,8 +1,8 @@
 package org.felixrilling.musicbrainzenricher.release;
 
-import org.felixrilling.musicbrainzenricher.io.MusicBrainzExecutor;
-import org.felixrilling.musicbrainzenricher.musicbrainz.MusicbrainzEditService;
-import org.felixrilling.musicbrainzenricher.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicBrainzExecutor;
+import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzEditService;
+import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzQueryService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
