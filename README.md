@@ -1,6 +1,6 @@
 # Musicbrainz Enricher
 
-> Bot to enrich musicbrainz data from linked source
+> Bot to enrich musicbrainz data from linked sources.
 
 ## Dependencies
 WIP
