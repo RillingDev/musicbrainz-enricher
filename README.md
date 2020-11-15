@@ -1,17 +1,16 @@
-# Musicbrainz Enricher
+# musicbrainz-enricher
 
 > Bot to enrich musicbrainz data from linked sources.
 
-## Dependencies
-WIP
-
 ## Config
 
-WIP
+The following values should be passed as startup flags (e.g. `-Dmusicbrainz-enricher.musicbrainz.username=myUserName`)
 
-```shell script
-# startup flags to be set
--Dmusicbrainz.enricher.username=USER \
--Dmusicbrainz.enricher.password=PASSWORD \
--Dmusicbrainz.enricher.host=musicbrainz.org # Only for prod. mode. Can be omitted for test server.
-```
+- `musicbrainz-enricher.host` (Either test.musicbrainz.org or musicbrainz.org)
+- Credentials
+    - Musicbrainz
+        - `musicbrainz-enricher.musicbrainz.username`
+        - `musicbrainz-enricher.musicbrainz.password`
+    - Spotify (can be left empty to disable spotify)
+        - `musicbrainz-enricher.spotify.client-id`
+        - `musicbrainz-enricher.spotify.client-secret`

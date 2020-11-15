@@ -17,13 +17,13 @@ public class DiscogsQueryService {
 
     private static final Logger logger = LoggerFactory.getLogger(DiscogsQueryService.class);
 
-    @Value("${musicbrainz.enricher.name}")
+    @Value("${musicbrainz-enricher.name}")
     private String applicationName;
 
-    @Value("${musicbrainz.enricher.version}")
+    @Value("${musicbrainz-enricher.version}")
     private String applicationVersion;
 
-    @Value("${musicbrainz.enricher.contact}")
+    @Value("${musicbrainz-enricher.contact}")
     private String applicationContact;
 
 
