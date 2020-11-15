@@ -55,6 +55,9 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
 
     @Override
     public boolean relationFits(@NotNull RelationWs2 relationWs2) {
+        if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relationWs2.getTargetType())) {
+            return false;
+        }
         URL url;
         try {
             url = new URL(relationWs2.getTargetId());

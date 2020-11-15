@@ -22,16 +22,12 @@ import java.util.Optional;
 public class SpotifyQueryService {
 
     private static final Logger logger = LoggerFactory.getLogger(SpotifyQueryService.class);
-
-    @Value("${musicbrainz-enricher.spotify.client-id}")
-    private String clientId;
-
-    @Value("${musicbrainz-enricher.spotify.client-secret}")
-    private String clientSecret;
-
     private final SpotifyBucketProvider spotifyBucketProvider;
     private final BucketService bucketService;
-
+    @Value("${musicbrainz-enricher.spotify.client-id}")
+    private String clientId;
+    @Value("${musicbrainz-enricher.spotify.client-secret}")
+    private String clientSecret;
     private SpotifyApi spotifyApi;
 
     public SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
@@ -39,7 +35,7 @@ public class SpotifyQueryService {
         this.bucketService = bucketService;
     }
 
-    public Optional<Album> lookUpRelease(@NotNull final String id) {
+    public @NotNull Optional<Album> lookUpRelease(@NotNull final String id) {
         if (!hasCredentialsSetUp()) {
             logger.debug("No credentials set, skipping lookup.");
             return Optional.empty();

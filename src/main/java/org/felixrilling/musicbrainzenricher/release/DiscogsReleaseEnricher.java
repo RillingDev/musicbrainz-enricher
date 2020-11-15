@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -48,8 +46,7 @@ public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
         return matcher.group("id");
     }
 
-    private
-    @NotNull Set<String> extractGenres(@NotNull DiscogsRelease release) {
+    private @NotNull Set<String> extractGenres(@NotNull DiscogsRelease release) {
         Set<String> genres = new HashSet<>();
         genres.addAll(release.getGenres());
         genres.addAll(release.getStyles());
@@ -58,13 +55,11 @@ public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
 
     @Override
     public boolean relationFits(@NotNull RelationWs2 relationWs2) {
-        URL url;
-        try {
-            url = new URL(relationWs2.getTargetId());
-        } catch (MalformedURLException e) {
-            logger.warn("Could not parse as URL: '{}'.", relationWs2.getTargetId());
+        if (!"http://musicbrainz.org/ns/rel-2.0#discogs".equals(relationWs2.getType())) {
             return false;
         }
-        return URL_REGEX.matcher(url.toString()).matches();
+
+        String targetUrl = relationWs2.getTargetId();
+        return URL_REGEX.matcher(targetUrl).matches();
     }
 }
