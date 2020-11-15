@@ -21,9 +21,6 @@ class MusicbrainzService {
     @Value("${musicbrainz.enricher.contact}")
     private String applicationContact;
 
-    @Value("${musicbrainz.enricher.client.mb}")
-    private String client;
-
     @Value("${musicbrainz.enricher.username}")
     private String username;
 
@@ -31,11 +28,16 @@ class MusicbrainzService {
     private String password;
 
     @NotNull WebService createWebService() {
-        HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2(applicationName, applicationVersion, applicationContact);
-        webService.setClient(client);
+        HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2();
+        webService.setClient(getClientName(applicationName, applicationVersion, applicationContact));
         webService.setUsername(username);
         webService.setPassword(password);
         webService.setHost(host);
         return webService;
+    }
+
+    private @NotNull String getClientName(@NotNull String applicationName, @NotNull String applicationVersion, @NotNull String applicationContact) {
+        // See https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
+        return String.format("%s/%s ( %s )", applicationName, applicationVersion, applicationContact);
     }
 }

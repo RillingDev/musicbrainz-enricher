@@ -3,18 +3,32 @@ package org.felixrilling.musicbrainzenricher;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
+
 @Configuration
 @ConfigurationProperties(prefix = "musicbrainz.enricher")
 public class ApplicationConfigurationProperties {
 
+    @NotBlank
     private String host;
 
-    private String name;
-    private String version;
-    private String contact;
-    private Client client;
 
+    @NotBlank
+    @Pattern(regexp = "^\\w+$")
+    private String name;
+
+    @NotBlank
+    private String version;
+
+    @NotBlank
+    private String contact;
+
+
+    @NotBlank
     private String username;
+
+    @NotBlank
     private String password;
 
     public String getHost() {
@@ -63,34 +77,5 @@ public class ApplicationConfigurationProperties {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
-    private static class Client {
-        private String mb;
-        private String rfc1945;
-
-        public String getMb() {
-            return mb;
-        }
-
-        public void setMb(String mb) {
-            this.mb = mb;
-        }
-
-        public String getRfc1945() {
-            return rfc1945;
-        }
-
-        public void setRfc1945(String rfc1945) {
-            this.rfc1945 = rfc1945;
-        }
     }
 }

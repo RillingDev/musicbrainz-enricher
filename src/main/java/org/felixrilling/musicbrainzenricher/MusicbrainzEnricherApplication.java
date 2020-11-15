@@ -29,7 +29,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         ArtistIncludesWs2 includes = new ArtistIncludesWs2();
         includes.includeAll();
-        ArtistWs2 artistWs2 = musicbrainzQueryService.lookUpArtist("b7ffd2af-418f-4be2-bdd1-22f8b48613da", includes);
+        ArtistWs2 artistWs2 = musicbrainzQueryService.lookUpArtist("f22942a1-6f70-4f48-866e-238cb2308fbd", includes);
         for (ReleaseWs2 release : artistWs2.getReleases()) {
             releaseEnricherService.enrichRelease(release.getId());
         }
