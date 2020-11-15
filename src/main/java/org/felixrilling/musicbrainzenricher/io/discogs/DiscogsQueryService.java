@@ -35,7 +35,8 @@ public class DiscogsQueryService {
 
         HttpResponse<DiscogsRelease> response = Unirest.get("https://api.discogs.com/releases/{id}").routeParam("id", id)
                 .header("User-Agent", getUserAgent(applicationName, applicationVersion, applicationContact))
-                .asObject(DiscogsRelease.class).ifFailure(err -> logger.error("Could not look up release: {}.", err));
+                .asObject(DiscogsRelease.class)
+                .ifFailure(res -> logger.error("Could not look up release '{}': {}.", id, res.getStatus()));
         return wrapResponse(response);
     }
 

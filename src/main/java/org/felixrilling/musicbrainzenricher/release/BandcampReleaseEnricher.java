@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -38,19 +37,24 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
     }
 
     @Override
-    public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) throws IOException {
-        Document document = Jsoup.connect(relationUrl).get();
-        Set<String> tagsText = new HashSet<>(extractTags(document));
-        return genreMatcherService.match(tagsText);
+    public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) {
+        Document document;
+        try {
+            document = Jsoup.connect(relationUrl).get();
+        } catch (IOException e) {
+            logger.warn("Could not connect to '{}', skipping it.", relationUrl);
+            return Set.of();
+        }
+        return genreMatcherService.match(extractTags(document));
     }
 
-    private List<String> extractTags(@NotNull Document document) {
+    private Set<String> extractTags(@NotNull Document document) {
         Elements tagsMatches = document.getElementsByClass("tralbum-tags");
         if (tagsMatches.size() != 1) {
             throw new IllegalStateException("Unexpected match size.");
         }
         Element tags = tagsMatches.get(0);
-        return tags.getElementsByTag("a").eachText();
+        return new HashSet<>(tags.getElementsByTag("a").eachText());
     }
 
     @Override
