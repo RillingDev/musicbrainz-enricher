@@ -17,8 +17,6 @@ import java.util.regex.Pattern;
 @Service
 public class SpotifyReleaseEnricher implements GenreReleaseEnricher {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpotifyReleaseEnricher.class);
-
     private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://open\\.spotify\\.com/album/(?<id>\\w+)");
 
     private final GenreMatcherService genreMatcherService;

@@ -46,7 +46,7 @@ public class SpotifyQueryService {
         try {
             return Optional.of(getApi().getAlbum(id).build().execute());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
-            logger.error("Could not look up album.", e);
+            logger.warn("Could not look up album.", e);
             return Optional.empty();
         }
     }

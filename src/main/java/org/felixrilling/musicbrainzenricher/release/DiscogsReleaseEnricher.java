@@ -14,13 +14,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Discogs fetcher.
- */
 @Service
 public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
-
-    private static final Logger logger = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
 
     private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://www\\.discogs\\.com/release/(?<id>\\d+)");
 
