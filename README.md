@@ -13,7 +13,7 @@ Queries musicbrainz' API and fetches data from linked source like Discogs or Spo
     - Spotify
     - Bandcamp
 
-## Config
+## Configuration
 
 The following values should be passed as startup flags (e.g. `-Dmusicbrainz-enricher.musicbrainz.username=myUserName`)
 
@@ -25,3 +25,8 @@ The following values should be passed as startup flags (e.g. `-Dmusicbrainz-enri
     - Spotify (can be left empty to disable spotify)
         - `musicbrainz-enricher.spotify.client-id`
         - `musicbrainz-enricher.spotify.client-secret`
+        
+## Usage
+
+Starting requires 2 arguments, mode and query:
+`java [startup flags] -jar musicbrainz-enricher*.jar 'release' 'searchQuery'`.

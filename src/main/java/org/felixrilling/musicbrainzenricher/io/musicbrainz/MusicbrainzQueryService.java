@@ -26,7 +26,7 @@ public class MusicbrainzQueryService {
         this.bucketService = bucketService;
     }
 
-    public void queryRelease(@NotNull String query, @NotNull ReleaseIncludesWs2 includes,@NotNull Consumer<ReleaseWs2> consumer) throws MBWS2Exception {
+    public void queryRelease(@NotNull String query, @NotNull ReleaseIncludesWs2 includes, @NotNull Consumer<ReleaseWs2> consumer) {
         Release release = new Release();
         release.setQueryWs(musicbrainzService.createWebService());
 
@@ -35,25 +35,19 @@ public class MusicbrainzQueryService {
         release.search(query);
 
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
-        release.getFirstSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
-        while (release.hasMore()) {
-            bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
-            release.getNextSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
+        try {
+            release.getFirstSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
+
+            while (release.hasMore()) {
+                bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+                release.getNextSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
+            }
+        } catch (MBWS2Exception e) {
+            throw new IllegalStateException("Could not query releases.",e);
         }
     }
 
-    public ArtistWs2 lookUpArtist(@NotNull String mbid, @NotNull ArtistIncludesWs2 includes) throws MBWS2Exception {
-        bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
-
-        Artist artist = new Artist();
-        artist.setQueryWs(musicbrainzService.createWebService());
-
-        artist.setIncludes(includes);
-
-        return artist.lookUp(mbid);
-    }
-
-    public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) throws MBWS2Exception {
+    public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes){
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         Release release = new Release();
@@ -61,7 +55,11 @@ public class MusicbrainzQueryService {
 
         release.setIncludes(includes);
 
-        return release.lookUp(mbid);
+        try {
+            return release.lookUp(mbid);
+        } catch (MBWS2Exception e) {
+            throw new IllegalStateException("Could not look up release.",e);
+        }
     }
 
 }

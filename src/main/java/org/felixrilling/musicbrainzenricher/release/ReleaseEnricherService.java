@@ -43,12 +43,7 @@ public class ReleaseEnricherService {
         includes.setTags(true);
         includes.setUserTags(true);
         includes.setReleaseGroups(true);
-        ReleaseWs2 releaseEntity;
-        try {
-            releaseEntity = musicbrainzQueryService.lookUpRelease(mbid, includes);
-        } catch (MBWS2Exception e) {
-            throw new IOException(e);
-        }
+        ReleaseWs2 releaseEntity = musicbrainzQueryService.lookUpRelease(mbid, includes);
 
         logger.info("Starting enrichment for '{}'.", releaseEntity.getId());
         ReleaseEnrichmentResult result = new ReleaseEnrichmentResult();
