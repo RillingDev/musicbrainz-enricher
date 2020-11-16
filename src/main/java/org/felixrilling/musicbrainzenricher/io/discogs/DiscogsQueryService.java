@@ -16,12 +16,16 @@ import java.util.Optional;
 public class DiscogsQueryService {
 
     private static final Logger logger = LoggerFactory.getLogger(DiscogsQueryService.class);
+
     private final DiscogsBucketProvider discogsBucketProvider;
     private final BucketService bucketService;
+
     @Value("${musicbrainz-enricher.name}")
     private String applicationName;
+
     @Value("${musicbrainz-enricher.version}")
     private String applicationVersion;
+
     @Value("${musicbrainz-enricher.contact}")
     private String applicationContact;
 

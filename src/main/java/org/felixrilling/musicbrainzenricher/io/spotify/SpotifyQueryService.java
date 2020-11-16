@@ -22,12 +22,16 @@ import java.util.Optional;
 public class SpotifyQueryService {
 
     private static final Logger logger = LoggerFactory.getLogger(SpotifyQueryService.class);
+
     private final SpotifyBucketProvider spotifyBucketProvider;
     private final BucketService bucketService;
+
     @Value("${musicbrainz-enricher.spotify.client-id}")
     private String clientId;
+
     @Value("${musicbrainz-enricher.spotify.client-secret}")
     private String clientSecret;
+
     private SpotifyApi spotifyApi;
 
     public SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
