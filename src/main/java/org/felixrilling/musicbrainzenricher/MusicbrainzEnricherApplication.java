@@ -38,6 +38,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
         switch (mode) {
             case "release":
                 enrichRelease(query);
+                break;
             default:
                 throw new IllegalArgumentException("Could not process mode '" + mode + "'.");
         }
