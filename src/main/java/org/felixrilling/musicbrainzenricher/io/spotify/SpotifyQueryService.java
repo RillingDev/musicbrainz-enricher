@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Optional;
 
 // https://github.com/thelinmichael/spotify-web-api-java
@@ -33,6 +34,7 @@ public class SpotifyQueryService {
     private String clientSecret;
 
     private SpotifyApi spotifyApi;
+    private Instant tokenExpiration;
 
     public SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
         this.spotifyBucketProvider = spotifyBucketProvider;
@@ -40,8 +42,8 @@ public class SpotifyQueryService {
     }
 
     public @NotNull Optional<Album> lookUpRelease(@NotNull final String id) {
-        if (!hasCredentialsSetUp()) {
-            logger.debug("No credentials set, skipping lookup.");
+        if (hasMissingCredentials()) {
+            logger.warn("No credentials set, skipping lookup.");
             return Optional.empty();
         }
 
@@ -55,22 +57,28 @@ public class SpotifyQueryService {
         }
     }
 
-    private boolean hasCredentialsSetUp() {
-        return !StringUtils.isBlank(clientId) && !StringUtils.isBlank(clientSecret);
+    private boolean hasMissingCredentials() {
+        return StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret);
     }
 
-    private SpotifyApi getApi() throws IOException, SpotifyWebApiException, ParseException {
+    private @NotNull SpotifyApi getApi() throws IOException, SpotifyWebApiException, ParseException {
         if (spotifyApi == null) {
-            if (!hasCredentialsSetUp()) {
+            if (hasMissingCredentials()) {
                 throw new IllegalStateException("No client id or secret provided.");
             }
             spotifyApi = new SpotifyApi.Builder()
                     .setClientId(clientId)
                     .setClientSecret(clientSecret)
                     .build();
+        }
+
+        Instant now = Instant.now();
+        if (tokenExpiration == null || tokenExpiration.isBefore(now)) {
             ClientCredentials credentials = spotifyApi.clientCredentials().build().execute();
             spotifyApi.setAccessToken(credentials.getAccessToken());
+            tokenExpiration = now.plusSeconds(credentials.getExpiresIn());
         }
+
         return spotifyApi;
     }
 }
