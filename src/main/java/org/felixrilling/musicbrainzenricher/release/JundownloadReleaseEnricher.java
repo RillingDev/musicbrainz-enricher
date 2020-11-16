@@ -14,24 +14,25 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Uses web scraping because the regular API does not seem to be for hobby devs.
+ * Uses web scraping because the regular API does not seem to be documented.
  */
+// https://musicbrainz.org/release/4a7262b6-a64d-4214-ae61-bb16d15d724c
+// https://www.junodownload.com/products/indivision-mount-vesuvius-newborn-star/4144821-02/
 @Service
-public class BandcampReleaseEnricher implements GenreReleaseEnricher {
+public class JundownloadReleaseEnricher implements GenreReleaseEnricher {
 
-    private static final Logger logger = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
+    private static final Logger logger = LoggerFactory.getLogger(JundownloadReleaseEnricher.class);
 
-    private static final Pattern HOST_REGEX = Pattern.compile(".+\\.bandcamp\\.com");
-    private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > a");
+    private static final Pattern HOST_REGEX = Pattern.compile("www\\.junodownload\\.com");
+    private static final Evaluator TAG_QUERY = QueryParser.parse("[itemprop='genre']");
 
     private final GenreMatcherService genreMatcherService;
 
-    BandcampReleaseEnricher(GenreMatcherService genreMatcherService) {
+    JundownloadReleaseEnricher(GenreMatcherService genreMatcherService) {
         this.genreMatcherService = genreMatcherService;
     }
 
@@ -48,7 +49,7 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
     }
 
     private @NotNull Set<String> extractTags(@NotNull Document document) {
-        return new HashSet<>(document.select(TAG_QUERY).eachText());
+        return Set.of(document.select(TAG_QUERY).attr("content"));
     }
 
     @Override
