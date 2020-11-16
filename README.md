@@ -12,6 +12,8 @@ Queries musicbrainz' API and fetches data from linked source like Discogs or Spo
     - Discogs
     - Spotify
     - Bandcamp
+    - Apple Music / iTunes
+    - Junodownload
 
 ## Configuration
 
