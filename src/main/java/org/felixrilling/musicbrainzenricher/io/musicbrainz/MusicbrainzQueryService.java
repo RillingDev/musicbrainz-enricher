@@ -11,6 +11,8 @@ import org.musicbrainz.model.entity.ArtistWs2;
 import org.musicbrainz.model.entity.ReleaseWs2;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Consumer;
+
 @Service
 public class MusicbrainzQueryService {
 
@@ -22,6 +24,22 @@ public class MusicbrainzQueryService {
         this.musicbrainzService = musicbrainzService;
         this.musicbrainzBucketProvider = musicbrainzBucketProvider;
         this.bucketService = bucketService;
+    }
+
+    public void queryRelease(@NotNull String query, @NotNull ReleaseIncludesWs2 includes,@NotNull Consumer<ReleaseWs2> consumer) throws MBWS2Exception {
+        Release release = new Release();
+        release.setQueryWs(musicbrainzService.createWebService());
+
+        release.setIncludes(includes);
+
+        release.search(query);
+
+        bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+        release.getFirstSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
+        while (release.hasMore()) {
+            bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+            release.getNextSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
+        }
     }
 
     public ArtistWs2 lookUpArtist(@NotNull String mbid, @NotNull ArtistIncludesWs2 includes) throws MBWS2Exception {

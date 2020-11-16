@@ -2,9 +2,7 @@ package org.felixrilling.musicbrainzenricher;
 
 import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzQueryService;
 import org.felixrilling.musicbrainzenricher.release.ReleaseEnricherService;
-import org.musicbrainz.includes.ArtistIncludesWs2;
-import org.musicbrainz.model.entity.ArtistWs2;
-import org.musicbrainz.model.entity.ReleaseWs2;
+import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,11 +25,12 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        ArtistIncludesWs2 includes = new ArtistIncludesWs2();
-        includes.includeAll();
-        ArtistWs2 artistWs2 = musicbrainzQueryService.lookUpArtist("f22942a1-6f70-4f48-866e-238cb2308fbd", includes);
-        for (ReleaseWs2 release : artistWs2.getReleases()) {
-            releaseEnricherService.enrichRelease(release.getId());
-        }
+        musicbrainzQueryService.queryRelease("a", new ReleaseIncludesWs2(), releaseWs2 -> {
+            try {
+                releaseEnricherService.enrichRelease(releaseWs2.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
