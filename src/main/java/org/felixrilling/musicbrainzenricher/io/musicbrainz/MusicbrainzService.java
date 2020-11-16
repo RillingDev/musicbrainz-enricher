@@ -6,6 +6,9 @@ import org.musicbrainz.webservice.impl.HttpClientWebServiceWs2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 @Service
 class MusicbrainzService {
 
@@ -38,6 +41,7 @@ class MusicbrainzService {
 
     private @NotNull String getClientName(@NotNull String applicationName, @NotNull String applicationVersion, @NotNull String applicationContact) {
         // See https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
-        return String.format("%s/%s ( %s )", applicationName, applicationVersion, applicationContact);
+        // While Musicbrainz states that contact details should be added, these seem to cause issues with the Java API.
+        return String.format("%s/%s", applicationName, applicationVersion);
     }
 }
