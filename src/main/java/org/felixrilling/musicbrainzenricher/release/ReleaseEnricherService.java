@@ -1,6 +1,5 @@
 package org.felixrilling.musicbrainzenricher.release;
 
-import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzEditExecutor;
 import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzQueryService;
 import org.jetbrains.annotations.NotNull;
@@ -27,14 +26,12 @@ public class ReleaseEnricherService {
 
     private final MusicbrainzQueryService musicbrainzQueryService;
     private final MusicbrainzEditService musicbrainzEditService;
-    private final MusicbrainzEditExecutor musicBrainzEditExecutor;
 
     private final @NotNull Set<ReleaseEnricher> releaseEnrichers;
 
-    ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService, MusicbrainzEditExecutor musicBrainzEditExecutor) {
+    ReleaseEnricherService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService) {
         this.musicbrainzQueryService = musicbrainzQueryService;
         this.musicbrainzEditService = musicbrainzEditService;
-        this.musicBrainzEditExecutor = musicBrainzEditExecutor;
 
         releaseEnrichers = new HashSet<>(applicationContext
                 .getBeansOfType(ReleaseEnricher.class).values());
@@ -94,17 +91,14 @@ public class ReleaseEnricherService {
 
     private void updateEntity(@NotNull ReleaseWs2 releaseEntity, @NotNull ReleaseEnrichmentResult result) {
         if (!result.getNewGenres().isEmpty()) {
-            musicBrainzEditExecutor.submit(() -> {
-                ReleaseGroupWs2 releaseGroup = releaseEntity.getReleaseGroup();
-                logger.info("Submitting new tags '{}' for release group '{}'.", result.getNewGenres(), releaseGroup
-                        .getId());
-                try {
-                    musicbrainzEditService.addReleaseGroupUserTags(releaseGroup.getId(), result.getNewGenres());
-                } catch (MBWS2Exception e) {
-                    logger.error("Could not submit tags.", e);
-                }
-                return null;
-            });
+            ReleaseGroupWs2 releaseGroup = releaseEntity.getReleaseGroup();
+            logger.info("Submitting new tags '{}' for release group '{}'.", result.getNewGenres(), releaseGroup
+                    .getId());
+            try {
+                musicbrainzEditService.addReleaseGroupUserTags(releaseGroup.getId(), result.getNewGenres());
+            } catch (MBWS2Exception e) {
+                logger.error("Could not submit tags.", e);
+            }
         }
     }
 
