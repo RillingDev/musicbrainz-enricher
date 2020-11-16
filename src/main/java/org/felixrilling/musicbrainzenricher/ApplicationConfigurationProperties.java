@@ -18,7 +18,7 @@ public class ApplicationConfigurationProperties {
 
 
     /**
-     * Application ID/name/
+     * Application ID/name.
      */
     @NotBlank
     @Pattern(regexp = "^\\w+$")

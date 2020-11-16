@@ -5,8 +5,6 @@ import org.felixrilling.musicbrainzenricher.io.discogs.DiscogsQueryService;
 import org.felixrilling.musicbrainzenricher.io.discogs.DiscogsRelease;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -42,9 +40,10 @@ public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
     }
 
     private @NotNull Set<String> extractGenres(@NotNull DiscogsRelease release) {
-        Set<String> genres = new HashSet<>();
-        genres.addAll(release.getGenres());
-        genres.addAll(release.getStyles());
+        Set<String> genres = new HashSet<>(release.getGenres());
+        if (release.getStyles() != null) {
+            genres.addAll(release.getStyles());
+        }
         return genres;
     }
 
