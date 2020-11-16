@@ -4,8 +4,8 @@ import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.jsoup.select.Evaluator;
+import org.jsoup.select.QueryParser;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +29,7 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
     private static final Logger logger = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
 
     private static final Pattern HOST_REGEX = Pattern.compile(".+\\.bandcamp\\.com");
+    private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > a");
 
     private final GenreMatcherService genreMatcherService;
 
@@ -48,13 +49,8 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
         return genreMatcherService.match(extractTags(document));
     }
 
-    private Set<String> extractTags(@NotNull Document document) {
-        Elements tagsMatches = document.getElementsByClass("tralbum-tags");
-        if (tagsMatches.size() != 1) {
-            throw new IllegalStateException("Unexpected match size.");
-        }
-        Element tags = tagsMatches.get(0);
-        return new HashSet<>(tags.getElementsByTag("a").eachText());
+    private @NotNull Set<String> extractTags(@NotNull Document document) {
+        return new HashSet<>(document.select(TAG_QUERY).eachText());
     }
 
     @Override
