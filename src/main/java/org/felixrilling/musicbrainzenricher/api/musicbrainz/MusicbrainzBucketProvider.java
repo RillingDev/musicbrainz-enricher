@@ -1,10 +1,10 @@
-package org.felixrilling.musicbrainzenricher.io.musicbrainz;
+package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.local.SynchronizationStrategy;
-import org.felixrilling.musicbrainzenricher.io.BucketProvider;
+import org.felixrilling.musicbrainzenricher.api.BucketProvider;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 

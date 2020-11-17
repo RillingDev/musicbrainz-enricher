@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.io;
+package org.felixrilling.musicbrainzenricher.api;
 
 import io.github.bucket4j.Bucket;
 import org.slf4j.Logger;

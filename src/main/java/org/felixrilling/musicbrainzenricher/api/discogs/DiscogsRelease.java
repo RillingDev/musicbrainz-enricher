@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.io.discogs;
+package org.felixrilling.musicbrainzenricher.api.discogs;
 
 
 import java.util.Set;

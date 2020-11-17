@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.io.discogs;
+package org.felixrilling.musicbrainzenricher.api.discogs;
 
 /**
  * (Incomplete) Base class for discogs responses.

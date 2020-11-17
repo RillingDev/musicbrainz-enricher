@@ -1,11 +1,9 @@
 package org.felixrilling.musicbrainzenricher.release;
 
+import org.felixrilling.musicbrainzenricher.api.spotify.SpotifyQueryService;
 import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
-import org.felixrilling.musicbrainzenricher.io.spotify.SpotifyQueryService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;

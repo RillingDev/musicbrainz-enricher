@@ -1,8 +1,8 @@
 package org.felixrilling.musicbrainzenricher.release;
 
+import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsQueryService;
+import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsRelease;
 import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
-import org.felixrilling.musicbrainzenricher.io.discogs.DiscogsQueryService;
-import org.felixrilling.musicbrainzenricher.io.discogs.DiscogsRelease;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.springframework.stereotype.Service;

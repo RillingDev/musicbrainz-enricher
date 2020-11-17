@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.io;
+package org.felixrilling.musicbrainzenricher.api;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

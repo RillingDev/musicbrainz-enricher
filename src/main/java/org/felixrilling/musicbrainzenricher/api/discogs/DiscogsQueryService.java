@@ -1,8 +1,8 @@
-package org.felixrilling.musicbrainzenricher.io.discogs;
+package org.felixrilling.musicbrainzenricher.api.discogs;
 
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
-import org.felixrilling.musicbrainzenricher.io.BucketService;
+import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

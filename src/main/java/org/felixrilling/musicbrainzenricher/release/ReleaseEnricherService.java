@@ -1,7 +1,7 @@
 package org.felixrilling.musicbrainzenricher.release;
 
-import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzEditService;
-import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;

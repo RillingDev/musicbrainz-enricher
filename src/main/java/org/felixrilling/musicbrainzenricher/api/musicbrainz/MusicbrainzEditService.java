@@ -1,6 +1,6 @@
-package org.felixrilling.musicbrainzenricher.io.musicbrainz;
+package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
-import org.felixrilling.musicbrainzenricher.io.BucketService;
+import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.ReleaseGroup;

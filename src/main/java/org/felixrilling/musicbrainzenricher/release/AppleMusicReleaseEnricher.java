@@ -1,7 +1,7 @@
 package org.felixrilling.musicbrainzenricher.release;
 
+import org.felixrilling.musicbrainzenricher.api.ScrapingService;
 import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
-import org.felixrilling.musicbrainzenricher.io.ScrapingService;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;

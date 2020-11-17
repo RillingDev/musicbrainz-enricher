@@ -1,6 +1,6 @@
 package org.felixrilling.musicbrainzenricher;
 
-import org.felixrilling.musicbrainzenricher.io.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
 import org.felixrilling.musicbrainzenricher.release.ReleaseEnricherService;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.slf4j.Logger;

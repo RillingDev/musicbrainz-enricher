@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.io.spotify;
+package org.felixrilling.musicbrainzenricher.api.spotify;
 
 import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
@@ -6,7 +6,7 @@ import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.Album;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ParseException;
-import org.felixrilling.musicbrainzenricher.io.BucketService;
+import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

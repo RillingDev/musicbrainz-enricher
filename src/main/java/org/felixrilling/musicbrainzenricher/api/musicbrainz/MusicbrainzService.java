@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.io.musicbrainz;
+package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.webservice.WebService;

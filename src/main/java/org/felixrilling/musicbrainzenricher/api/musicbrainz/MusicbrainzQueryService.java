@@ -1,13 +1,10 @@
-package org.felixrilling.musicbrainzenricher.io.musicbrainz;
+package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
-import org.felixrilling.musicbrainzenricher.io.BucketService;
+import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
-import org.musicbrainz.controller.Artist;
 import org.musicbrainz.controller.Release;
-import org.musicbrainz.includes.ArtistIncludesWs2;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
-import org.musicbrainz.model.entity.ArtistWs2;
 import org.musicbrainz.model.entity.ReleaseWs2;
 import org.springframework.stereotype.Service;
 
@@ -43,11 +40,11 @@ public class MusicbrainzQueryService {
                 release.getNextSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
             }
         } catch (MBWS2Exception e) {
-            throw new IllegalStateException("Could not query releases.",e);
+            throw new IllegalStateException("Could not query releases.", e);
         }
     }
 
-    public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes){
+    public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) {
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         Release release = new Release();
@@ -58,7 +55,7 @@ public class MusicbrainzQueryService {
         try {
             return release.lookUp(mbid);
         } catch (MBWS2Exception e) {
-            throw new IllegalStateException("Could not look up release.",e);
+            throw new IllegalStateException("Could not look up release.", e);
         }
     }
 
