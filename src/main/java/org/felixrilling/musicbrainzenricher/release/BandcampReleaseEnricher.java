@@ -1,8 +1,8 @@
 package org.felixrilling.musicbrainzenricher.release;
 
 import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
+import org.felixrilling.musicbrainzenricher.io.ScrapingService;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
 import org.jsoup.select.QueryParser;
@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
@@ -30,21 +29,16 @@ public class BandcampReleaseEnricher implements GenreReleaseEnricher {
     private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > a");
 
     private final GenreMatcherService genreMatcherService;
+    private final ScrapingService scrapingService;
 
-    BandcampReleaseEnricher(GenreMatcherService genreMatcherService) {
+    BandcampReleaseEnricher(GenreMatcherService genreMatcherService, ScrapingService scrapingService) {
         this.genreMatcherService = genreMatcherService;
+        this.scrapingService = scrapingService;
     }
 
     @Override
     public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) {
-        Document document;
-        try {
-            document = Jsoup.connect(relationUrl).get();
-        } catch (IOException e) {
-            logger.warn("Could not connect to '{}', skipping it.", relationUrl);
-            return Set.of();
-        }
-        return genreMatcherService.match(extractTags(document));
+        return scrapingService.load(relationUrl).map(this::extractTags).map(genreMatcherService::match).orElse(Set.of());
     }
 
     private @NotNull Set<String> extractTags(@NotNull Document document) {

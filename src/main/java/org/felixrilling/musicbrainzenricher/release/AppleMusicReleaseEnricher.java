@@ -1,8 +1,8 @@
 package org.felixrilling.musicbrainzenricher.release;
 
 import org.felixrilling.musicbrainzenricher.genre.GenreMatcherService;
+import org.felixrilling.musicbrainzenricher.io.ScrapingService;
 import org.jetbrains.annotations.NotNull;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
 import org.jsoup.select.QueryParser;
@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,28 +35,27 @@ public class AppleMusicReleaseEnricher implements GenreReleaseEnricher {
     private static final Pattern META_REGEX = Pattern.compile("(?<genre>.+).·.\\d+");
 
     private final GenreMatcherService genreMatcherService;
+    private final ScrapingService scrapingService;
 
-    AppleMusicReleaseEnricher(GenreMatcherService genreMatcherService) {
+    AppleMusicReleaseEnricher(GenreMatcherService genreMatcherService, ScrapingService scrapingService) {
         this.genreMatcherService = genreMatcherService;
+        this.scrapingService = scrapingService;
     }
 
     @Override
     public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) {
-        Document document;
-        try {
-            document = Jsoup.connect(relationUrl).get();
-        } catch (IOException e) {
-            logger.warn("Could not connect to '{}', skipping it.", relationUrl);
+        Optional<Document> document = scrapingService.load(relationUrl);
+        if (document.isEmpty()) {
             return Set.of();
         }
 
         // We can only process genres if they are in english.
-        if (!hasLocaleLanguage(document, Locale.ENGLISH)) {
+        if (!hasLocaleLanguage(document.get(), Locale.ENGLISH)) {
             logger.debug("Skipping '{}' because the locale is not supported.", relationUrl);
             return Set.of();
         }
 
-        return genreMatcherService.match(extractTags(document));
+        return genreMatcherService.match(extractTags(document.get()));
     }
 
     private @NotNull Set<String> extractTags(@NotNull Document document) {
