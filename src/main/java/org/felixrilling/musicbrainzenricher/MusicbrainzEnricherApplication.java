@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher;
 
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
 import org.felixrilling.musicbrainzenricher.release.ReleaseEnricherService;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.slf4j.Logger;
@@ -45,12 +46,16 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
     }
 
     private void enrichRelease(String query) {
-        musicbrainzQueryService.queryRelease(query, new ReleaseIncludesWs2(), releaseWs2 -> {
-            try {
-                releaseEnricherService.enrichRelease(releaseWs2.getId());
-            } catch (Exception e) {
-                logger.error("Could not enrich releases.", e);
-            }
-        });
+        try {
+            musicbrainzQueryService.queryRelease(query, new ReleaseIncludesWs2(), releaseWs2 -> {
+                try {
+                    releaseEnricherService.enrichRelease(releaseWs2.getId());
+                } catch (QueryException e) {
+                    logger.error("Could not enrich release.", e);
+                }
+            });
+        } catch (QueryException e) {
+            logger.error("Could not query releases.", e);
+        }
     }
 }

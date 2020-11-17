@@ -5,6 +5,6 @@ import org.musicbrainz.model.RelationWs2;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface ReleaseEnricher {
+interface ReleaseEnricher {
     boolean relationFits(@NotNull RelationWs2 relationWs2);
 }

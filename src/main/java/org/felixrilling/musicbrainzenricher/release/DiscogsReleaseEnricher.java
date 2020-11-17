@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class DiscogsReleaseEnricher implements GenreReleaseEnricher {
+class DiscogsReleaseEnricher implements GenreReleaseEnricher {
 
     private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://www\\.discogs\\.com/release/(?<id>\\d+)");
 

@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 @Service
-public class GenreProviderService {
+class GenreProviderService {
 
     // Hard-coded list from https://musicbrainz.org/genres
     // Possibly lazy-load from API/page

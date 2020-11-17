@@ -23,7 +23,7 @@ public class MusicbrainzQueryService {
         this.bucketService = bucketService;
     }
 
-    public void queryRelease(@NotNull String query, @NotNull ReleaseIncludesWs2 includes, @NotNull Consumer<ReleaseWs2> consumer) {
+    public void queryRelease(@NotNull String query, @NotNull ReleaseIncludesWs2 includes, @NotNull Consumer<ReleaseWs2> consumer) throws QueryException {
         Release release = new Release();
         release.setQueryWs(musicbrainzService.createWebService());
 
@@ -40,11 +40,11 @@ public class MusicbrainzQueryService {
                 release.getNextSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
             }
         } catch (MBWS2Exception e) {
-            throw new IllegalStateException("Could not query releases.", e);
+            throw new QueryException("Could not query releases.", e);
         }
     }
 
-    public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) {
+    public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) throws QueryException {
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         Release release = new Release();
@@ -55,7 +55,7 @@ public class MusicbrainzQueryService {
         try {
             return release.lookUp(mbid);
         } catch (MBWS2Exception e) {
-            throw new IllegalStateException("Could not look up release.", e);
+            throw new QueryException("Could not look up release.", e);
         }
     }
 

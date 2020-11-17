@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * Uses web scraping because the regular API does not seem to be for hobby devs.
  */
 @Service
-public class BandcampReleaseEnricher implements GenreReleaseEnricher {
+class BandcampReleaseEnricher implements GenreReleaseEnricher {
 
     private static final Logger logger = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
 

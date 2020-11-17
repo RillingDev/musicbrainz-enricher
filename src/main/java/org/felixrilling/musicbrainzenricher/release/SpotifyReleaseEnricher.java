@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-public class SpotifyReleaseEnricher implements GenreReleaseEnricher {
+class SpotifyReleaseEnricher implements GenreReleaseEnricher {
 
     private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://open\\.spotify\\.com/album/(?<id>\\w+)");
 

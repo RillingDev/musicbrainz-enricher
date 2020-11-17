@@ -12,7 +12,7 @@ import java.time.Duration;
 
 @Component
 @Scope("singleton")
-public class MusicbrainzBucketProvider implements BucketProvider {
+class MusicbrainzBucketProvider implements BucketProvider {
 
     // See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
     // Reduced quite a bit (from 1/s) to not cause issues.

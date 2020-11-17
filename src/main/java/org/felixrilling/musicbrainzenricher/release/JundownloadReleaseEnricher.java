@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release/4a7262b6-a64d-4214-ae61-bb16d15d724c
 // https://www.junodownload.com/products/indivision-mount-vesuvius-newborn-star/4144821-02/
 @Service
-public class JundownloadReleaseEnricher implements GenreReleaseEnricher {
+class JundownloadReleaseEnricher implements GenreReleaseEnricher {
 
     private static final Logger logger = LoggerFactory.getLogger(JundownloadReleaseEnricher.class);
 

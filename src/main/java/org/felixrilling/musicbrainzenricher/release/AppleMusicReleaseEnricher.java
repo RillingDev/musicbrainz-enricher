@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release/5bcb2971-fdea-4543-baf2-dd41d8b9a3cd
 // https://music.apple.com/us/album/1383304609
 @Service
-public class AppleMusicReleaseEnricher implements GenreReleaseEnricher {
+class AppleMusicReleaseEnricher implements GenreReleaseEnricher {
 
     private static final Logger logger = LoggerFactory.getLogger(AppleMusicReleaseEnricher.class);
 

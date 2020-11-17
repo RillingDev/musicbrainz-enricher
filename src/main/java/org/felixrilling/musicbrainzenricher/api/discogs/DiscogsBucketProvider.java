@@ -12,7 +12,7 @@ import java.time.Duration;
 
 @Component
 @Scope("singleton")
-public class DiscogsBucketProvider implements BucketProvider {
+class DiscogsBucketProvider implements BucketProvider {
 
     //https://www.discogs.com/developers/#page:home,header:home-rate-limiting
     private static final Bandwidth BANDWIDTH = Bandwidth.simple(60, Duration.ofMinutes(1));

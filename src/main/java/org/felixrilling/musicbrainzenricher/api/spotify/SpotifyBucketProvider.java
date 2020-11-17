@@ -12,7 +12,7 @@ import java.time.Duration;
 
 @Component
 @Scope("singleton")
-public class SpotifyBucketProvider implements BucketProvider {
+class SpotifyBucketProvider implements BucketProvider {
 
     // https://developer.spotify.com/documentation/web-api/
     private static final Bandwidth BANDWIDTH = Bandwidth.simple(1, Duration.ofSeconds(5));
