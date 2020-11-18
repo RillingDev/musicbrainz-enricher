@@ -19,7 +19,11 @@ public class ScrapingService {
             Document document = Jsoup.connect(url).get();
             return Optional.of(document);
         } catch (IOException e) {
-            logger.warn("Could not connect to '{}': {}.", url, e);
+            if (logger.isDebugEnabled()) {
+                logger.warn("Could not connect to '{}': {}.", url, e);
+            } else {
+                logger.warn("Could not connect to '{}'.", url);
+            }
             return Optional.empty();
         }
     }
