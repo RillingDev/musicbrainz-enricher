@@ -1,27 +1,28 @@
 package org.felixrilling.musicbrainzenricher;
 
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
-import org.felixrilling.musicbrainzenricher.release.ReleaseEnricherService;
-import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.core.env.Environment;
 
+import java.util.Arrays;
 
-@SpringBootApplication
+// https://stackoverflow.com/questions/36387265/disable-all-database-related-auto-configuration-in-spring-boot
+@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class})
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
 
-    private final ReleaseEnricherService releaseEnricherService;
-    private final MusicbrainzQueryService musicbrainzQueryService;
+    private final EnrichmentService enrichmentService;
+    private final Environment environment;
 
-    MusicbrainzEnricherApplication(ReleaseEnricherService releaseEnricherService, MusicbrainzQueryService musicbrainzQueryService) {
-        this.releaseEnricherService = releaseEnricherService;
-        this.musicbrainzQueryService = musicbrainzQueryService;
+    MusicbrainzEnricherApplication(EnrichmentService enrichmentService, Environment environment) {
+        this.enrichmentService = enrichmentService;
+        this.environment = environment;
     }
 
     public static void main(String[] args) {
@@ -30,32 +31,34 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (args.length != 2) {
-            throw new IllegalArgumentException("Expected exactly 2 arguments but found " + args.length + ".");
+        if (args.length < 1) {
+            throw new IllegalArgumentException("Expected at least 1 arguments but found none.");
         }
-        String mode = args[0];
-        String query = args[1];
+        EnrichmentService.Mode mode = parseMode(args[0]);
 
-        switch (mode) {
-            case "release":
-                enrichRelease(query);
-                break;
-            default:
-                throw new IllegalArgumentException("Could not process mode '" + mode + "'.");
-        }
-    }
-
-    private void enrichRelease(String query) {
         try {
-            musicbrainzQueryService.queryRelease(query, new ReleaseIncludesWs2(), releaseWs2 -> {
-                try {
-                    releaseEnricherService.enrichRelease(releaseWs2.getId());
-                } catch (QueryException e) {
-                    logger.error("Could not enrich release.", e);
+            if (Arrays.asList(environment.getActiveProfiles()).contains("musicbrainz_local_db")) {
+                enrichmentService.runInDumpMode(mode);
+            } else {
+                if (args.length < 2) {
+                    throw new IllegalArgumentException("Expected a second arguments but found none.");
                 }
-            });
-        } catch (QueryException e) {
-            logger.error("Could not query releases.", e);
+                String query = args[1];
+                enrichmentService.runInQueryMode(mode, query);
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("Unexpected error.", e);
         }
     }
+
+
+    private EnrichmentService.Mode parseMode(String modeString) {
+        switch (modeString) {
+            case "release":
+                return EnrichmentService.Mode.RELEASE;
+            default:
+                throw new IllegalArgumentException("Could not process mode '" + modeString + "'.");
+        }
+    }
+
 }

@@ -23,7 +23,7 @@ public class MusicbrainzQueryService {
         this.bucketService = bucketService;
     }
 
-    public void queryRelease(@NotNull String query, @NotNull ReleaseIncludesWs2 includes, @NotNull Consumer<ReleaseWs2> consumer) throws QueryException {
+    public void queryReleases(@NotNull String query, @NotNull Consumer<String> mbidConsumer, @NotNull ReleaseIncludesWs2 includes) throws QueryException {
         Release release = new Release();
         release.setQueryWs(musicbrainzService.createWebService());
 
@@ -33,11 +33,11 @@ public class MusicbrainzQueryService {
 
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
         try {
-            release.getFirstSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
+            release.getFirstSearchResultPage().forEach(releaseWs2 -> mbidConsumer.accept(releaseWs2.getRelease().getId()));
 
             while (release.hasMore()) {
                 bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
-                release.getNextSearchResultPage().forEach(releaseWs2 -> consumer.accept(releaseWs2.getRelease()));
+                release.getNextSearchResultPage().forEach(releaseWs2 -> mbidConsumer.accept(releaseWs2.getRelease().getId()));
             }
         } catch (MBWS2Exception e) {
             throw new QueryException("Could not query releases.", e);

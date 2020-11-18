@@ -16,9 +16,14 @@
 
     <properties>
         <java.version>11</java.version>
+        <postgres.version>42.2.18</postgres.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
@@ -46,6 +51,14 @@
             <version>3.11.05</version>
         </dependency>
 
+        <!-- Drivers -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${postgres.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
         <!-- Utility -->
         <dependency>
             <groupId>info.debatty</groupId>
@@ -62,7 +75,6 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>20.1.0</version>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -103,6 +115,8 @@
                     </excludes>
                 </configuration>
             </plugin>
+
+
         </plugins>
     </build>
 
