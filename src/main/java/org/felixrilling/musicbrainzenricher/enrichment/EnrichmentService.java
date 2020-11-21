@@ -6,5 +6,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface EnrichmentService {
-    void enrichRelease(@NotNull String mbid) throws QueryException;
+    void enrich(@NotNull String mbid) throws QueryException;
 }

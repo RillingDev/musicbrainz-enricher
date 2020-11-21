@@ -4,8 +4,10 @@ import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQuerySe
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
 import org.felixrilling.musicbrainzenricher.enrichment.release.ReleaseEnrichmentService;
+import org.felixrilling.musicbrainzenricher.enrichment.releasegroup.ReleaseGroupEnrichmentService;
 import org.felixrilling.musicbrainzenricher.history.HistoryService;
 import org.jetbrains.annotations.NotNull;
+import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,35 +15,52 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 @Service
-class EnrichmentService {
+class MusicbrainzEnricherService {
 
-    private static final Logger logger = LoggerFactory.getLogger(EnrichmentService.class);
+    private static final Logger logger = LoggerFactory.getLogger(MusicbrainzEnricherService.class);
 
     private final ReleaseEnrichmentService releaseEnrichmentService;
+    private final ReleaseGroupEnrichmentService releaseGroupEnrichmentService;
+    private final MusicbrainzQueryService musicbrainzQueryService;
     private final HistoryService historyService;
     private final ApplicationContext applicationContext;
 
-    EnrichmentService(ReleaseEnrichmentService releaseEnrichmentService, HistoryService historyService, ApplicationContext applicationContext) {
+    MusicbrainzEnricherService(ReleaseEnrichmentService releaseEnrichmentService, ReleaseGroupEnrichmentService releaseGroupEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, HistoryService historyService, ApplicationContext applicationContext) {
         this.releaseEnrichmentService = releaseEnrichmentService;
+        this.releaseGroupEnrichmentService = releaseGroupEnrichmentService;
+        this.musicbrainzQueryService = musicbrainzQueryService;
         this.historyService = historyService;
         this.applicationContext = applicationContext;
     }
 
     public void runInDumpMode(@NotNull DataType dataType) throws QueryException {
+        // Conditionally accessing because we only have this in some profiles
         MusicbrainzDbQueryService musicbrainzDbQueryService = applicationContext.getBean(MusicbrainzDbQueryService.class);
 
-        if (dataType == DataType.RELEASE) {
-            musicbrainzDbQueryService.queryReleasesWithRelationships(mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrichRelease));
+        switch (dataType) {
+            case RELEASE:
+                musicbrainzDbQueryService.queryReleasesWithRelationships(mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrich));
+                break;
+            case RELEASE_GROUP:
+                musicbrainzDbQueryService
+                        .queryReleaseGroupsWithRelationships(mbid -> enrich(DataType.RELEASE_GROUP, mbid, releaseGroupEnrichmentService::enrich));
+                break;
         }
     }
 
     public void runInQueryMode(@NotNull DataType dataType, @NotNull String query) throws QueryException {
-        MusicbrainzQueryService musicbrainzQueryService = applicationContext.getBean(MusicbrainzQueryService.class);
-
-        if (dataType == DataType.RELEASE) {
-            ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
-            includes.excludeAll();
-            musicbrainzQueryService.queryReleases(query, includes, mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrichRelease));
+        switch (dataType) {
+            case RELEASE:
+                ReleaseIncludesWs2 releaseIncludesWs2 = new ReleaseIncludesWs2();
+                releaseIncludesWs2.excludeAll();
+                musicbrainzQueryService.queryReleases(query, releaseIncludesWs2, mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrich));
+                break;
+            case RELEASE_GROUP:
+                ReleaseGroupIncludesWs2 releaseGroupIncludesWs2 = new ReleaseGroupIncludesWs2();
+                releaseGroupIncludesWs2.excludeAll();
+                musicbrainzQueryService
+                        .queryReleaseGroups(query, releaseGroupIncludesWs2, mbid -> enrich(DataType.RELEASE_GROUP, mbid, releaseGroupEnrichmentService::enrich));
+                break;
         }
     }
 

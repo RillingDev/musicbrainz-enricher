@@ -14,11 +14,11 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
 
-    private final EnrichmentService enrichmentService;
+    private final MusicbrainzEnricherService musicbrainzEnricherService;
     private final Environment environment;
 
-    MusicbrainzEnricherApplication(EnrichmentService enrichmentService, Environment environment) {
-        this.enrichmentService = enrichmentService;
+    MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService, Environment environment) {
+        this.musicbrainzEnricherService = musicbrainzEnricherService;
         this.environment = environment;
     }
 
@@ -35,13 +35,13 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
         try {
             if (Arrays.asList(environment.getActiveProfiles()).contains("musicbrainzLocalDb")) {
-                enrichmentService.runInDumpMode(dataType);
+                musicbrainzEnricherService.runInDumpMode(dataType);
             } else {
                 if (args.length < 2) {
                     throw new IllegalArgumentException("Expected a second arguments but found none.");
                 }
                 String query = args[1];
-                enrichmentService.runInQueryMode(dataType, query);
+                musicbrainzEnricherService.runInQueryMode(dataType, query);
             }
         } catch (Exception e) {
             logger.error("Unexpected error.", e);
@@ -53,6 +53,8 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
         switch (modeString) {
             case "release":
                 return DataType.RELEASE;
+            case "release-group":
+                return DataType.RELEASE_GROUP;
             default:
                 throw new IllegalArgumentException("Could not process mode '" + modeString + "'.");
         }

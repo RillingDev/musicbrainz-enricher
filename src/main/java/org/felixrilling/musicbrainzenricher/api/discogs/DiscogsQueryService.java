@@ -45,6 +45,16 @@ public class DiscogsQueryService {
     }
 
 
+    public @NotNull Optional<DiscogsMaster> lookUpMaster(@NotNull final String id) {
+        bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
+
+        HttpResponse<DiscogsMaster> response = Unirest.get("https://api.discogs.com/masters/{id}").routeParam("id", id)
+                .header("User-Agent", getUserAgent(applicationName, applicationVersion, applicationContact))
+                .asObject(DiscogsMaster.class)
+                .ifFailure(res -> logger.warn("Could not look up master '{}': {}.", id, res.getStatus()));
+        return wrapResponse(response);
+    }
+
     private <T> @NotNull Optional<T> wrapResponse(@NotNull HttpResponse<T> response) {
         if (!response.isSuccess()) {
             return Optional.empty();

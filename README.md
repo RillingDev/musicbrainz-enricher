@@ -8,12 +8,14 @@ Queries musicbrainz' API and fetches data from linked source like Discogs or Spo
 
 ### Supported Relationship Sources
 
-- Releases
+- Releases (mode = `release`)
     - Discogs
     - Spotify
     - Bandcamp
     - Apple Music / iTunes
     - Junodownload
+- Release Groups (mode = `release-group`)
+    - Discogs
 
 ## Configuration
 

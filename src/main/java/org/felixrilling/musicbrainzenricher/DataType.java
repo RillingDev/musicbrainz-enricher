@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher;
 
 public enum DataType {
-    RELEASE
+    RELEASE,
+    RELEASE_GROUP
 }
