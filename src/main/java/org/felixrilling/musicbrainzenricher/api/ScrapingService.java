@@ -20,7 +20,7 @@ public class ScrapingService {
             return Optional.of(document);
         } catch (IOException e) {
             if (logger.isDebugEnabled()) {
-                logger.warn("Could not connect to '{}': {}.", url, e);
+                logger.warn("Could not connect to '{}'.", url, e);
             } else {
                 logger.warn("Could not connect to '{}'.", url);
             }

@@ -93,7 +93,7 @@ class AppleMusicReleaseEnricher implements GenreReleaseEnricher {
         try {
             url = new URL(relationWs2.getTargetId());
         } catch (MalformedURLException e) {
-            logger.warn("Could not parse as URL: '{}'.", relationWs2.getTargetId());
+            logger.warn("Could not parse as URL: '{}'.", relationWs2.getTargetId(), e);
             return false;
         }
         return HOST_REGEX.matcher(url.getHost()).matches();
