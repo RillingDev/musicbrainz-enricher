@@ -4,6 +4,7 @@ import org.felixrilling.musicbrainzenricher.DataType;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "history_entry",
@@ -59,5 +60,35 @@ class HistoryEntry {
 
     public void setLastChecked(ZonedDateTime lastChecked) {
         this.lastChecked = lastChecked;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HistoryEntry that = (HistoryEntry) o;
+        return id == that.id &&
+                dataType == that.dataType &&
+                mbid.equals(that.mbid) &&
+                lastChecked.equals(that.lastChecked);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, dataType, mbid, lastChecked);
+    }
+
+    @Override
+    public String toString() {
+        return "HistoryEntry{" +
+                "id=" + id +
+                ", dataType=" + dataType +
+                ", mbid='" + mbid + '\'' +
+                ", lastChecked=" + lastChecked +
+                '}';
     }
 }
