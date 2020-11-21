@@ -5,14 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
 import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
 
-// https://stackoverflow.com/questions/36387265/disable-all-database-related-auto-configuration-in-spring-boot
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class})
+@SpringBootApplication
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
@@ -34,17 +31,17 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
         if (args.length < 1) {
             throw new IllegalArgumentException("Expected at least 1 arguments but found none.");
         }
-        EnrichmentService.Mode mode = parseMode(args[0]);
+        DataType dataType = parseMode(args[0]);
 
         try {
-            if (Arrays.asList(environment.getActiveProfiles()).contains("musicbrainz_local_db")) {
-                enrichmentService.runInDumpMode(mode);
+            if (Arrays.asList(environment.getActiveProfiles()).contains("musicbrainzLocalDb")) {
+                enrichmentService.runInDumpMode(dataType);
             } else {
                 if (args.length < 2) {
                     throw new IllegalArgumentException("Expected a second arguments but found none.");
                 }
                 String query = args[1];
-                enrichmentService.runInQueryMode(mode, query);
+                enrichmentService.runInQueryMode(dataType, query);
             }
         } catch (IllegalArgumentException e) {
             logger.error("Unexpected error.", e);
@@ -52,10 +49,10 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
     }
 
 
-    private EnrichmentService.Mode parseMode(String modeString) {
+    private DataType parseMode(String modeString) {
         switch (modeString) {
             case "release":
-                return EnrichmentService.Mode.RELEASE;
+                return DataType.RELEASE;
             default:
                 throw new IllegalArgumentException("Could not process mode '" + modeString + "'.");
         }

@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,12 @@ import java.sql.Statement;
 import java.util.function.Consumer;
 
 @Service
-@Profile("musicbrainz_local_db")
+@Profile("musicbrainzLocalDb")
 public class MusicbrainzDbQueryService {
 
     private final DataSource dataSource;
 
-    public MusicbrainzDbQueryService(DataSource dataSource) {
+    public MusicbrainzDbQueryService(@Qualifier("musicbrainzLocalDb") DataSource dataSource) {
         this.dataSource = dataSource;
     }
 

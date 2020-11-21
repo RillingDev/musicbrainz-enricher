@@ -3,6 +3,7 @@ package org.felixrilling.musicbrainzenricher;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
+import org.felixrilling.musicbrainzenricher.history.HistoryService;
 import org.felixrilling.musicbrainzenricher.release.ReleaseEnricherService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
@@ -19,17 +20,19 @@ class EnrichmentService {
     private static final Logger logger = LoggerFactory.getLogger(EnrichmentService.class);
 
     private final ReleaseEnricherService releaseEnricherService;
+    private final HistoryService historyService;
     private final ApplicationContext applicationContext;
 
-    EnrichmentService(ReleaseEnricherService releaseEnricherService, ApplicationContext applicationContext) {
+    EnrichmentService(ReleaseEnricherService releaseEnricherService, HistoryService historyService, ApplicationContext applicationContext) {
         this.releaseEnricherService = releaseEnricherService;
+        this.historyService = historyService;
         this.applicationContext = applicationContext;
     }
 
-    public void runInDumpMode(@NotNull Mode mode) {
+    public void runInDumpMode(@NotNull DataType dataType) {
         MusicbrainzDbQueryService musicbrainzDbQueryService = applicationContext.getBean(MusicbrainzDbQueryService.class);
 
-        if (mode == Mode.RELEASE) {
+        if (dataType == DataType.RELEASE) {
             enrichRelease(consumer -> {
                 musicbrainzDbQueryService.queryReleasesWithRelationships(consumer);
                 return null;
@@ -37,10 +40,10 @@ class EnrichmentService {
         }
     }
 
-    public void runInQueryMode(@NotNull Mode mode, @NotNull String query) {
+    public void runInQueryMode(@NotNull DataType dataType, @NotNull String query) {
         MusicbrainzQueryService musicbrainzQueryService = applicationContext.getBean(MusicbrainzQueryService.class);
 
-        if (mode == Mode.RELEASE) {
+        if (dataType == DataType.RELEASE) {
             enrichRelease(consumer -> {
                 ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
                 includes.excludeAll();
@@ -53,8 +56,13 @@ class EnrichmentService {
     private void enrichRelease(@NotNull ConsumerBinder<String, QueryException> consumerBinder) {
         try {
             consumerBinder.bind(mbid -> {
+                if (!historyService.checkIsDue(DataType.RELEASE, mbid)) {
+                    logger.debug("Check is not due for '{}', skipping.", mbid);
+                    return;
+                }
                 try {
                     releaseEnricherService.enrichRelease(mbid);
+                    historyService.markAsChecked(DataType.RELEASE, mbid);
                 } catch (QueryException e) {
                     logger.error("Could not enrich release.", e);
                 }
@@ -62,10 +70,6 @@ class EnrichmentService {
         } catch (QueryException e) {
             logger.error("Could not query releases.", e);
         }
-    }
-
-    enum Mode {
-        RELEASE
     }
 
     @FunctionalInterface

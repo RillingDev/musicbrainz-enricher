@@ -33,7 +33,10 @@ The following values should be passed as startup flags (e.g. `-Dmusicbrainz-enri
 Starting requires 2 arguments, mode and query:
 `java [startup flags] -jar musicbrainz-enricher*.jar 'release' 'searchQuery'`.
 
-### Musicbrainz Local Db Mode 
+### Local History DB
+
+This application will remember entities checked already and will only re-check them after duration `n` days, where `n` defaults to 7 days. In order to reset this, delete the musicbrainz-enricher database in `~/.cache/`.
+### Musicbrainz Local DB Mode 
 
 You can massively improve throughput by using a local musicbrainz database connection instead of querying the API for enrichment targets.
-Set up <https://github.com/metabrainz/musicbrainz-docker> locally with the database port open, then call this tool with the profile `musicbrainz_local_db`, and omit the "query" parameter listed in "Usage".
+Set up <https://github.com/metabrainz/musicbrainz-docker> locally with the database port open, then call this tool with the profile `musicbrainzLocalDb`, and omit the "query" parameter listed in "Usage".
