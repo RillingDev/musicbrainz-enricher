@@ -43,7 +43,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
                 String query = args[1];
                 enrichmentService.runInQueryMode(dataType, query);
             }
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
             logger.error("Unexpected error.", e);
         }
     }

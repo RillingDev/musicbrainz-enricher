@@ -3,16 +3,14 @@ package org.felixrilling.musicbrainzenricher;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
-import org.felixrilling.musicbrainzenricher.history.HistoryService;
 import org.felixrilling.musicbrainzenricher.enrichment.release.ReleaseEnricherService;
+import org.felixrilling.musicbrainzenricher.history.HistoryService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-
-import java.util.function.Consumer;
 
 @Service
 class EnrichmentService {
@@ -29,56 +27,42 @@ class EnrichmentService {
         this.applicationContext = applicationContext;
     }
 
-    public void runInDumpMode(@NotNull DataType dataType) {
+    public void runInDumpMode(@NotNull DataType dataType) throws QueryException {
         MusicbrainzDbQueryService musicbrainzDbQueryService = applicationContext.getBean(MusicbrainzDbQueryService.class);
 
         if (dataType == DataType.RELEASE) {
-            enrichRelease(consumer -> {
-                musicbrainzDbQueryService.queryReleasesWithRelationships(consumer);
-                return null;
-            });
+            musicbrainzDbQueryService.queryReleasesWithRelationships(mbid -> enrich(DataType.RELEASE, mbid, releaseEnricherService::enrichRelease));
         }
     }
 
-    public void runInQueryMode(@NotNull DataType dataType, @NotNull String query) {
+    public void runInQueryMode(@NotNull DataType dataType, @NotNull String query) throws QueryException {
         MusicbrainzQueryService musicbrainzQueryService = applicationContext.getBean(MusicbrainzQueryService.class);
 
         if (dataType == DataType.RELEASE) {
-            enrichRelease(consumer -> {
-                ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
-                includes.excludeAll();
-                musicbrainzQueryService.queryReleases(query, consumer, includes);
-                return null;
-            });
+            ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
+            includes.excludeAll();
+            musicbrainzQueryService.queryReleases(query, includes, mbid -> enrich(DataType.RELEASE, mbid, releaseEnricherService::enrichRelease));
         }
     }
 
-    private void enrichRelease(@NotNull ConsumerBinder<String, QueryException> consumerBinder) {
-        try {
-            consumerBinder.bind(mbid -> {
-                if (!historyService.checkIsDue(DataType.RELEASE, mbid)) {
-                    logger.debug("Check is not due for '{}', skipping.", mbid);
-                    return;
-                }
-                try {
-                    releaseEnricherService.enrichRelease(mbid);
-                    historyService.markAsChecked(DataType.RELEASE, mbid);
-                } catch (QueryException e) {
-                    logger.error("Could not enrich release.", e);
-                }
-            }).execute();
-        } catch (QueryException e) {
-            logger.error("Could not query releases.", e);
+    private void enrich(@NotNull DataType dataType, @NotNull String mbid, @NotNull MbidConsumer mbidConsumer) {
+        if (!historyService.checkIsDue(dataType, mbid)) {
+            logger.debug("Check is not due for '{}' ({}), skipping.", mbid, dataType);
+            return;
         }
+        logger.info("Starting enrichment for '{}' ({}).", mbid, dataType);
+        try {
+            mbidConsumer.consume(mbid);
+        } catch (Exception e) {
+            logger.error("Could not enrich {}' ({}).", mbid, dataType, e);
+            return;
+        }
+        logger.info("Completed enrichment for '{}' ({}).", mbid, dataType);
+        historyService.markAsChecked(dataType, mbid);
     }
 
     @FunctionalInterface
-    interface ConsumerBinder<TConsumerValue, EException extends Throwable> {
-        NoOp<EException> bind(@NotNull Consumer<TConsumerValue> consumer) throws EException;
-
-        @FunctionalInterface
-        interface NoOp<E extends Throwable> {
-            void execute() throws E;
-        }
+    private interface MbidConsumer {
+        void consume(String mbid) throws Exception;
     }
 }

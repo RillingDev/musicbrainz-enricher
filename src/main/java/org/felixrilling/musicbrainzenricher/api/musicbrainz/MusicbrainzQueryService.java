@@ -23,7 +23,7 @@ public class MusicbrainzQueryService {
         this.bucketService = bucketService;
     }
 
-    public void queryReleases(@NotNull String query, @NotNull Consumer<String> mbidConsumer, @NotNull ReleaseIncludesWs2 includes) throws QueryException {
+    public void queryReleases(@NotNull String query, @NotNull ReleaseIncludesWs2 includes, @NotNull Consumer<String> mbidConsumer) throws QueryException {
         Release release = new Release();
         release.setQueryWs(musicbrainzService.createWebService());
 

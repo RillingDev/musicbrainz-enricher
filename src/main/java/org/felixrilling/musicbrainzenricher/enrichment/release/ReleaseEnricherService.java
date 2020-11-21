@@ -45,13 +45,12 @@ public class ReleaseEnricherService {
         includes.setReleaseGroups(true);
         ReleaseWs2 releaseEntity = musicbrainzQueryService.lookUpRelease(mbid, includes);
 
-        logger.info("Starting enrichment for '{}'.", releaseEntity.getId());
+        logger.debug("Loaded release data: '{}'.", releaseEntity);
         ReleaseEnrichmentResult result = new ReleaseEnrichmentResult();
         for (RelationWs2 relation : releaseEntity.getRelationList().getRelations()) {
             enrichForRelation(releaseEntity, relation, result);
         }
         updateEntity(releaseEntity, result);
-        logger.info("Completed enrichment for '{}'.", releaseEntity.getId());
     }
 
     private void enrichForRelation(@NotNull ReleaseWs2 releaseEntity, @NotNull RelationWs2 relation, @NotNull ReleaseEnrichmentResult result) {
