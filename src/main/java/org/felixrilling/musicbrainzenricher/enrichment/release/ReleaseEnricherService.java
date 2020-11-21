@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.release;
+package org.felixrilling.musicbrainzenricher.enrichment.release;
 
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;

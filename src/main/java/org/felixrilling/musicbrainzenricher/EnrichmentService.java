@@ -4,7 +4,7 @@ import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQuerySe
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
 import org.felixrilling.musicbrainzenricher.history.HistoryService;
-import org.felixrilling.musicbrainzenricher.release.ReleaseEnricherService;
+import org.felixrilling.musicbrainzenricher.enrichment.release.ReleaseEnricherService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.slf4j.Logger;

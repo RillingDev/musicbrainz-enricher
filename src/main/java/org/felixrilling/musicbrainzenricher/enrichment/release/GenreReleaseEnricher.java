@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.release;
+package org.felixrilling.musicbrainzenricher.enrichment.release;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;

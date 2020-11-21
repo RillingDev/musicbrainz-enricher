@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.genre;
+package org.felixrilling.musicbrainzenricher.enrichment.genre;
 
 import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
 import org.jetbrains.annotations.NotNull;
