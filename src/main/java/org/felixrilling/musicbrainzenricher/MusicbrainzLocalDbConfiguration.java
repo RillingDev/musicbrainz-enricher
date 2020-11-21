@@ -10,19 +10,14 @@ import org.springframework.context.annotation.Profile;
 import javax.sql.DataSource;
 
 @Configuration
-class AppConfiguration {
+@Profile("musicbrainzLocalDb")
+class MusicbrainzLocalDbConfiguration {
 
-    // Configures for the musicbrainz server docker image.
-    // https://github.com/metabrainz/musicbrainz-docker
-    @ConfigurationProperties(prefix = "datasource.postgres")
+    @ConfigurationProperties(prefix = "musicbrainz-local-db.datasource")
     @Bean("musicbrainzLocalDb")
-    @Profile("musicbrainzLocalDb")
     DataSource musicbrainzLocalDb() {
         return DataSourceBuilder
                 .create()
-                .username("musicbrainz")
-                .password("musicbrainz")
-                .url("jdbc:postgresql://127.0.0.1:5432/musicbrainz_db")
                 .build();
     }
 }
