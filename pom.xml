@@ -34,9 +34,9 @@
 
         <!-- Data Fetching -->
         <dependency>
-            <groupId>org.hihn</groupId>
+            <groupId>info.schnatterer.musicbrainzws2-java</groupId>
             <artifactId>musicbrainzws2-java</artifactId>
-            <version>3.0.15</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>se.michaelthelin.spotify</groupId>
@@ -128,9 +128,13 @@
                     </excludes>
                 </configuration>
             </plugin>
-
-
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>musicbrainzws2-java-mvn-repo</id>
+            <url>https://raw.github.com/schnatterer/musicbrainzws2-java/mvn-repo/</url>
+        </repository>
+    </repositories>
 </project>
