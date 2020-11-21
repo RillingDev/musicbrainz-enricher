@@ -1,7 +1,9 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
+import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsQueryService;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsRelease;
+import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.enrichment.genre.GenreMatcherService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
@@ -13,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-class DiscogsReleaseEnricher implements GenreReleaseEnricher {
+class DiscogsReleaseEnricher implements GenreEnricher {
 
     private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://www\\.discogs\\.com/release/(?<id>\\d+)");
 
@@ -55,5 +57,10 @@ class DiscogsReleaseEnricher implements GenreReleaseEnricher {
 
         String targetUrl = relationWs2.getTargetId();
         return URL_REGEX.matcher(targetUrl).matches();
+    }
+
+    @Override
+    public boolean dataTypeFits(@NotNull DataType dataType) {
+        return dataType.equals(DataType.RELEASE);
     }
 }

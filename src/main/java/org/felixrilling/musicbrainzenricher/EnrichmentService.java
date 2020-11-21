@@ -3,7 +3,7 @@ package org.felixrilling.musicbrainzenricher;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
-import org.felixrilling.musicbrainzenricher.enrichment.release.ReleaseEnricherService;
+import org.felixrilling.musicbrainzenricher.enrichment.release.ReleaseEnrichmentService;
 import org.felixrilling.musicbrainzenricher.history.HistoryService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
@@ -17,12 +17,12 @@ class EnrichmentService {
 
     private static final Logger logger = LoggerFactory.getLogger(EnrichmentService.class);
 
-    private final ReleaseEnricherService releaseEnricherService;
+    private final ReleaseEnrichmentService releaseEnrichmentService;
     private final HistoryService historyService;
     private final ApplicationContext applicationContext;
 
-    EnrichmentService(ReleaseEnricherService releaseEnricherService, HistoryService historyService, ApplicationContext applicationContext) {
-        this.releaseEnricherService = releaseEnricherService;
+    EnrichmentService(ReleaseEnrichmentService releaseEnrichmentService, HistoryService historyService, ApplicationContext applicationContext) {
+        this.releaseEnrichmentService = releaseEnrichmentService;
         this.historyService = historyService;
         this.applicationContext = applicationContext;
     }
@@ -31,7 +31,7 @@ class EnrichmentService {
         MusicbrainzDbQueryService musicbrainzDbQueryService = applicationContext.getBean(MusicbrainzDbQueryService.class);
 
         if (dataType == DataType.RELEASE) {
-            musicbrainzDbQueryService.queryReleasesWithRelationships(mbid -> enrich(DataType.RELEASE, mbid, releaseEnricherService::enrichRelease));
+            musicbrainzDbQueryService.queryReleasesWithRelationships(mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrichRelease));
         }
     }
 
@@ -41,7 +41,7 @@ class EnrichmentService {
         if (dataType == DataType.RELEASE) {
             ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
             includes.excludeAll();
-            musicbrainzQueryService.queryReleases(query, includes, mbid -> enrich(DataType.RELEASE, mbid, releaseEnricherService::enrichRelease));
+            musicbrainzQueryService.queryReleases(query, includes, mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrichRelease));
         }
     }
 

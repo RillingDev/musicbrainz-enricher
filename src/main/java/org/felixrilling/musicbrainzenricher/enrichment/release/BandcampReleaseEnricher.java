@@ -1,6 +1,8 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
+import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.ScrapingService;
+import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.enrichment.genre.GenreMatcherService;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
@@ -21,7 +23,7 @@ import java.util.regex.Pattern;
  * Uses web scraping because the regular API does not seem to be for hobby devs.
  */
 @Service
-class BandcampReleaseEnricher implements GenreReleaseEnricher {
+class BandcampReleaseEnricher implements GenreEnricher {
 
     private static final Logger logger = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
 
@@ -58,5 +60,10 @@ class BandcampReleaseEnricher implements GenreReleaseEnricher {
             return false;
         }
         return HOST_REGEX.matcher(url.getHost()).matches();
+    }
+
+    @Override
+    public boolean dataTypeFits(@NotNull DataType dataType) {
+        return dataType.equals(DataType.RELEASE);
     }
 }
