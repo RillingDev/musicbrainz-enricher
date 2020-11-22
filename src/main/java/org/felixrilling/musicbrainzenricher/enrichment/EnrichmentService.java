@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
  * A service which can take a musicbrainz ID and enrich it with additional data using {@link Enricher}s.
  */
 @Service
-public interface EnrichmentService {
+public interface EnrichmentService extends DataTypeAware {
 
     /**
      * Enriches the entity this mbid matches.

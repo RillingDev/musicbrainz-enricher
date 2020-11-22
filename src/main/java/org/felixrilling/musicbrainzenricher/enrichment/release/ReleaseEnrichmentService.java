@@ -110,6 +110,11 @@ public class ReleaseEnrichmentService implements EnrichmentService {
         }
     }
 
+    @Override
+    public boolean dataTypeSupported(@NotNull DataType dataType) {
+        return dataType.equals(DataType.RELEASE);
+    }
+
     private static class ReleaseEnrichmentResult {
         private final Set<String> newGenres = new HashSet<>();
 
@@ -117,4 +122,5 @@ public class ReleaseEnrichmentService implements EnrichmentService {
             return newGenres;
         }
     }
+
 }

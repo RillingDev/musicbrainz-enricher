@@ -1,6 +1,5 @@
 package org.felixrilling.musicbrainzenricher.enrichment;
 
-import org.felixrilling.musicbrainzenricher.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.springframework.stereotype.Component;
@@ -11,14 +10,7 @@ import org.springframework.stereotype.Component;
  * return additional, calculated data for a relation.
  */
 @Component
-public interface Enricher {
-    /**
-     * Checks if the given data type is supported by this enricher.
-     *
-     * @param dataType Data type to check.
-     * @return if the data type is supported.
-     */
-    boolean dataTypeSupported(@NotNull DataType dataType);
+public interface Enricher extends DataTypeAware {
 
     /**
      * Checks if a relation of the data type is supported for enrichment.

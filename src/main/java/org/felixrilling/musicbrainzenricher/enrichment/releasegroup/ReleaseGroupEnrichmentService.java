@@ -105,6 +105,11 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
         }
     }
 
+    @Override
+    public boolean dataTypeSupported(@NotNull DataType dataType) {
+        return dataType.equals(DataType.RELEASE_GROUP);
+    }
+
     private static class ReleaseGroupEnrichmentResult {
         private final Set<String> newGenres = new HashSet<>();
 
