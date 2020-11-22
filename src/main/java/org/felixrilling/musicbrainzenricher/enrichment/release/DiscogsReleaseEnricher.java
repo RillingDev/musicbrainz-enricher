@@ -50,7 +50,7 @@ class DiscogsReleaseEnricher implements GenreEnricher {
     }
 
     @Override
-    public boolean relationFits(@NotNull RelationWs2 relationWs2) {
+    public boolean relationSupported(@NotNull RelationWs2 relationWs2) {
         if (!"http://musicbrainz.org/ns/rel-2.0#discogs".equals(relationWs2.getType())) {
             return false;
         }
@@ -60,7 +60,7 @@ class DiscogsReleaseEnricher implements GenreEnricher {
     }
 
     @Override
-    public boolean dataTypeFits(@NotNull DataType dataType) {
+    public boolean dataTypeSupported(@NotNull DataType dataType) {
         return dataType.equals(DataType.RELEASE);
     }
 }

@@ -40,7 +40,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 
         releaseEnrichers = applicationContext
                 .getBeansOfType(Enricher.class).values().stream()
-                .filter(enricher -> enricher.dataTypeFits(DataType.RELEASE))
+                .filter(enricher -> enricher.dataTypeSupported(DataType.RELEASE))
                 .collect(Collectors.toSet());
     }
 
@@ -70,7 +70,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
     private void enrichForRelation(@NotNull ReleaseWs2 release, @NotNull RelationWs2 relation, @NotNull ReleaseEnrichmentResult result) {
         boolean atLeastOneEnricherCompleted = false;
         for (Enricher enricher : releaseEnrichers) {
-            if (enricher.relationFits(relation)) {
+            if (enricher.relationSupported(relation)) {
                 atLeastOneEnricherCompleted = true;
                 executeEnrichment(release, relation, enricher, result);
             }
