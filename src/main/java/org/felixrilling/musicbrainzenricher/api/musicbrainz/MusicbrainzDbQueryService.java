@@ -22,7 +22,7 @@ public class MusicbrainzDbQueryService {
         this.dataSource = dataSource;
     }
 
-    public void queryReleasesWithRelationships(@NotNull Consumer<String> consumer) throws QueryException {
+    public void queryReleasesWithRelationships(@NotNull Consumer<String> consumer) {
         try (Connection connection = dataSource.getConnection()) {
             try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 // Only check releases that have one or more entries in the release -> url table
@@ -37,7 +37,7 @@ public class MusicbrainzDbQueryService {
         }
     }
 
-    public void queryReleaseGroupsWithRelationships(@NotNull Consumer<String> consumer) throws QueryException {
+    public void queryReleaseGroupsWithRelationships(@NotNull Consumer<String> consumer) {
         try (Connection connection = dataSource.getConnection()) {
             try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
                 // Only check release groups that have one or more entries in the release group -> url table

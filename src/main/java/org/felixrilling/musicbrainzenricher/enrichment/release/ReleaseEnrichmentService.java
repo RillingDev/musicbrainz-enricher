@@ -4,7 +4,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
 import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
@@ -21,6 +20,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,15 +45,21 @@ public class ReleaseEnrichmentService implements EnrichmentService {
     }
 
     @Override
-    public void enrich(@NotNull String mbid) throws QueryException {
+    public void enrich(@NotNull String mbid) {
         ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
         includes.setUrlRelations(true);
         includes.setTags(true);
         includes.setUserTags(true);
         includes.setReleaseGroups(true);
-        ReleaseWs2 release = musicbrainzQueryService.lookUpRelease(mbid, includes);
+        Optional<ReleaseWs2> releaseOptional = musicbrainzQueryService.lookUpRelease(mbid, includes);
 
-        logger.debug("Loaded release data: '{}'.", release);
+        if (releaseOptional.isEmpty()) {
+            logger.warn("Could not find release '{}'.", mbid);
+            return;
+        }
+
+        ReleaseWs2 release = releaseOptional.get();
+        logger.trace("Loaded release data: '{}'.", release);
         ReleaseEnrichmentResult result = new ReleaseEnrichmentResult();
         for (RelationWs2 relation : release.getRelationList().getRelations()) {
             enrichForRelation(release, relation, result);

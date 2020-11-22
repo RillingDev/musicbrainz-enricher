@@ -4,7 +4,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
 import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
@@ -20,6 +19,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,14 +44,20 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
     }
 
     @Override
-    public void enrich(@NotNull String mbid) throws QueryException {
+    public void enrich(@NotNull String mbid) {
         ReleaseGroupIncludesWs2 includes = new ReleaseGroupIncludesWs2();
         includes.setUrlRelations(true);
         includes.setTags(true);
         includes.setUserTags(true);
-        ReleaseGroupWs2 releaseGroup = musicbrainzQueryService.lookUpReleaseGroup(mbid, includes);
+        Optional<ReleaseGroupWs2> releaseGroupOptional = musicbrainzQueryService.lookUpReleaseGroup(mbid, includes);
 
-        logger.debug("Loaded release group data: '{}'.", releaseGroup);
+        if (releaseGroupOptional.isEmpty()) {
+            logger.warn("Could not find release group '{}'.", mbid);
+            return;
+        }
+
+        ReleaseGroupWs2 releaseGroup = releaseGroupOptional.get();
+        logger.trace("Loaded release group data: '{}'.", releaseGroup);
         ReleaseGroupEnrichmentResult result = new ReleaseGroupEnrichmentResult();
         for (RelationWs2 relation : releaseGroup.getRelationList().getRelations()) {
             enrichForRelation(releaseGroup, relation, result);

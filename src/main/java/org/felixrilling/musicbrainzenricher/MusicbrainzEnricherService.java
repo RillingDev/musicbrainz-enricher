@@ -2,7 +2,6 @@ package org.felixrilling.musicbrainzenricher;
 
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.QueryException;
 import org.felixrilling.musicbrainzenricher.enrichment.release.ReleaseEnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.releasegroup.ReleaseGroupEnrichmentService;
 import org.felixrilling.musicbrainzenricher.history.HistoryService;
@@ -13,6 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+
+import java.util.function.Consumer;
 
 @Service
 class MusicbrainzEnricherService {
@@ -33,7 +34,7 @@ class MusicbrainzEnricherService {
         this.applicationContext = applicationContext;
     }
 
-    public void runInDumpMode(@NotNull DataType dataType) throws QueryException {
+    public void runInDumpMode(@NotNull DataType dataType) {
         // Conditionally accessing because we only have this in some profiles
         MusicbrainzDbQueryService musicbrainzDbQueryService = applicationContext.getBean(MusicbrainzDbQueryService.class);
 
@@ -48,7 +49,7 @@ class MusicbrainzEnricherService {
         }
     }
 
-    public void runInQueryMode(@NotNull DataType dataType, @NotNull String query) throws QueryException {
+    public void runInQueryMode(@NotNull DataType dataType, @NotNull String query) {
         switch (dataType) {
             case RELEASE:
                 ReleaseIncludesWs2 releaseIncludesWs2 = new ReleaseIncludesWs2();
@@ -64,24 +65,19 @@ class MusicbrainzEnricherService {
         }
     }
 
-    private void enrich(@NotNull DataType dataType, @NotNull String mbid, @NotNull MbidConsumer mbidConsumer) {
+    private void enrich(@NotNull DataType dataType, @NotNull String mbid, @NotNull Consumer<String> mbidConsumer) {
         if (!historyService.checkIsDue(dataType, mbid)) {
             logger.debug("Check is not due for '{}' ({}), skipping.", mbid, dataType);
             return;
         }
         logger.info("Starting enrichment for '{}' ({}).", mbid, dataType);
         try {
-            mbidConsumer.consume(mbid);
+            mbidConsumer.accept(mbid);
         } catch (Exception e) {
             logger.error("Could not enrich {}' ({}).", mbid, dataType, e);
             return;
         }
         logger.info("Completed enrichment for '{}' ({}).", mbid, dataType);
         historyService.markAsChecked(dataType, mbid);
-    }
-
-    @FunctionalInterface
-    private interface MbidConsumer {
-        void consume(String mbid) throws Exception;
     }
 }

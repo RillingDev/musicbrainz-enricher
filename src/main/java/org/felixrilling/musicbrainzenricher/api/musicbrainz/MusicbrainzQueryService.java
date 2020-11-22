@@ -9,8 +9,10 @@ import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.musicbrainz.model.entity.ReleaseWs2;
+import org.musicbrainz.webservice.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Service
@@ -26,7 +28,7 @@ public class MusicbrainzQueryService {
         this.bucketService = bucketService;
     }
 
-    public void queryReleases(@NotNull String query, @NotNull ReleaseIncludesWs2 includes, @NotNull Consumer<String> mbidConsumer) throws QueryException {
+    public void queryReleases(@NotNull String query, @NotNull ReleaseIncludesWs2 includes, @NotNull Consumer<String> mbidConsumer) {
         Release release = new Release();
         release.setQueryWs(musicbrainzService.createWebService());
 
@@ -47,7 +49,7 @@ public class MusicbrainzQueryService {
         }
     }
 
-    public void queryReleaseGroups(@NotNull String query, @NotNull ReleaseGroupIncludesWs2 includes, @NotNull Consumer<String> mbidConsumer) throws QueryException {
+    public void queryReleaseGroups(@NotNull String query, @NotNull ReleaseGroupIncludesWs2 includes, @NotNull Consumer<String> mbidConsumer) {
         ReleaseGroup releaseGroup = new ReleaseGroup();
         releaseGroup.setQueryWs(musicbrainzService.createWebService());
 
@@ -64,7 +66,7 @@ public class MusicbrainzQueryService {
         }
     }
 
-    public ReleaseWs2 lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) throws QueryException {
+    public @NotNull Optional<ReleaseWs2> lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) {
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         Release release = new Release();
@@ -73,13 +75,15 @@ public class MusicbrainzQueryService {
         release.setIncludes(includes);
 
         try {
-            return release.lookUp(mbid);
+            return Optional.of(release.lookUp(mbid));
+        } catch (ResourceNotFoundException e) {
+            return Optional.empty();
         } catch (MBWS2Exception e) {
-            throw new QueryException("Could not look up release.", e);
+            throw new QueryException("Could not look up release '" + mbid + "'.", e);
         }
     }
 
-    public ReleaseGroupWs2 lookUpReleaseGroup(@NotNull String mbid, @NotNull ReleaseGroupIncludesWs2 includes) throws QueryException {
+    public @NotNull Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull String mbid, @NotNull ReleaseGroupIncludesWs2 includes) {
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         ReleaseGroup releaseGroup = new ReleaseGroup();
@@ -88,9 +92,11 @@ public class MusicbrainzQueryService {
         releaseGroup.setIncludes(includes);
 
         try {
-            return releaseGroup.lookUp(mbid);
+            return Optional.of(releaseGroup.lookUp(mbid));
+        } catch (ResourceNotFoundException e) {
+            return Optional.empty();
         } catch (MBWS2Exception e) {
-            throw new QueryException("Could not look up release group.", e);
+            throw new QueryException("Could not look up release group'" + mbid + "'.", e);
         }
     }
 }
