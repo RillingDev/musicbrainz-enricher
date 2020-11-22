@@ -28,8 +28,8 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
     }
 
     @Override
-    public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) {
-        return discogsQueryService.lookUpMaster(findReleaseId(relationUrl)).map(release -> genreMatcherService.match(extractGenres(release)))
+    public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+        return discogsQueryService.lookUpMaster(findReleaseId(relation.getTargetId())).map(release -> genreMatcherService.match(extractGenres(release)))
                 .orElse(Set.of());
     }
 
@@ -50,12 +50,12 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
     }
 
     @Override
-    public boolean relationSupported(@NotNull RelationWs2 relationWs2) {
-        if (!"http://musicbrainz.org/ns/rel-2.0#discogs".equals(relationWs2.getType())) {
+    public boolean relationSupported(@NotNull RelationWs2 relation) {
+        if (!"http://musicbrainz.org/ns/rel-2.0#discogs".equals(relation.getType())) {
             return false;
         }
 
-        String targetUrl = relationWs2.getTargetId();
+        String targetUrl = relation.getTargetId();
         return URL_REGEX.matcher(targetUrl).matches();
     }
 

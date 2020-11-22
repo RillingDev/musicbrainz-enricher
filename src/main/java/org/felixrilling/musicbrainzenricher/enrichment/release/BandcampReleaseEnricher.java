@@ -39,8 +39,8 @@ class BandcampReleaseEnricher implements GenreEnricher {
     }
 
     @Override
-    public @NotNull Set<String> fetchGenres(@NotNull String relationUrl) {
-        return scrapingService.load(relationUrl).map(this::extractTags).map(genreMatcherService::match).orElse(Set.of());
+    public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+        return scrapingService.load(relation.getTargetId()).map(this::extractTags).map(genreMatcherService::match).orElse(Set.of());
     }
 
     private @NotNull Set<String> extractTags(@NotNull Document document) {
@@ -48,15 +48,15 @@ class BandcampReleaseEnricher implements GenreEnricher {
     }
 
     @Override
-    public boolean relationSupported(@NotNull RelationWs2 relationWs2) {
-        if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relationWs2.getTargetType())) {
+    public boolean relationSupported(@NotNull RelationWs2 relation) {
+        if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
             return false;
         }
         URL url;
         try {
-            url = new URL(relationWs2.getTargetId());
+            url = new URL(relation.getTargetId());
         } catch (MalformedURLException e) {
-            logger.warn("Could not parse as URL: '{}'.", relationWs2.getTargetId(), e);
+            logger.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
             return false;
         }
         return HOST_REGEX.matcher(url.getHost()).matches();

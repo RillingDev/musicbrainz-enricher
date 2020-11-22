@@ -24,9 +24,9 @@ public interface Enricher {
      * Checks if a relation of the data type is supported for enrichment.
      * Often enrichers check if e.g. an URL stored in the relation is supported.
      *
-     * @param relationWs2 Relation to check.
+     * @param relation Relation to check.
      * @return if the relation is supported.
      */
-    boolean relationSupported(@NotNull RelationWs2 relationWs2);
+    boolean relationSupported(@NotNull RelationWs2 relation);
 
 }

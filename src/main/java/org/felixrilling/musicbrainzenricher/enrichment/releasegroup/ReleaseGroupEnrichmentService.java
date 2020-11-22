@@ -87,7 +87,7 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
     private void executeGenreEnrichment(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull RelationWs2 relation, @NotNull GenreEnricher releaseEnricher, @NotNull ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult result) {
         Set<String> oldTags = releaseGroup.getTags().stream().map(TagWs2::getName).collect(Collectors.toSet());
 
-        Set<String> foundTags = releaseEnricher.fetchGenres(relation.getTargetId());
+        Set<String> foundTags = releaseEnricher.fetchGenres(relation);
         logger.debug("Enricher '{}' found genres '{}' (Old: '{}') for release group '{}'.", releaseEnricher
                 .getClass().getSimpleName(), foundTags, oldTags, releaseGroup.getId());
         result.getNewGenres().addAll(CollectionUtils.subtract(foundTags, oldTags));
