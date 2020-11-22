@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher.history;
 
 import org.felixrilling.musicbrainzenricher.DataType;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.time.ZonedDateTime;
@@ -22,12 +23,15 @@ class HistoryEntry {
 
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "data_type", nullable = false)
+    @NotNull
     private DataType dataType;
 
     @Column(name = "mbid", nullable = false)
+    @NotNull
     private String mbid;
 
     @Column(name = "last_checked", nullable = false)
+    @NotNull
     private ZonedDateTime lastChecked;
 
     public long getId() {
@@ -38,27 +42,27 @@ class HistoryEntry {
         this.id = id;
     }
 
-    public DataType getDataType() {
+    public @NotNull DataType getDataType() {
         return dataType;
     }
 
-    public void setDataType(DataType dataType) {
+    public void setDataType(@NotNull DataType dataType) {
         this.dataType = dataType;
     }
 
-    public String getMbid() {
+    public @NotNull String getMbid() {
         return mbid;
     }
 
-    public void setMbid(String mbid) {
+    public void setMbid(@NotNull String mbid) {
         this.mbid = mbid;
     }
 
-    public ZonedDateTime getLastChecked() {
+    public @NotNull ZonedDateTime getLastChecked() {
         return lastChecked;
     }
 
-    public void setLastChecked(ZonedDateTime lastChecked) {
+    public void setLastChecked(@NotNull ZonedDateTime lastChecked) {
         this.lastChecked = lastChecked;
     }
 
