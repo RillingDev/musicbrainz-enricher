@@ -36,12 +36,12 @@
         <dependency>
             <groupId>info.schnatterer.musicbrainzws2-java</groupId>
             <artifactId>musicbrainzws2-java</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>se.michaelthelin.spotify</groupId>
             <artifactId>spotify-web-api-java</artifactId>
-            <version>6.4.1</version>
+            <version>6.5.0</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -130,11 +130,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>musicbrainzws2-java-mvn-repo</id>
-            <url>https://raw.github.com/schnatterer/musicbrainzws2-java/mvn-repo/</url>
-        </repository>
-    </repositories>
 </project>
