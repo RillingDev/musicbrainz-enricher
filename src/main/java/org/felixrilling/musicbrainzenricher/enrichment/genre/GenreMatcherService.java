@@ -1,6 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.genre;
 
-import info.debatty.java.stringsimilarity.NormalizedLevenshtein;
+import org.apache.commons.text.similarity.LevenshteinDistance;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +17,8 @@ public class GenreMatcherService {
     private static final Logger logger = LoggerFactory.getLogger(GenreMatcherService.class);
 
     private static final double SIMILARITY_MINIMUM = 0.85;
+    private static final LevenshteinDistance LEVENSHTEIN = new LevenshteinDistance();
 
-    private final NormalizedLevenshtein normalizedLevenshtein = new NormalizedLevenshtein();
     private final GenreProviderService genreProviderService;
 
     GenreMatcherService(GenreProviderService genreProviderService) {
@@ -54,12 +54,27 @@ public class GenreMatcherService {
         String bestMatch = null;
         double bestMatchSimilarity = 0.0;
         for (String knownGenre : genreProviderService.getGenres()) {
-            double similarity = normalizedLevenshtein.similarity(knownGenre.toLowerCase(), unmatchedGenre.toLowerCase());
+            double similarity = normalizedSimilarity(knownGenre.toLowerCase(), unmatchedGenre.toLowerCase());
             if (similarity > bestMatchSimilarity && similarity >= SIMILARITY_MINIMUM) {
                 bestMatch = knownGenre;
                 bestMatchSimilarity = similarity;
             }
         }
         return Optional.ofNullable(bestMatch);
+    }
+
+    // https://stackoverflow.com/a/16018452/6454249
+    private double normalizedSimilarity(String s1, String s2) {
+        String longer = s1;
+        String shorter = s2;
+        if (s1.length() < s2.length()) { // longer should always have greater length
+            longer = s2;
+            shorter = s1;
+        }
+        int longerLength = longer.length();
+        if (longerLength == 0) {
+            return 1.0; /* both strings are zero length */
+        }
+        return (longerLength - LEVENSHTEIN.apply(longer, shorter)) / (double) longerLength;
     }
 }
