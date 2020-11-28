@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -88,13 +89,14 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 
     private void executeGenreEnrichment(@NotNull ReleaseWs2 release, @NotNull RelationWs2 relation, @NotNull GenreEnricher releaseEnricher, @NotNull ReleaseEnrichmentResult result) {
         ReleaseGroupWs2 releaseGroup = release.getReleaseGroup();
-        Set<String> oldTags = releaseGroup.getTags().stream().map(TagWs2::getName).collect(Collectors.toSet());
+        Set<String> existingTags = releaseGroup.getTags().stream().map(TagWs2::getName).collect(Collectors.toSet());
 
         Set<String> foundTags = releaseEnricher.fetchGenres(relation);
-        logger.debug("Enricher '{}' found genres '{}' (Old: '{}') for release group '{}'.", releaseEnricher
-                .getClass().getSimpleName(), foundTags, oldTags, releaseGroup.getId());
+        logger.debug("Enricher '{}' found genres '{}' (Existing: '{}') for release group '{}'.", releaseEnricher
+                .getClass().getSimpleName(), foundTags, existingTags, releaseGroup.getId());
 
-        result.getNewGenres().addAll(CollectionUtils.subtract(foundTags, oldTags));
+        Collection<String> newTags = CollectionUtils.subtract(foundTags, existingTags);
+        result.getNewGenres().addAll(newTags);
     }
 
     private void updateEntity(@NotNull ReleaseWs2 release, @NotNull ReleaseEnrichmentResult result) {
