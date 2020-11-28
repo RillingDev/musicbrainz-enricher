@@ -4,6 +4,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.enrichment.CoreEnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
 import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
@@ -16,7 +17,6 @@ import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.musicbrainz.model.entity.ReleaseWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -33,16 +33,13 @@ public class ReleaseEnrichmentService implements EnrichmentService {
     private final MusicbrainzQueryService musicbrainzQueryService;
     private final MusicbrainzEditService musicbrainzEditService;
 
-    private final @NotNull Set<Enricher> releaseEnrichers;
+    private final @NotNull Set<Enricher> enrichers;
 
-    ReleaseEnrichmentService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService) {
+    ReleaseEnrichmentService(CoreEnrichmentService coreEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService) {
         this.musicbrainzQueryService = musicbrainzQueryService;
         this.musicbrainzEditService = musicbrainzEditService;
 
-        releaseEnrichers = applicationContext
-                .getBeansOfType(Enricher.class).values().stream()
-                .filter(enricher -> enricher.getDataType().equals(DataType.RELEASE))
-                .collect(Collectors.toSet());
+        enrichers = coreEnrichmentService.findFittingEnrichers(this);
     }
 
     @Override
@@ -63,22 +60,18 @@ public class ReleaseEnrichmentService implements EnrichmentService {
         logger.trace("Loaded release data: '{}'.", release);
         ReleaseEnrichmentResult result = new ReleaseEnrichmentResult();
         for (RelationWs2 relation : release.getRelationList().getRelations()) {
-            enrichForRelation(release, relation, result);
-        }
-        updateEntity(release, result);
-    }
-
-    private void enrichForRelation(@NotNull ReleaseWs2 release, @NotNull RelationWs2 relation, @NotNull ReleaseEnrichmentResult result) {
-        boolean atLeastOneEnricherCompleted = false;
-        for (Enricher enricher : releaseEnrichers) {
-            if (enricher.relationSupported(relation)) {
-                atLeastOneEnricherCompleted = true;
-                executeEnrichment(release, relation, enricher, result);
+            boolean atLeastOneEnricherCompleted = false;
+            for (Enricher enricher : enrichers) {
+                if (enricher.relationSupported(relation)) {
+                    atLeastOneEnricherCompleted = true;
+                    executeEnrichment(release, relation, enricher, result);
+                }
+            }
+            if (!atLeastOneEnricherCompleted) {
+                logger.debug("Could not find any enricher for '{}'.", relation.getTargetId());
             }
         }
-        if (!atLeastOneEnricherCompleted) {
-            logger.debug("Could not find any enricher for '{}'.", relation.getTargetId());
-        }
+        updateEntity(release, result);
     }
 
     private void executeEnrichment(@NotNull ReleaseWs2 release, @NotNull RelationWs2 relation, @NotNull Enricher enricher, @NotNull ReleaseEnrichmentResult result) {

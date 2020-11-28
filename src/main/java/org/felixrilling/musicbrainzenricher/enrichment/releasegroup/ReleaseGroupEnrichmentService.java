@@ -4,6 +4,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.enrichment.CoreEnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
 import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
@@ -15,7 +16,6 @@ import org.musicbrainz.model.TagWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -32,16 +32,13 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
     private final MusicbrainzQueryService musicbrainzQueryService;
     private final MusicbrainzEditService musicbrainzEditService;
 
-    private final @NotNull Set<Enricher> releaseGroupEnrichers;
+    private final @NotNull Set<Enricher> enrichers;
 
-    ReleaseGroupEnrichmentService(ApplicationContext applicationContext, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService) {
+    ReleaseGroupEnrichmentService(CoreEnrichmentService coreEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService) {
         this.musicbrainzQueryService = musicbrainzQueryService;
         this.musicbrainzEditService = musicbrainzEditService;
 
-        releaseGroupEnrichers = applicationContext
-                .getBeansOfType(Enricher.class).values().stream()
-                .filter(enricher -> enricher.getDataType().equals(DataType.RELEASE_GROUP))
-                .collect(Collectors.toSet());
+        enrichers = coreEnrichmentService.findFittingEnrichers(this);
     }
 
     @Override
@@ -61,22 +58,18 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
         logger.trace("Loaded release group data: '{}'.", releaseGroup);
         ReleaseGroupEnrichmentResult result = new ReleaseGroupEnrichmentResult();
         for (RelationWs2 relation : releaseGroup.getRelationList().getRelations()) {
-            enrichForRelation(releaseGroup, relation, result);
-        }
-        updateEntity(releaseGroup, result);
-    }
-
-    private void enrichForRelation(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull RelationWs2 relation, @NotNull ReleaseGroupEnrichmentResult result) {
-        boolean atLeastOneEnricherCompleted = false;
-        for (Enricher enricher : releaseGroupEnrichers) {
-            if (enricher.relationSupported(relation)) {
-                atLeastOneEnricherCompleted = true;
-                executeEnrichment(releaseGroup, relation, enricher, result);
+            boolean atLeastOneEnricherCompleted = false;
+            for (Enricher enricher : enrichers) {
+                if (enricher.relationSupported(relation)) {
+                    atLeastOneEnricherCompleted = true;
+                    executeEnrichment(releaseGroup, relation, enricher, result);
+                }
+            }
+            if (!atLeastOneEnricherCompleted) {
+                logger.debug("Could not find any enricher for '{}'.", relation.getTargetId());
             }
         }
-        if (!atLeastOneEnricherCompleted) {
-            logger.debug("Could not find any enricher for '{}'.", relation.getTargetId());
-        }
+        updateEntity(releaseGroup, result);
     }
 
     private void executeEnrichment(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull RelationWs2 relation, @NotNull Enricher enricher, @NotNull ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult result) {
