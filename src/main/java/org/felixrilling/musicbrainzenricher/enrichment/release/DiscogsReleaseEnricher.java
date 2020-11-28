@@ -7,9 +7,12 @@ import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.enrichment.genre.GenreMatcherService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +20,8 @@ import java.util.regex.Pattern;
 @Service
 class DiscogsReleaseEnricher implements GenreEnricher {
 
+
+    private static final Logger logger = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
     private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://www\\.discogs\\.com/release/(?<id>\\d+)");
 
     private final GenreMatcherService genreMatcherService;
@@ -29,16 +34,19 @@ class DiscogsReleaseEnricher implements GenreEnricher {
 
     @Override
     public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
-        return discogsQueryService.lookUpRelease(findReleaseId(relation.getTargetId())).map(release -> genreMatcherService.match(extractGenres(release)))
+        Optional<String> discogsId = findDiscogsId(relation.getTargetId());
+        if (discogsId.isEmpty()) {
+            logger.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
+            return Set.of();
+        }
+        return discogsQueryService.lookUpRelease(discogsId.get()).map(release -> genreMatcherService.match(extractGenres(release)))
                 .orElse(Set.of());
     }
 
 
-    private @NotNull String findReleaseId(@NotNull String relationUrl) {
+    private @NotNull Optional<String> findDiscogsId(@NotNull String relationUrl) {
         Matcher matcher = URL_REGEX.matcher(relationUrl);
-        //noinspection ResultOfMethodCallIgnored We know we matched in #relationFits
-        matcher.matches();
-        return matcher.group("id");
+        return matcher.matches() ? Optional.of(matcher.group("id")) : Optional.empty();
     }
 
     private @NotNull Set<String> extractGenres(@NotNull DiscogsRelease release) {
@@ -51,12 +59,8 @@ class DiscogsReleaseEnricher implements GenreEnricher {
 
     @Override
     public boolean relationSupported(@NotNull RelationWs2 relation) {
-        if (!"http://musicbrainz.org/ns/rel-2.0#discogs".equals(relation.getType())) {
-            return false;
-        }
-
-        String targetUrl = relation.getTargetId();
-        return URL_REGEX.matcher(targetUrl).matches();
+        return "http://musicbrainz.org/ns/rel-2.0#discogs".equals(relation.getType()) && "http://musicbrainz.org/ns/rel-2.0#url"
+                .equals(relation.getTargetType());
     }
 
     @Override
