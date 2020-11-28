@@ -29,16 +29,14 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
 
     private static final Logger logger = LoggerFactory.getLogger(ReleaseGroupEnrichmentService.class);
 
+    private final CoreEnrichmentService coreEnrichmentService;
     private final MusicbrainzQueryService musicbrainzQueryService;
     private final MusicbrainzEditService musicbrainzEditService;
 
-    private final @NotNull Set<Enricher> enrichers;
-
     ReleaseGroupEnrichmentService(CoreEnrichmentService coreEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService) {
+        this.coreEnrichmentService = coreEnrichmentService;
         this.musicbrainzQueryService = musicbrainzQueryService;
         this.musicbrainzEditService = musicbrainzEditService;
-
-        enrichers = coreEnrichmentService.findFittingEnrichers(this);
     }
 
     @Override
@@ -59,7 +57,7 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
         ReleaseGroupEnrichmentResult result = new ReleaseGroupEnrichmentResult();
         for (RelationWs2 relation : releaseGroup.getRelationList().getRelations()) {
             boolean atLeastOneEnricherCompleted = false;
-            for (Enricher enricher : enrichers) {
+            for (Enricher enricher : coreEnrichmentService.findFittingEnrichers(this)) {
                 if (enricher.relationSupported(relation)) {
                     atLeastOneEnricherCompleted = true;
                     executeEnrichment(releaseGroup, relation, enricher, result);
