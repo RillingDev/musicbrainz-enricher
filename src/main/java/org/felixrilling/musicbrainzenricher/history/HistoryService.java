@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 public class HistoryService {
     private static final Logger logger = LoggerFactory.getLogger(HistoryService.class);
 
-    private static final Duration RECHECK_DURATION = Duration.ofDays(7);
+    private static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
     private static final ZoneOffset ZONE = ZoneOffset.UTC;
 
     private final HistoryEntryRepository historyEntryRepository;
@@ -42,6 +42,6 @@ public class HistoryService {
     }
 
     private boolean recheckIsDue(@NotNull HistoryEntry historyEntry) {
-        return historyEntry.getLastChecked().isBefore(ZonedDateTime.now(ZONE).minus(RECHECK_DURATION));
+        return historyEntry.getLastChecked().isBefore(ZonedDateTime.now(ZONE).minus(RECHECK_TIMESPAN));
     }
 }
