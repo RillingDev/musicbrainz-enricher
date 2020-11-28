@@ -53,7 +53,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 
         // We can only process genres if they are in english.
         if (!hasLocaleLanguage(document.get(), Locale.ENGLISH)) {
-            logger.debug("Skipping '{}' because the locale is not supported.", relation);
+            logger.debug("Skipping '{}' because the locale is not supported.", relation.getTargetId());
             return Set.of();
         }
 
