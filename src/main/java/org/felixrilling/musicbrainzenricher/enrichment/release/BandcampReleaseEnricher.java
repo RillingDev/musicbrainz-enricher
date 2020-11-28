@@ -63,7 +63,7 @@ class BandcampReleaseEnricher implements GenreEnricher {
     }
 
     @Override
-    public boolean dataTypeSupported(@NotNull DataType dataType) {
-        return dataType.equals(DataType.RELEASE);
+    public @NotNull DataType getDataType() {
+        return DataType.RELEASE;
     }
 }

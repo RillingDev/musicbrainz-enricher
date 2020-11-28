@@ -40,7 +40,7 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
 
         releaseGroupEnrichers = applicationContext
                 .getBeansOfType(Enricher.class).values().stream()
-                .filter(enricher -> enricher.dataTypeSupported(DataType.RELEASE_GROUP))
+                .filter(enricher -> enricher.getDataType().equals(DataType.RELEASE_GROUP))
                 .collect(Collectors.toSet());
     }
 
@@ -109,8 +109,8 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
     }
 
     @Override
-    public boolean dataTypeSupported(@NotNull DataType dataType) {
-        return dataType.equals(DataType.RELEASE_GROUP);
+    public @NotNull DataType getDataType() {
+        return DataType.RELEASE_GROUP;
     }
 
     private static class ReleaseGroupEnrichmentResult {

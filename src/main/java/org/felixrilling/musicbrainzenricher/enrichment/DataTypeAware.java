@@ -8,10 +8,9 @@ import org.jetbrains.annotations.NotNull;
  */
 interface DataTypeAware {
     /**
-     * Checks if the given data type is supported by this class.
+     * Checks which data type is supported by this class.
      *
-     * @param dataType Data type to check.
-     * @return if the data type is supported.
+     * @return The data type that is supported.
      */
-    boolean dataTypeSupported(@NotNull DataType dataType);
+    @NotNull DataType getDataType();
 }

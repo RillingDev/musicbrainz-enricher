@@ -41,7 +41,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 
         releaseEnrichers = applicationContext
                 .getBeansOfType(Enricher.class).values().stream()
-                .filter(enricher -> enricher.dataTypeSupported(DataType.RELEASE))
+                .filter(enricher -> enricher.getDataType().equals(DataType.RELEASE))
                 .collect(Collectors.toSet());
     }
 
@@ -113,8 +113,8 @@ public class ReleaseEnrichmentService implements EnrichmentService {
     }
 
     @Override
-    public boolean dataTypeSupported(@NotNull DataType dataType) {
-        return dataType.equals(DataType.RELEASE);
+    public @NotNull DataType getDataType() {
+        return DataType.RELEASE;
     }
 
     private static class ReleaseEnrichmentResult {

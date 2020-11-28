@@ -101,8 +101,9 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
         return HOST_REGEX.matcher(url.getHost()).matches();
     }
 
+
     @Override
-    public boolean dataTypeSupported(@NotNull DataType dataType) {
-        return dataType.equals(DataType.RELEASE);
+    public @NotNull DataType getDataType() {
+        return DataType.RELEASE;
     }
 }

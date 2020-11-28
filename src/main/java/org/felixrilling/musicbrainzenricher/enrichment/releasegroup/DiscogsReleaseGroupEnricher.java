@@ -59,8 +59,9 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
         return URL_REGEX.matcher(targetUrl).matches();
     }
 
+
     @Override
-    public boolean dataTypeSupported(@NotNull DataType dataType) {
-        return dataType.equals(DataType.RELEASE_GROUP);
+    public @NotNull DataType getDataType() {
+        return DataType.RELEASE_GROUP;
     }
 }
