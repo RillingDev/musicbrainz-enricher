@@ -23,14 +23,12 @@ public class MusicbrainzDbQueryService {
     }
 
     public void queryReleasesWithRelationships(@NotNull Consumer<String> consumer) {
-        try (Connection connection = dataSource.getConnection()) {
-            try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                // Only check releases that have one or more entries in the release -> url table
-                try (ResultSet resultSet = statement
-                        .executeQuery("SELECT (r.gid) FROM release r WHERE r.id IN (SELECT lru.entity0 FROM l_release_url lru)")) {
-                    // gid == mbid
-                    pipeToCallback(resultSet, "gid", consumer);
-                }
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection
+                .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            try (ResultSet rs = statement
+                    .executeQuery("SELECT r.gid FROM release r WHERE r.id IN (SELECT lru.entity0 FROM l_release_url lru)")) {
+                // gid == mbid
+                pipeToCallback(rs, "gid", consumer);
             }
         } catch (SQLException e) {
             throw new QueryException("Error running query.", e);
@@ -38,23 +36,21 @@ public class MusicbrainzDbQueryService {
     }
 
     public void queryReleaseGroupsWithRelationships(@NotNull Consumer<String> consumer) {
-        try (Connection connection = dataSource.getConnection()) {
-            try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-                // Only check release groups that have one or more entries in the release group -> url table
-                try (ResultSet resultSet = statement
-                        .executeQuery("SELECT (rg.gid) FROM release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM l_release_group_url lrgu)")) {
-                    // gid == mbid
-                    pipeToCallback(resultSet, "gid", consumer);
-                }
+        try (Connection connection = dataSource.getConnection(); Statement statement = connection
+                .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
+            try (ResultSet rs = statement
+                    .executeQuery("SELECT rg.gid FROM release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM l_release_group_url lrgu)")) {
+                // gid == mbid
+                pipeToCallback(rs, "gid", consumer);
             }
         } catch (SQLException e) {
             throw new QueryException("Error running query.", e);
         }
     }
 
-    private void pipeToCallback(@NotNull ResultSet resultSet, @NotNull String columnName, @NotNull Consumer<String> consumer) throws SQLException {
-        while (resultSet.next()) {
-            consumer.accept(resultSet.getString(columnName));
+    private void pipeToCallback(@NotNull ResultSet rs, @NotNull String columnName, @NotNull Consumer<String> consumer) throws SQLException {
+        while (rs.next()) {
+            consumer.accept(rs.getString(columnName));
         }
     }
 
