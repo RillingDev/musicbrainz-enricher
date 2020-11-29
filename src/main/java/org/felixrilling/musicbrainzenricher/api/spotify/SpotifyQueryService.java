@@ -36,7 +36,7 @@ public class SpotifyQueryService {
     private SpotifyApi spotifyApi;
     private Instant tokenExpiration;
 
-    public SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
+    SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
         this.spotifyBucketProvider = spotifyBucketProvider;
         this.bucketService = bucketService;
     }

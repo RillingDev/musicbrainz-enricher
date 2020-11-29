@@ -5,9 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.core.env.Environment;
-
-import java.util.Arrays;
 
 @SpringBootApplication
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
@@ -15,11 +12,9 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
 
     private final MusicbrainzEnricherService musicbrainzEnricherService;
-    private final Environment environment;
 
-    MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService, Environment environment) {
+    MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService) {
         this.musicbrainzEnricherService = musicbrainzEnricherService;
-        this.environment = environment;
     }
 
     public static void main(String[] args) {
@@ -31,17 +26,17 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
         if (args.length < 1) {
             throw new IllegalArgumentException("Expected at least 1 arguments but found none.");
         }
-        DataType dataType = parseMode(args[0]);
+        if (args.length > 2) {
+            throw new IllegalArgumentException("Expected at most 2 parameters but found " + args.length + ".");
+        }
 
+        DataType dataType = parseMode(args[0]);
         try {
-            if (Arrays.asList(environment.getActiveProfiles()).contains("musicbrainzLocalDb")) {
-                musicbrainzEnricherService.runInDumpMode(dataType);
-            } else {
-                if (args.length < 2) {
-                    throw new IllegalArgumentException("Expected a second arguments but found none.");
-                }
+            if (args.length == 2) {
                 String query = args[1];
                 musicbrainzEnricherService.runInQueryMode(dataType, query);
+            } else {
+                musicbrainzEnricherService.runInFullMode(dataType);
             }
         } catch (Exception e) {
             logger.error("Unexpected error.", e);

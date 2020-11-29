@@ -1,15 +1,13 @@
 package org.felixrilling.musicbrainzenricher.enrichment.genre;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQueryService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GenreMatcherService {
@@ -19,10 +17,10 @@ public class GenreMatcherService {
     private static final double SIMILARITY_MINIMUM = 0.85;
     private static final LevenshteinDistance LEVENSHTEIN = new LevenshteinDistance();
 
-    private final GenreProviderService genreProviderService;
+    private final MusicbrainzDbQueryService musicbrainzDbQueryService;
 
-    GenreMatcherService(GenreProviderService genreProviderService) {
-        this.genreProviderService = genreProviderService;
+    GenreMatcherService(MusicbrainzDbQueryService musicbrainzDbQueryService) {
+        this.musicbrainzDbQueryService = musicbrainzDbQueryService;
     }
 
     /**
@@ -33,10 +31,11 @@ public class GenreMatcherService {
      * @return Matching canonical genre names.
      */
     public @NotNull Set<String> match(@NotNull Set<String> unmatchedGenres) {
-        Set<String> matches = new HashSet<>();
+        List<String> knownGenres = musicbrainzDbQueryService.queryGenreNames();
 
+        Set<String> matches = new HashSet<>();
         for (String unmatchedGenre : unmatchedGenres) {
-            matchSingle(unmatchedGenre).ifPresent(matches::add);
+            matchSingle(knownGenres, unmatchedGenre).ifPresent(matches::add);
         }
         logger.trace("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
 
@@ -47,13 +46,14 @@ public class GenreMatcherService {
      * Finds the first of genres the highest normalized levenshtein similarity,
      * but at least {@link #SIMILARITY_MINIMUM}.
      *
+     * @param knownGenres    Known genre names.
      * @param unmatchedGenre Unmatched genre to look up canonical genre name for.
      * @return Matching canonical genre name.
      */
-    private Optional<String> matchSingle(@NotNull String unmatchedGenre) {
+    private Optional<String> matchSingle(@NotNull List<String> knownGenres, @NotNull String unmatchedGenre) {
         String bestMatch = null;
         double bestMatchSimilarity = 0.0;
-        for (String knownGenre : genreProviderService.getGenres()) {
+        for (String knownGenre : knownGenres) {
             double similarity = normalizedSimilarity(knownGenre.toLowerCase(), unmatchedGenre.toLowerCase());
             if (similarity > bestMatchSimilarity && similarity >= SIMILARITY_MINIMUM) {
                 bestMatch = knownGenre;

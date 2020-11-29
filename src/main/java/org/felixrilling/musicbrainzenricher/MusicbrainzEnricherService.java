@@ -10,7 +10,6 @@ import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Consumer;
@@ -23,21 +22,18 @@ class MusicbrainzEnricherService {
     private final ReleaseEnrichmentService releaseEnrichmentService;
     private final ReleaseGroupEnrichmentService releaseGroupEnrichmentService;
     private final MusicbrainzQueryService musicbrainzQueryService;
+    private final MusicbrainzDbQueryService musicbrainzDbQueryService;
     private final HistoryService historyService;
-    private final ApplicationContext applicationContext;
 
-    MusicbrainzEnricherService(ReleaseEnrichmentService releaseEnrichmentService, ReleaseGroupEnrichmentService releaseGroupEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, HistoryService historyService, ApplicationContext applicationContext) {
+    MusicbrainzEnricherService(ReleaseEnrichmentService releaseEnrichmentService, ReleaseGroupEnrichmentService releaseGroupEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzDbQueryService musicbrainzDbQueryService, HistoryService historyService) {
         this.releaseEnrichmentService = releaseEnrichmentService;
         this.releaseGroupEnrichmentService = releaseGroupEnrichmentService;
         this.musicbrainzQueryService = musicbrainzQueryService;
+        this.musicbrainzDbQueryService = musicbrainzDbQueryService;
         this.historyService = historyService;
-        this.applicationContext = applicationContext;
     }
 
-    public void runInDumpMode(@NotNull DataType dataType) {
-        // Conditionally accessing because we only have this in some profiles
-        MusicbrainzDbQueryService musicbrainzDbQueryService = applicationContext.getBean(MusicbrainzDbQueryService.class);
-
+    public void runInFullMode(@NotNull DataType dataType) {
         switch (dataType) {
             case RELEASE:
                 musicbrainzDbQueryService.queryReleasesWithRelationships(mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrich));
