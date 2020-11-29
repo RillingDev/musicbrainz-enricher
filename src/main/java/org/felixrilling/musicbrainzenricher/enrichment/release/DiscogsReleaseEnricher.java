@@ -4,6 +4,7 @@ import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsQueryService;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsRelease;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
+import org.felixrilling.musicbrainzenricher.enrichment.RegexUtils;
 import org.felixrilling.musicbrainzenricher.enrichment.genre.GenreMatcherService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
@@ -34,19 +34,13 @@ class DiscogsReleaseEnricher implements GenreEnricher {
 
     @Override
     public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
-        Optional<String> discogsId = findDiscogsId(relation.getTargetId());
+        Optional<String> discogsId = RegexUtils.maybeGroup(URL_REGEX.matcher(relation.getTargetId()), "id");
         if (discogsId.isEmpty()) {
             logger.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
             return Set.of();
         }
         return discogsQueryService.lookUpRelease(discogsId.get()).map(release -> genreMatcherService.match(extractGenres(release)))
                 .orElse(Set.of());
-    }
-
-
-    private @NotNull Optional<String> findDiscogsId(@NotNull String relationUrl) {
-        Matcher matcher = URL_REGEX.matcher(relationUrl);
-        return matcher.matches() ? Optional.of(matcher.group("id")) : Optional.empty();
     }
 
     private @NotNull Set<String> extractGenres(@NotNull DiscogsRelease release) {

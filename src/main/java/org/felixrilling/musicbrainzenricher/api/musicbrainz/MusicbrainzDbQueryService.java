@@ -5,13 +5,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 @Service
@@ -51,13 +49,30 @@ public class MusicbrainzDbQueryService {
 
     public List<String> queryGenreNames() {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-            try (ResultSet resultSet = statement
+            try (ResultSet rs = statement
                     .executeQuery("SELECT g.name FROM genre g ORDER BY g.name")) {
                 List<String> genres = new ArrayList<>();
-                while (resultSet.next()) {
-                    genres.add(resultSet.getString("name"));
+                while (rs.next()) {
+                    genres.add(rs.getString("name"));
                 }
                 return Collections.unmodifiableList(genres);
+            }
+        } catch (SQLException e) {
+            throw new QueryException("Error running query.", e);
+        }
+    }
+
+    public Optional<String> queryGenreNameByMbid(String mbid) {
+        try (Connection connection = dataSource.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement("SELECT g.name FROM genre g WHERE g.gid::text LIKE ?")) {
+                statement.setString(1, mbid);
+                try (ResultSet rs = statement.executeQuery()) {
+                    if (rs.next()) {
+                        return Optional.of(rs.getString("name"));
+                    } else {
+                        return Optional.empty();
+                    }
+                }
             }
         } catch (SQLException e) {
             throw new QueryException("Error running query.", e);
