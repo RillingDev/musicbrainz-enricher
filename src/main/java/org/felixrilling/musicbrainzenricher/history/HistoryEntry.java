@@ -18,7 +18,7 @@ class HistoryEntry {
 
     @Id
     @GeneratedValue
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private long id;
 
     @Enumerated(EnumType.ORDINAL)
