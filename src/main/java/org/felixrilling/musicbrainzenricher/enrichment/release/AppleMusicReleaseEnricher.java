@@ -22,7 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Uses web scraping because having to create an apple account just to fetch music data is overkill.
+ * Uses web scraping because having to create an Apple account just to fetch music data is overkill.
  */
 // https://musicbrainz.org/release/5bcb2971-fdea-4543-baf2-dd41d8b9a3cd
 // https://music.apple.com/us/album/1383304609
