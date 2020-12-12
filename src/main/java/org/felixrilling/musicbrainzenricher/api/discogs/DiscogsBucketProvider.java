@@ -15,7 +15,8 @@ import java.time.Duration;
 class DiscogsBucketProvider implements BucketProvider {
 
     //https://www.discogs.com/developers/#page:home,header:home-rate-limiting
-    private static final Bandwidth BANDWIDTH = Bandwidth.simple(60, Duration.ofMinutes(1));
+    // 60/m Increased by 15% to account for network oddities
+    private static final Bandwidth BANDWIDTH = Bandwidth.simple(60, Duration.ofSeconds(Math.round(60 * 1.15)));
 
     private final Bucket bucket = Bucket4j.builder().addLimit(BANDWIDTH).withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE).build();
 

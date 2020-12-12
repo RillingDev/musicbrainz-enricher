@@ -15,7 +15,9 @@ import java.time.Duration;
 class SpotifyBucketProvider implements BucketProvider {
 
     // https://developer.spotify.com/documentation/web-api/
-    private static final Bandwidth BANDWIDTH = Bandwidth.simple(1, Duration.ofSeconds(5));
+    // 1/s Increased by 15% to account for network oddities
+    // Note: Spotify itself does not disclose an exact rate, this is only a guess to avoid running into it.
+    private static final Bandwidth BANDWIDTH = Bandwidth.simple(1, Duration.ofMillis(Math.round(1000 * 1.15)));
 
     private final Bucket bucket = Bucket4j.builder().addLimit(BANDWIDTH).withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE).build();
 
