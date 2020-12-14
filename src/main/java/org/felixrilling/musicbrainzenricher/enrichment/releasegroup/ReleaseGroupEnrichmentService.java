@@ -3,7 +3,7 @@ package org.felixrilling.musicbrainzenricher.enrichment.releasegroup;
 import org.apache.commons.collections4.CollectionUtils;
 import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import org.felixrilling.musicbrainzenricher.enrichment.CoreEnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
 import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
@@ -30,12 +30,12 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
     private static final Logger logger = LoggerFactory.getLogger(ReleaseGroupEnrichmentService.class);
 
     private final CoreEnrichmentService coreEnrichmentService;
-    private final MusicbrainzQueryService musicbrainzQueryService;
+    private final MusicbrainzLookupService musicbrainzLookupService;
     private final MusicbrainzEditService musicbrainzEditService;
 
-    ReleaseGroupEnrichmentService(CoreEnrichmentService coreEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService) {
+    ReleaseGroupEnrichmentService(CoreEnrichmentService coreEnrichmentService, MusicbrainzLookupService musicbrainzLookupService, MusicbrainzEditService musicbrainzEditService) {
         this.coreEnrichmentService = coreEnrichmentService;
-        this.musicbrainzQueryService = musicbrainzQueryService;
+        this.musicbrainzLookupService = musicbrainzLookupService;
         this.musicbrainzEditService = musicbrainzEditService;
     }
 
@@ -45,7 +45,7 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
         includes.setUrlRelations(true);
         includes.setTags(true);
         includes.setUserTags(true);
-        Optional<ReleaseGroupWs2> releaseGroupOptional = musicbrainzQueryService.lookUpReleaseGroup(mbid, includes);
+        Optional<ReleaseGroupWs2> releaseGroupOptional = musicbrainzLookupService.lookUpReleaseGroup(mbid, includes);
 
         if (releaseGroupOptional.isEmpty()) {
             logger.warn("Could not find release group '{}'.", mbid);

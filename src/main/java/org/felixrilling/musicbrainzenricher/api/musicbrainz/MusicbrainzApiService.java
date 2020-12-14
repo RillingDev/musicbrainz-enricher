@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-class MusicbrainzService {
+class MusicbrainzApiService {
 
     @Value("${musicbrainz-enricher.host}")
     private String host;

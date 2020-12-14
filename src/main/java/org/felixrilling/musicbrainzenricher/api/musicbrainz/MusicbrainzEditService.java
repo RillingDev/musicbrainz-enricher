@@ -13,12 +13,12 @@ import java.util.Set;
 @Service
 public class MusicbrainzEditService {
 
-    private final MusicbrainzService musicbrainzService;
+    private final MusicbrainzApiService musicbrainzApiService;
     private final MusicbrainzBucketProvider musicbrainzBucketProvider;
     private final BucketService bucketService;
 
-    MusicbrainzEditService(MusicbrainzService musicbrainzService, MusicbrainzBucketProvider musicbrainzBucketProvider, BucketService bucketService) {
-        this.musicbrainzService = musicbrainzService;
+    MusicbrainzEditService(MusicbrainzApiService musicbrainzApiService, MusicbrainzBucketProvider musicbrainzBucketProvider, BucketService bucketService) {
+        this.musicbrainzApiService = musicbrainzApiService;
         this.musicbrainzBucketProvider = musicbrainzBucketProvider;
         this.bucketService = bucketService;
     }
@@ -27,7 +27,7 @@ public class MusicbrainzEditService {
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         ReleaseGroup releaseGroup = new ReleaseGroup();
-        releaseGroup.setQueryWs(musicbrainzService.createWebService());
+        releaseGroup.setQueryWs(musicbrainzApiService.createWebService());
 
         IncludesWs2 includesWs2 = new ReleaseGroupIncludesWs2();
         includesWs2.setUserTags(true);

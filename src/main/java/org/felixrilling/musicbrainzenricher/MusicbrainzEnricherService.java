@@ -1,6 +1,6 @@
 package org.felixrilling.musicbrainzenricher;
 
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQueryService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzAutoQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
 import org.felixrilling.musicbrainzenricher.enrichment.release.ReleaseEnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.releasegroup.ReleaseGroupEnrichmentService;
@@ -22,25 +22,25 @@ class MusicbrainzEnricherService {
     private final ReleaseEnrichmentService releaseEnrichmentService;
     private final ReleaseGroupEnrichmentService releaseGroupEnrichmentService;
     private final MusicbrainzQueryService musicbrainzQueryService;
-    private final MusicbrainzDbQueryService musicbrainzDbQueryService;
+    private final MusicbrainzAutoQueryService musicbrainzAutoQueryService;
     private final HistoryService historyService;
 
-    MusicbrainzEnricherService(ReleaseEnrichmentService releaseEnrichmentService, ReleaseGroupEnrichmentService releaseGroupEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzDbQueryService musicbrainzDbQueryService, HistoryService historyService) {
+    MusicbrainzEnricherService(ReleaseEnrichmentService releaseEnrichmentService, ReleaseGroupEnrichmentService releaseGroupEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzAutoQueryService musicbrainzAutoQueryService, HistoryService historyService) {
         this.releaseEnrichmentService = releaseEnrichmentService;
         this.releaseGroupEnrichmentService = releaseGroupEnrichmentService;
         this.musicbrainzQueryService = musicbrainzQueryService;
-        this.musicbrainzDbQueryService = musicbrainzDbQueryService;
+        this.musicbrainzAutoQueryService = musicbrainzAutoQueryService;
         this.historyService = historyService;
     }
 
-    public void runInFullMode(@NotNull DataType dataType) {
+    public void runInAutoQueryMode(@NotNull DataType dataType) {
         switch (dataType) {
             case RELEASE:
-                musicbrainzDbQueryService.queryReleasesWithRelationships(mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrich));
+                musicbrainzAutoQueryService.autoQueryReleasesWithRelationships(mbid -> enrich(DataType.RELEASE, mbid, releaseEnrichmentService::enrich));
                 break;
             case RELEASE_GROUP:
-                musicbrainzDbQueryService
-                        .queryReleaseGroupsWithRelationships(mbid -> enrich(DataType.RELEASE_GROUP, mbid, releaseGroupEnrichmentService::enrich));
+                musicbrainzAutoQueryService
+                        .autoQueryReleaseGroupsWithRelationships(mbid -> enrich(DataType.RELEASE_GROUP, mbid, releaseGroupEnrichmentService::enrich));
                 break;
         }
     }

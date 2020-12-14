@@ -3,7 +3,7 @@ package org.felixrilling.musicbrainzenricher.enrichment.release;
 import org.apache.commons.collections4.CollectionUtils;
 import org.felixrilling.musicbrainzenricher.DataType;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import org.felixrilling.musicbrainzenricher.enrichment.CoreEnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
 import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
@@ -31,12 +31,12 @@ public class ReleaseEnrichmentService implements EnrichmentService {
     private static final Logger logger = LoggerFactory.getLogger(ReleaseEnrichmentService.class);
 
     private final CoreEnrichmentService coreEnrichmentService;
-    private final MusicbrainzQueryService musicbrainzQueryService;
+    private final MusicbrainzLookupService musicbrainzLookupService;
     private final MusicbrainzEditService musicbrainzEditService;
 
-    ReleaseEnrichmentService(CoreEnrichmentService coreEnrichmentService, MusicbrainzQueryService musicbrainzQueryService, MusicbrainzEditService musicbrainzEditService) {
+    ReleaseEnrichmentService(CoreEnrichmentService coreEnrichmentService, MusicbrainzLookupService musicbrainzLookupService, MusicbrainzEditService musicbrainzEditService) {
         this.coreEnrichmentService = coreEnrichmentService;
-        this.musicbrainzQueryService = musicbrainzQueryService;
+        this.musicbrainzLookupService = musicbrainzLookupService;
         this.musicbrainzEditService = musicbrainzEditService;
     }
 
@@ -47,7 +47,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
         includes.setTags(true);
         includes.setUserTags(true);
         includes.setReleaseGroups(true);
-        Optional<ReleaseWs2> releaseOptional = musicbrainzQueryService.lookUpRelease(mbid, includes);
+        Optional<ReleaseWs2> releaseOptional = musicbrainzLookupService.lookUpRelease(mbid, includes);
 
         if (releaseOptional.isEmpty()) {
             logger.warn("Could not find release '{}'.", mbid);

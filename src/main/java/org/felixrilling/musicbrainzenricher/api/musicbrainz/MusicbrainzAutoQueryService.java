@@ -12,15 +12,15 @@ import java.sql.Statement;
 import java.util.function.Consumer;
 
 @Service
-public class MusicbrainzDbQueryService {
+public class MusicbrainzAutoQueryService {
 
     private final DataSource dataSource;
 
-    MusicbrainzDbQueryService(@Qualifier("musicbrainzLocalDb") DataSource dataSource) {
+    MusicbrainzAutoQueryService(@Qualifier("musicbrainzLocalDb") DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    public void queryReleasesWithRelationships(@NotNull Consumer<String> mbidConsumer) {
+    public void autoQueryReleasesWithRelationships(@NotNull Consumer<String> mbidConsumer) {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection
                 .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             try (ResultSet rs = statement
@@ -33,7 +33,7 @@ public class MusicbrainzDbQueryService {
         }
     }
 
-    public void queryReleaseGroupsWithRelationships(@NotNull Consumer<String> mbidConsumer) {
+    public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<String> mbidConsumer) {
         try (Connection connection = dataSource.getConnection(); Statement statement = connection
                 .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
             try (ResultSet rs = statement
