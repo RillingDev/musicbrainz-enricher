@@ -2,12 +2,14 @@ package org.felixrilling.musicbrainzenricher;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Configuration
 @ConfigurationProperties(prefix = "musicbrainz-enricher")
+@Validated
 public class ApplicationConfigurationProperties {
 
     /**
@@ -41,7 +43,6 @@ public class ApplicationConfigurationProperties {
      * Musicbrainz credentials.
      * You should probably pass these as command line flags.
      */
-    @NotBlank
     private MusicbrainzCredentials musicbrainz;
 
 
@@ -50,7 +51,6 @@ public class ApplicationConfigurationProperties {
      * You should probably pass these as command line flags.
      * Blank sub-values disable spotify integration.
      */
-    @NotBlank
     private SpotifyCredentials spotify;
 
     public String getHost() {
