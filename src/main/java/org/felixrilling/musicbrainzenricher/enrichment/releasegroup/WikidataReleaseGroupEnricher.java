@@ -1,7 +1,7 @@
 package org.felixrilling.musicbrainzenricher.enrichment.releasegroup;
 
 import org.felixrilling.musicbrainzenricher.DataType;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQueryService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.GenreRepository;
 import org.felixrilling.musicbrainzenricher.api.wikidata.WikidataService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.enrichment.RegexUtils;
@@ -47,11 +47,11 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
     private static final Pattern ID_REGEX = Pattern.compile(".+/(?<id>Q\\d+)$");
 
     private final WikidataService wikidataService;
-    private final MusicbrainzDbQueryService musicbrainzDbQueryService;
+    private final GenreRepository genreRepository;
 
-    WikidataReleaseGroupEnricher(WikidataService wikidataService, MusicbrainzDbQueryService musicbrainzDbQueryService) {
+    WikidataReleaseGroupEnricher(WikidataService wikidataService, GenreRepository genreRepository) {
         this.wikidataService = wikidataService;
-        this.musicbrainzDbQueryService = musicbrainzDbQueryService;
+        this.genreRepository = genreRepository;
     }
 
     @Override
@@ -90,7 +90,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
             return Optional.empty();
         }
         String mbid = ((StringValue) value).getString();
-        return musicbrainzDbQueryService.queryGenreNameByMbid(mbid);
+        return genreRepository.findGenreNameByMbid(mbid);
     }
 
     @Override

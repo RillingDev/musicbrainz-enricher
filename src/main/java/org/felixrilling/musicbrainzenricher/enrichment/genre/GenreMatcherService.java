@@ -1,7 +1,7 @@
 package org.felixrilling.musicbrainzenricher.enrichment.genre;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzDbQueryService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.GenreRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,11 +17,12 @@ public class GenreMatcherService {
     private static final double SIMILARITY_MINIMUM = 0.85;
     private static final LevenshteinDistance LEVENSHTEIN = new LevenshteinDistance();
 
-    private final MusicbrainzDbQueryService musicbrainzDbQueryService;
+    private final GenreRepository genreRepository;
 
-    GenreMatcherService(MusicbrainzDbQueryService musicbrainzDbQueryService) {
-        this.musicbrainzDbQueryService = musicbrainzDbQueryService;
+    GenreMatcherService(GenreRepository genreRepository) {
+        this.genreRepository = genreRepository;
     }
+
 
     /**
      * Finds the associated canonical genre names for the provided genres.
@@ -31,7 +32,7 @@ public class GenreMatcherService {
      * @return Matching canonical genre names.
      */
     public @NotNull Set<String> match(@NotNull Set<String> unmatchedGenres) {
-        List<String> knownGenres = musicbrainzDbQueryService.queryGenreNames();
+        List<String> knownGenres = genreRepository.findGenreNames();
 
         Set<String> matches = new HashSet<>();
         for (String unmatchedGenre : unmatchedGenres) {
