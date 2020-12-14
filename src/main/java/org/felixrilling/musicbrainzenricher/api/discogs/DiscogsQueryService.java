@@ -1,14 +1,17 @@
 package org.felixrilling.musicbrainzenricher.api.discogs;
 
-import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
 import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
 import java.util.Optional;
 
 // https://www.discogs.com/developers/
@@ -16,9 +19,11 @@ import java.util.Optional;
 public class DiscogsQueryService {
 
     private static final Logger logger = LoggerFactory.getLogger(DiscogsQueryService.class);
+    private static final String BASE_URL = "https://api.discogs.com";
 
     private final DiscogsBucketProvider discogsBucketProvider;
     private final BucketService bucketService;
+    private final RestTemplateBuilder restTemplateBuilder;
 
     @Value("${musicbrainz-enricher.name}")
     private String applicationName;
@@ -29,41 +34,41 @@ public class DiscogsQueryService {
     @Value("${musicbrainz-enricher.contact}")
     private String applicationContact;
 
-    public DiscogsQueryService(DiscogsBucketProvider discogsBucketProvider, BucketService bucketService) {
+    public DiscogsQueryService(DiscogsBucketProvider discogsBucketProvider, BucketService bucketService, RestTemplateBuilder restTemplateBuilder) {
         this.discogsBucketProvider = discogsBucketProvider;
         this.bucketService = bucketService;
+        this.restTemplateBuilder = restTemplateBuilder;
     }
 
     public @NotNull Optional<DiscogsRelease> lookUpRelease(@NotNull final String id) {
         bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
 
-        HttpResponse<DiscogsRelease> response = Unirest.get("https://api.discogs.com/releases/{id}").routeParam("id", id)
-                .header("User-Agent", getUserAgent(applicationName, applicationVersion, applicationContact))
-                .asObject(DiscogsRelease.class)
-                .ifFailure(res -> logger.warn("Could not look up release '{}': {}.", id, res.getStatus()));
-        return wrapResponse(response);
+        try {
+            return Optional.ofNullable(createWebClient()
+                    .getForObject(BASE_URL + "/releases/{id}", DiscogsRelease.class, Map.of("id", id)));
+        } catch (RestClientException e) {
+            logger.warn("Could not look up release '{}'.", id, e);
+            return Optional.empty();
+        }
     }
-
 
     public @NotNull Optional<DiscogsMaster> lookUpMaster(@NotNull final String id) {
         bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
 
-        HttpResponse<DiscogsMaster> response = Unirest.get("https://api.discogs.com/masters/{id}").routeParam("id", id)
-                .header("User-Agent", getUserAgent(applicationName, applicationVersion, applicationContact))
-                .asObject(DiscogsMaster.class)
-                .ifFailure(res -> logger.warn("Could not look up master '{}': {}.", id, res.getStatus()));
-        return wrapResponse(response);
-    }
-
-    private <T> @NotNull Optional<T> wrapResponse(@NotNull HttpResponse<T> response) {
-        if (!response.isSuccess()) {
+        try {
+            return Optional.ofNullable(createWebClient()
+                    .getForObject(BASE_URL + "/masters/{id}", DiscogsMaster.class, Map.of("id", id)));
+        } catch (RestClientException e) {
+            logger.warn("Could not look up master '{}'.", id, e);
             return Optional.empty();
         }
-        return Optional.of(response.getBody());
     }
 
-    private @NotNull String getUserAgent(@NotNull String applicationName, @NotNull String applicationVersion, @NotNull String applicationContact) {
+    private @NotNull RestTemplate createWebClient() {
         // See https://www.discogs.com/developers/
-        return String.format("%s/%s +%s", applicationName, applicationVersion, applicationContact);
+        String userAgent = String.format("%s/%s +%s", applicationName, applicationVersion, applicationContact);
+
+        return restTemplateBuilder.defaultHeader(HttpHeaders.USER_AGENT, userAgent).build();
     }
+
 }
