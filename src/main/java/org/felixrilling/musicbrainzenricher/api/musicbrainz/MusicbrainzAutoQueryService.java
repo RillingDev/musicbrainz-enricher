@@ -1,56 +1,49 @@
 package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.function.Consumer;
 
 @Service
 public class MusicbrainzAutoQueryService {
 
-    private final DataSource dataSource;
+    private static final int LIMIT = 500;
 
-    MusicbrainzAutoQueryService(@Qualifier("musicbrainzLocalDb") DataSource dataSource) {
-        this.dataSource = dataSource;
+    private final ReleaseRepository releaseRepository;
+    private final ReleaseGroupRepository releaseGroupRepository;
+
+    MusicbrainzAutoQueryService(ReleaseRepository releaseRepository, ReleaseGroupRepository releaseGroupRepository) {
+        this.releaseRepository = releaseRepository;
+        this.releaseGroupRepository = releaseGroupRepository;
     }
 
     public void autoQueryReleasesWithRelationships(@NotNull Consumer<String> mbidConsumer) {
-        try (Connection connection = dataSource.getConnection(); Statement statement = connection
-                .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            try (ResultSet rs = statement
-                    .executeQuery("SELECT r.gid FROM release r WHERE r.id IN (SELECT lru.entity0 FROM l_release_url lru)")) {
-                // gid == mbid
-                pipeToCallback(rs, "gid", mbidConsumer);
+        try {
+            long count = releaseRepository.countReleasesWhereRelationshipsExist();
+            long offset = 0;
+            while (offset < count) {
+                releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
+                offset += LIMIT;
             }
         } catch (SQLException e) {
-            throw new QueryException("Error running query.", e);
+            throw new QueryException("Could not query releases.", e);
         }
     }
 
     public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<String> mbidConsumer) {
-        try (Connection connection = dataSource.getConnection(); Statement statement = connection
-                .createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-            try (ResultSet rs = statement
-                    .executeQuery("SELECT rg.gid FROM release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM l_release_group_url lrgu)")) {
-                // gid == mbid
-                pipeToCallback(rs, "gid", mbidConsumer);
+        try {
+            long count = releaseGroupRepository.countReleaseGroupsWhereRelationshipsExist();
+            long offset = 0;
+            while (offset < count) {
+                releaseGroupRepository.findReleaseGroupsMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
+                offset += LIMIT;
             }
         } catch (SQLException e) {
-            throw new QueryException("Error running query.", e);
+            throw new QueryException("Could not query release groups.", e);
         }
     }
 
-
-    private void pipeToCallback(@NotNull ResultSet rs, @NotNull String columnName, @NotNull Consumer<String> consumer) throws SQLException {
-        while (rs.next()) {
-            consumer.accept(rs.getString(columnName));
-        }
-    }
 
 }
