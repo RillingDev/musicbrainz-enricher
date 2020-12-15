@@ -22,7 +22,7 @@ class MusicbrainzLocalDbConfiguration {
     }
 
     @Bean("musicbrainzLocalDbJdbcTemplate")
-    JdbcTemplate jdbcTemplate(@Qualifier("musicbrainzLocalDb") DataSource dataSource)  {
+    JdbcTemplate jdbcTemplate(@Qualifier("musicbrainzLocalDb") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 

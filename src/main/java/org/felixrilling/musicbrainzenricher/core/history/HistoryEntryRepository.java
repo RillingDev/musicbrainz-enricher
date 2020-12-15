@@ -1,6 +1,6 @@
-package org.felixrilling.musicbrainzenricher.history;
+package org.felixrilling.musicbrainzenricher.core.history;
 
-import org.felixrilling.musicbrainzenricher.DataType;
+import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

@@ -1,7 +1,6 @@
-package org.felixrilling.musicbrainzenricher.enrichment.genre;
+package org.felixrilling.musicbrainzenricher.core.genre;
 
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.GenreRepository;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.core.GenreRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

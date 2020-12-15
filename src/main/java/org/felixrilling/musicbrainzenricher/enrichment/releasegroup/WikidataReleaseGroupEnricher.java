@@ -1,8 +1,8 @@
 package org.felixrilling.musicbrainzenricher.enrichment.releasegroup;
 
-import org.felixrilling.musicbrainzenricher.DataType;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.GenreRepository;
 import org.felixrilling.musicbrainzenricher.api.wikidata.WikidataService;
+import org.felixrilling.musicbrainzenricher.core.DataType;
+import org.felixrilling.musicbrainzenricher.core.GenreRepository;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.enrichment.RegexUtils;
 import org.jetbrains.annotations.NotNull;

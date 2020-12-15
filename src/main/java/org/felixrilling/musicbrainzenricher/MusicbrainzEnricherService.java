@@ -2,9 +2,10 @@ package org.felixrilling.musicbrainzenricher;
 
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzAutoQueryService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzQueryService;
+import org.felixrilling.musicbrainzenricher.core.DataType;
+import org.felixrilling.musicbrainzenricher.core.history.HistoryService;
 import org.felixrilling.musicbrainzenricher.enrichment.release.ReleaseEnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.releasegroup.ReleaseGroupEnrichmentService;
-import org.felixrilling.musicbrainzenricher.history.HistoryService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.function.Consumer;
 
 @Service
-class MusicbrainzEnricherService {
+public class MusicbrainzEnricherService {
 
     private static final Logger logger = LoggerFactory.getLogger(MusicbrainzEnricherService.class);
 

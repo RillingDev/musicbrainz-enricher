@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher;
+package org.felixrilling.musicbrainzenricher.core;
 
 public enum DataType {
     RELEASE,

@@ -1,5 +1,7 @@
 package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
+import org.felixrilling.musicbrainzenricher.core.ReleaseGroupRepository;
+import org.felixrilling.musicbrainzenricher.core.ReleaseRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 

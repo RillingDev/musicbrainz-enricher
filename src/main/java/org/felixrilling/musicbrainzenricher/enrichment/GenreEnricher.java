@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Enricher with the capability of calculating genre data.
  *
- * @see org.felixrilling.musicbrainzenricher.enrichment.genre.GenreMatcherService
+ * @see org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService
  */
 @Component
 public interface GenreEnricher extends Enricher {

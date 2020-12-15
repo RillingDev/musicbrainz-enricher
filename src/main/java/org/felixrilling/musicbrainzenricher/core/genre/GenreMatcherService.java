@@ -1,7 +1,7 @@
-package org.felixrilling.musicbrainzenricher.enrichment.genre;
+package org.felixrilling.musicbrainzenricher.core.genre;
 
 import org.apache.commons.text.similarity.LevenshteinDistance;
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.GenreRepository;
+import org.felixrilling.musicbrainzenricher.core.GenreRepository;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

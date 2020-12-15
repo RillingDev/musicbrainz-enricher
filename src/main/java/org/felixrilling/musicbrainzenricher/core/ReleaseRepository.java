@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.api.musicbrainz;
+package org.felixrilling.musicbrainzenricher.core;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,7 +10,7 @@ import java.util.List;
 
 // Not a 'real' repository because we only look up primitive values and not entities
 @Component
-class ReleaseRepository {
+public class ReleaseRepository {
     private final JdbcTemplate jdbcTemplate;
 
     ReleaseRepository(@Qualifier("musicbrainzLocalDbJdbcTemplate") JdbcTemplate jdbcTemplate) {

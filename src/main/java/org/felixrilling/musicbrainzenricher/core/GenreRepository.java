@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.api.musicbrainz;
+package org.felixrilling.musicbrainzenricher.core;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;

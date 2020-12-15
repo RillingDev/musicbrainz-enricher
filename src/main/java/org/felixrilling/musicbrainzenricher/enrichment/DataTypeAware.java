@@ -1,6 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment;
 
-import org.felixrilling.musicbrainzenricher.DataType;
+import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.jetbrains.annotations.NotNull;
 
 /**
