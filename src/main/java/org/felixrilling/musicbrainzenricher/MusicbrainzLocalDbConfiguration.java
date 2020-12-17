@@ -14,15 +14,15 @@ import javax.sql.DataSource;
 class MusicbrainzLocalDbConfiguration {
 
     @ConfigurationProperties(prefix = "musicbrainz-local-db.datasource")
-    @Bean("musicbrainzLocalDb")
-    DataSource musicbrainzLocalDb() {
+    @Bean("musicbrainzLocalDbDataSource")
+    DataSource dataSource() {
         return DataSourceBuilder
                 .create()
                 .build();
     }
 
     @Bean("musicbrainzLocalDbJdbcTemplate")
-    JdbcTemplate jdbcTemplate(@Qualifier("musicbrainzLocalDb") DataSource dataSource) {
+    JdbcTemplate jdbcTemplate(@Qualifier("musicbrainzLocalDbDataSource") DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 

@@ -28,7 +28,7 @@ class ApplicationDbConfiguration {
     @Primary
     @Bean(name = "applicationDbDataSource")
     @ConfigurationProperties(prefix = "spring.datasource")
-    public DataSource customerDataSource() {
+    public DataSource dataSource() {
         return DataSourceBuilder.create().build();
     }
 
@@ -48,7 +48,7 @@ class ApplicationDbConfiguration {
 
     @Primary
     @Bean(name = "applicationDbTransactionManager")
-    public PlatformTransactionManager customerTransactionManager(
+    public PlatformTransactionManager transactionManager(
             @Qualifier("applicationDbEntityManagerFactory") EntityManagerFactory
                     customerEntityManagerFactory
     ) {
