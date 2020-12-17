@@ -7,12 +7,16 @@ import org.musicbrainz.controller.Release;
 import org.musicbrainz.controller.ReleaseGroup;
 import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.function.Consumer;
 
 @Service
 public class MusicbrainzQueryService {
+
+    private static final Logger logger = LoggerFactory.getLogger(MusicbrainzQueryService.class);
 
     private final MusicbrainzApiService musicbrainzApiService;
     private final MusicbrainzBucketProvider musicbrainzBucketProvider;
@@ -24,7 +28,6 @@ public class MusicbrainzQueryService {
         this.bucketService = bucketService;
     }
 
-
     public void queryReleases(@NotNull String query, @NotNull ReleaseIncludesWs2 includes, @NotNull Consumer<String> mbidConsumer) {
         Release release = new Release();
         release.setQueryWs(musicbrainzApiService.createWebService());
@@ -32,6 +35,7 @@ public class MusicbrainzQueryService {
         release.setIncludes(includes);
 
         release.search(query);
+        logger.info("Starting search for releases by query '{}'.", query);
 
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
         try {
@@ -53,6 +57,7 @@ public class MusicbrainzQueryService {
         releaseGroup.setIncludes(includes);
 
         releaseGroup.search(query);
+        logger.info("Starting search for release groups by query '{}'.", query);
 
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
         releaseGroup.getFirstSearchResultPage().forEach(releaseWs2 -> mbidConsumer.accept(releaseWs2.getReleaseGroup().getId()));
