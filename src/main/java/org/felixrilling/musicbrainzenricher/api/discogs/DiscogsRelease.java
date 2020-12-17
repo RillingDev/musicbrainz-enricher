@@ -17,7 +17,7 @@ public class DiscogsRelease {
     @JsonCreator
     public DiscogsRelease(
             @JsonProperty(value = "genres", required = true) Set<String> genres,
-            @JsonProperty(value = "styles", required = true) Set<String> styles
+            @JsonProperty(value = "styles") Set<String> styles
     ) {
         this.genres = genres;
         this.styles = styles;
