@@ -1,6 +1,5 @@
 package org.felixrilling.musicbrainzenricher.enrichment.releasegroup;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
@@ -12,17 +11,14 @@ import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
 import org.musicbrainz.model.RelationWs2;
-import org.musicbrainz.model.TagWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ReleaseGroupEnrichmentService implements EnrichmentService {
@@ -77,14 +73,11 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
     }
 
     private void executeGenreEnrichment(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull RelationWs2 relation, @NotNull GenreEnricher releaseEnricher, @NotNull ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult result) {
-        Set<String> existingTags = releaseGroup.getTags().stream().map(TagWs2::getName).collect(Collectors.toSet());
-
         Set<String> foundTags = releaseEnricher.fetchGenres(relation);
-        logger.debug("Enricher '{}' found genres '{}' (Existing: '{}') for release group '{}'.", releaseEnricher
-                .getClass().getSimpleName(), foundTags, existingTags, releaseGroup.getId());
+        logger.debug("Enricher '{}' found genres '{}' for release group '{}'.", releaseEnricher
+                .getClass().getSimpleName(), foundTags, releaseGroup.getId());
 
-        Collection<String> newTags = CollectionUtils.subtract(foundTags, existingTags);
-        result.getNewGenres().addAll(newTags);
+        result.getNewGenres().addAll(foundTags);
     }
 
     private void updateEntity(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull ReleaseGroupEnrichmentResult result) {
