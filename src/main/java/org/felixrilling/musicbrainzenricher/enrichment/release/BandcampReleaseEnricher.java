@@ -2,8 +2,8 @@ package org.felixrilling.musicbrainzenricher.enrichment.release;
 
 import org.felixrilling.musicbrainzenricher.api.ScrapingService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
-import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
+import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 /**
  * Uses web scraping because the regular API does not seem to be for hobby devs.
  */
+// https://musicbrainz.org/release/6bc5d3f7-3a7f-43fd-8df6-f1b63710e816
+// https://vectorlovers.bandcamp.com/album/separation-soundtrack
 @Service
 class BandcampReleaseEnricher implements GenreEnricher {
 

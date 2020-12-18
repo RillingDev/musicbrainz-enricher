@@ -3,9 +3,9 @@ package org.felixrilling.musicbrainzenricher.enrichment.release;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsQueryService;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsRelease;
 import org.felixrilling.musicbrainzenricher.core.DataType;
+import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.enrichment.RegexUtils;
-import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;
@@ -17,10 +17,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+// https://musicbrainz.org/release/bd3d34dd-218a-4296-afde-b3fa2c39ba29
+// https://www.discogs.com/release/12168718
 @Service
 class DiscogsReleaseEnricher implements GenreEnricher {
 
     private static final Logger logger = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
+
     private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://www\\.discogs\\.com/release/(?<id>\\d+)");
 
     private final GenreMatcherService genreMatcherService;

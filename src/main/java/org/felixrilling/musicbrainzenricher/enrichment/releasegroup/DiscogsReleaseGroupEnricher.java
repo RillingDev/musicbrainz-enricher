@@ -3,9 +3,9 @@ package org.felixrilling.musicbrainzenricher.enrichment.releasegroup;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsMaster;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsQueryService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
+import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.enrichment.RegexUtils;
-import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;
@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+// https://musicbrainz.org/release-group/a63e5fa6-d6ad-47bd-986d-4a27b0c9de70
+// https://www.discogs.com/master/1381500
 @Service
 class DiscogsReleaseGroupEnricher implements GenreEnricher {
 

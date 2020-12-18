@@ -34,9 +34,11 @@ import java.util.regex.Pattern;
  *     <li>For every genre entities musicbrainz link statement, look up its name by the MBID against the musicbrainz database</li>
  *     <li>Return the names found in the musicbrainz database</li>
  * </ol>
+ * <p>
+ * Also see https://www.mediawiki.org/wiki/Wikidata_Toolkit
  */
-// https://www.wikidata.org/wiki/Q922756
-// https://www.mediawiki.org/wiki/Wikidata_Toolkit
+// https://musicbrainz.org/release-group/a63e5fa6-d6ad-47bd-986d-4a27b0c9de70
+// https://www.wikidata.org/wiki/Q53020187
 @Service
 class WikidataReleaseGroupEnricher implements GenreEnricher {
 

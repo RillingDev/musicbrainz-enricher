@@ -2,8 +2,8 @@ package org.felixrilling.musicbrainzenricher.enrichment.releasegroup;
 
 import org.felixrilling.musicbrainzenricher.api.ScrapingService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
-import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
+import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
@@ -17,7 +17,8 @@ import java.util.Set;
 /**
  * AllMusic does not seem to have an API, so scraping it is.
  */
-// https://www.allmusic.com/album/mw0000087254
+// https://musicbrainz.org/release-group/a63e5fa6-d6ad-47bd-986d-4a27b0c9de70
+// https://www.allmusic.com/album/mw0003185404
 @Service
 class AllMusicReleaseGroupEnricher implements GenreEnricher {
 
