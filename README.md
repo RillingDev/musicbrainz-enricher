@@ -35,13 +35,13 @@ The following values should be passed as startup flags (e.g. `-Dmusicbrainz-enri
 
 Before starting, set up <https://github.com/metabrainz/musicbrainz-docker> locally with the database port open.
 
-This tool can run in full or query mode. Full mode will enrich every entity from the musicbrainz database. Query mode takes a musicbrainz search query and will enrich the results.
+This tool can run in auto-query or single mode. Auto-Query mode will enrich every entity from the musicbrainz database. Single mode takes a musicbrainz MBID and will enrich the result.
 
-Full mode: 
+Auto-Query mode: 
 `java [startup flags] -jar musicbrainz-enricher*.jar 'release'`.
 
-Query mode: 
-`java [startup flags] -jar musicbrainz-enricher*.jar 'release' 'searchQuery'`.
+Single mode: 
+`java [startup flags] -jar musicbrainz-enricher*.jar 'release' 'MBID'`.
 
 ### Local History DB
 

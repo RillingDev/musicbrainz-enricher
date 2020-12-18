@@ -31,11 +31,11 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
             throw new IllegalArgumentException("Expected at most 2 parameters but found " + args.length + ".");
         }
 
-        DataType dataType = parseMode(args[0]);
+        DataType dataType = parseDataType(args[0]);
         try {
             if (args.length == 2) {
-                String query = args[1];
-                musicbrainzEnricherService.runInQueryMode(dataType, query);
+                String mbid = args[1];
+                musicbrainzEnricherService.runInSingleMode(dataType, mbid);
             } else {
                 musicbrainzEnricherService.runInAutoQueryMode(dataType);
             }
@@ -45,7 +45,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
     }
 
 
-    private DataType parseMode(String modeString) {
+    private DataType parseDataType(String modeString) {
         switch (modeString) {
             case "release":
                 return DataType.RELEASE;
