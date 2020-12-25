@@ -32,7 +32,7 @@ public class MusicbrainzAutoQueryService {
 
             long offset = 0;
             while (offset < count) {
-                logger.debug("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
+                logger.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
                 releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
                 offset += LIMIT;
             }
@@ -48,7 +48,7 @@ public class MusicbrainzAutoQueryService {
 
             long offset = 0;
             while (offset < count) {
-                logger.debug("Loading {} release groups with offset {} with at least one relationship...", LIMIT, offset);
+                logger.info("Loading {} release groups with offset {} with at least one relationship...", LIMIT, offset);
                 releaseGroupRepository.findReleaseGroupsMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
                 offset += LIMIT;
             }
