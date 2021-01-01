@@ -9,25 +9,20 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "history_entry",
-        uniqueConstraints = @UniqueConstraint(
-                name = "history_entry_unique",
-                columnNames = {"data_type", "mbid"}
-        )
-)
+@Table(name = "history_entry")
 class HistoryEntry {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private long id;
 
     @Enumerated(EnumType.ORDINAL)
-    @Column(name = "data_type", nullable = false)
+    @Column(name = "data_type", nullable = false, updatable = false)
     @NotNull
     private DataType dataType;
 
-    @Column(name = "mbid", nullable = false)
+    @Column(name = "mbid", nullable = false, updatable = false)
     @NotNull
     private UUID mbid;
 
