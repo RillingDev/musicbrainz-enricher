@@ -13,6 +13,7 @@ import org.musicbrainz.webservice.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MusicbrainzLookupService {
@@ -27,7 +28,7 @@ public class MusicbrainzLookupService {
         this.bucketService = bucketService;
     }
 
-    public @NotNull Optional<ReleaseWs2> lookUpRelease(@NotNull String mbid, @NotNull ReleaseIncludesWs2 includes) {
+    public @NotNull Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes) {
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         Release release = new Release();
@@ -36,7 +37,7 @@ public class MusicbrainzLookupService {
         release.setIncludes(includes);
 
         try {
-            return Optional.of(release.lookUp(mbid));
+            return Optional.of(release.lookUp(mbid.toString()));
         } catch (ResourceNotFoundException e) {
             return Optional.empty();
         } catch (MBWS2Exception e) {
@@ -44,7 +45,7 @@ public class MusicbrainzLookupService {
         }
     }
 
-    public @NotNull Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull String mbid, @NotNull ReleaseGroupIncludesWs2 includes) {
+    public @NotNull Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid, @NotNull ReleaseGroupIncludesWs2 includes) {
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         ReleaseGroup releaseGroup = new ReleaseGroup();
@@ -53,7 +54,7 @@ public class MusicbrainzLookupService {
         releaseGroup.setIncludes(includes);
 
         try {
-            return Optional.of(releaseGroup.lookUp(mbid));
+            return Optional.of(releaseGroup.lookUp(mbid.toString()));
         } catch (ResourceNotFoundException e) {
             return Optional.empty();
         } catch (MBWS2Exception e) {

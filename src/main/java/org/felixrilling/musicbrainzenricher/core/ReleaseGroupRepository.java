@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 // Not a 'real' repository because we only look up primitive values and not entities
 @Component
@@ -23,9 +24,9 @@ public class ReleaseGroupRepository {
                 .queryForObject("SELECT COUNT(*) FROM release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM l_release_group_url lrgu)", Long.class);
     }
 
-    public List<String> findReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) throws SQLException {
+    public List<UUID> findReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) throws SQLException {
         return Collections.unmodifiableList(jdbcTemplate
                 .query("SELECT rg.gid FROM release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM l_release_group_url lrgu) OFFSET ? LIMIT ?",
-                        (rs, rowNum) -> rs.getString("gid"), offset, limit));
+                        (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit));
     }
 }

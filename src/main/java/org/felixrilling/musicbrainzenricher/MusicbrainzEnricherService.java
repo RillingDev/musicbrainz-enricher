@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class MusicbrainzEnricherService {
 
@@ -38,11 +40,11 @@ public class MusicbrainzEnricherService {
         }
     }
 
-    public void runInSingleMode(@NotNull DataType dataType, @NotNull String mbid) {
+    public void runInSingleMode(@NotNull DataType dataType, @NotNull UUID mbid) {
         executeEnrichment(dataType, mbid, findFittingEnrichmentService(dataType));
     }
 
-    private void executeEnrichment(@NotNull DataType dataType, @NotNull String mbid, @NotNull EnrichmentService enrichmentService) {
+    private void executeEnrichment(@NotNull DataType dataType, @NotNull UUID mbid, @NotNull EnrichmentService enrichmentService) {
         if (!historyService.checkIsDue(dataType, mbid)) {
             logger.debug("Check is not due for '{}' ({}), skipping.", mbid, dataType);
             return;

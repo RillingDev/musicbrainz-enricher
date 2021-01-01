@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "history_entry",
@@ -28,7 +29,7 @@ class HistoryEntry {
 
     @Column(name = "mbid", nullable = false)
     @NotNull
-    private String mbid;
+    private UUID mbid;
 
     @Column(name = "last_checked", nullable = false)
     @NotNull
@@ -50,11 +51,11 @@ class HistoryEntry {
         this.dataType = dataType;
     }
 
-    public @NotNull String getMbid() {
+    public @NotNull UUID getMbid() {
         return mbid;
     }
 
-    public void setMbid(@NotNull String mbid) {
+    public void setMbid(@NotNull UUID mbid) {
         this.mbid = mbid;
     }
 

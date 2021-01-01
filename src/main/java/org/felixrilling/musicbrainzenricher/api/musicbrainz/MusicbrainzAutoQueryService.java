@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 @Service
@@ -25,7 +26,7 @@ public class MusicbrainzAutoQueryService {
         this.releaseGroupRepository = releaseGroupRepository;
     }
 
-    public void autoQueryReleasesWithRelationships(@NotNull Consumer<String> mbidConsumer) {
+    public void autoQueryReleasesWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
         try {
             long count = releaseRepository.countReleasesWhereRelationshipsExist();
             logger.info("Found a total of {} releases with at least one relationship.", count);
@@ -41,7 +42,7 @@ public class MusicbrainzAutoQueryService {
         }
     }
 
-    public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<String> mbidConsumer) {
+    public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
         try {
             long count = releaseGroupRepository.countReleaseGroupsWhereRelationshipsExist();
             logger.info("Found a total of {} release groups with at least one relationship.", count);

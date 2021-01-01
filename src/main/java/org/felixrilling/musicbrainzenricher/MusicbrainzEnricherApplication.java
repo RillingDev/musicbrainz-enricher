@@ -7,6 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.util.UUID;
+
 @SpringBootApplication
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
@@ -35,7 +37,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
         try {
             if (args.length == 2) {
                 String mbid = args[1];
-                musicbrainzEnricherService.runInSingleMode(dataType, mbid);
+                musicbrainzEnricherService.runInSingleMode(dataType, UUID.fromString(mbid));
             } else {
                 musicbrainzEnricherService.runInAutoQueryMode(dataType);
             }

@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class ReleaseEnrichmentService implements EnrichmentService {
@@ -37,7 +38,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
     }
 
     @Override
-    public void enrich(@NotNull String mbid) {
+    public void enrich(@NotNull UUID mbid) {
         ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
         includes.setUrlRelations(true);
         includes.setTags(true);

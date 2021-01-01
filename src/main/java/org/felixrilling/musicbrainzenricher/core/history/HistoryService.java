@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Service
 public class HistoryService {
@@ -23,13 +24,13 @@ public class HistoryService {
         this.historyEntryRepository = historyEntryRepository;
     }
 
-    public boolean checkIsDue(@NotNull DataType dataType, @NotNull String mbid) {
+    public boolean checkIsDue(@NotNull DataType dataType, @NotNull UUID mbid) {
         logger.trace("Checking history entry for '{}' ({}).", mbid, dataType);
         return historyEntryRepository.findFirstByDataTypeAndMbid(dataType, mbid)
                 .map(this::recheckIsDue).orElse(true);
     }
 
-    public void markAsChecked(@NotNull DataType dataType, @NotNull String mbid) {
+    public void markAsChecked(@NotNull DataType dataType, @NotNull UUID mbid) {
         HistoryEntry historyEntry = historyEntryRepository.findFirstByDataTypeAndMbid(dataType, mbid).orElseGet(() -> {
             HistoryEntry entry = new HistoryEntry();
             entry.setDataType(dataType);
