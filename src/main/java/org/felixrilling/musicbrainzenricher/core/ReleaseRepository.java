@@ -24,7 +24,7 @@ public class ReleaseRepository {
 
     public List<UUID> findReleaseMbidWhereRelationshipsExist(long offset, int limit) throws SQLException {
         return Collections.unmodifiableList(jdbcTemplate
-                .query("SELECT r.gid FROM release r WHERE r.id IN (SELECT lru.entity0 FROM l_release_url lru) OFFSET ? LIMIT ?",
+                .query("SELECT r.gid FROM release r WHERE r.id IN (SELECT lru.entity0 FROM l_release_url lru) ORDER BY r.id OFFSET ? LIMIT ?",
                         (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit));
     }
 }
