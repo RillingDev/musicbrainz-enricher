@@ -26,12 +26,16 @@ public class HistoryService {
 
     public boolean checkIsDue(@NotNull DataType dataType, @NotNull UUID mbid) {
         logger.trace("Checking history entry for '{}' ({}).", mbid, dataType);
-        return historyEntryRepository.findFirstByDataTypeAndMbid(dataType, mbid)
-                .map(this::recheckIsDue).orElse(true);
+        return historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid)
+                .map(this::checkIsDue).orElse(true);
+    }
+
+    private boolean checkIsDue(@NotNull HistoryEntry historyEntry) {
+        return historyEntry.getLastChecked().isBefore(ZonedDateTime.now(ZONE).minus(RECHECK_TIMESPAN));
     }
 
     public void markAsChecked(@NotNull DataType dataType, @NotNull UUID mbid) {
-        HistoryEntry historyEntry = historyEntryRepository.findFirstByDataTypeAndMbid(dataType, mbid).orElseGet(() -> {
+        HistoryEntry historyEntry = historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid).orElseGet(() -> {
             HistoryEntry entry = new HistoryEntry();
             entry.setDataType(dataType);
             entry.setMbid(mbid);
@@ -40,9 +44,5 @@ public class HistoryService {
         historyEntry.setLastChecked(ZonedDateTime.now(ZONE));
         logger.trace("Persisting history entry: '{}'.", historyEntry);
         historyEntryRepository.save(historyEntry);
-    }
-
-    private boolean recheckIsDue(@NotNull HistoryEntry historyEntry) {
-        return historyEntry.getLastChecked().isBefore(ZonedDateTime.now(ZONE).minus(RECHECK_TIMESPAN));
     }
 }
