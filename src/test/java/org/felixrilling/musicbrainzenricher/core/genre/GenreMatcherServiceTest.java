@@ -1,13 +1,13 @@
 package org.felixrilling.musicbrainzenricher.core.genre;
 
 import org.felixrilling.musicbrainzenricher.core.GenreRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,12 +23,22 @@ class GenreMatcherServiceTest {
     private GenreMatcherService genreMatcherService;
 
     @Test
-    void test() {
-        List<String> genres = List.of("idm", "edm", "electronic", "hip-hop");
+    @DisplayName("Corrected name is returned.")
+    void matchReturnsCorrected() {
+        Set<String> genres = Set.of("hip-hop", "drum and bass", "electronic");
         when(genreRepository.findGenreNames()).thenReturn(genres);
 
-        assertThat(genreMatcherService.match(Set.of("edm", "electron"))).containsExactly("edm");
-        assertThat(genreMatcherService.match(Set.of("ebm", "electroni"))).containsExactly("electronic");
         assertThat(genreMatcherService.match(Set.of("hip hop"))).containsExactly("hip-hop");
+        assertThat(genreMatcherService.match(Set.of("drum & bass", "electronic"))).containsExactlyInAnyOrder("drum and bass", "electronic");
+    }
+
+    @Test
+    @DisplayName("Not matching items are skipped.")
+    void matchSkipsNotMatching() {
+        Set<String> genres = Set.of("edm", "hardcore");
+        when(genreRepository.findGenreNames()).thenReturn(genres);
+
+        assertThat(genreMatcherService.match(Set.of("ebm"))).isEmpty();
+        assertThat(genreMatcherService.match(Set.of("bardcore"))).isEmpty();
     }
 }

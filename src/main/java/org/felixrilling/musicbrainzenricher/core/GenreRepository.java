@@ -6,7 +6,9 @@ import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // Not a 'real' repository because we only look up primitive values and not entities
 @Component
@@ -18,8 +20,8 @@ public class GenreRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<String> findGenreNames() {
-        return Collections.unmodifiableList(jdbcTemplate.query("SELECT g.name FROM genre g ORDER BY g.name",
+    public Set<String> findGenreNames() {
+        return Set.copyOf(jdbcTemplate.query("SELECT g.name FROM genre g ORDER BY g.name",
                 (rs, rowNum) -> rs.getString("name")));
     }
 
