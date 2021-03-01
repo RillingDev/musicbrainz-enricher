@@ -47,6 +47,13 @@ public class ApplicationConfigurationProperties {
 
 
     /**
+     * Discogs credentials.
+     * You should probably pass these as command line flags.
+     * Blank sub-values disable authenticated discogs access.
+     */
+    private DiscogsCredentials discogs;
+
+    /**
      * Spotify credentials.
      * You should probably pass these as command line flags.
      * Blank sub-values disable spotify integration.
@@ -125,9 +132,20 @@ public class ApplicationConfigurationProperties {
         }
     }
 
+    // https://www.discogs.com/developers/#page:authentication
+    private static class DiscogsCredentials {
+        private String token;
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+    }
+
     private static class SpotifyCredentials {
-
-
         private String clientId;
 
         private String clientSecret;

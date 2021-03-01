@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.api.discogs;
 
+import org.apache.commons.lang3.StringUtils;
 import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -33,6 +34,9 @@ public class DiscogsQueryService {
 
     @Value("${musicbrainz-enricher.contact}")
     private String applicationContact;
+
+    @Value("${musicbrainz-enricher.discogs.token}")
+    private String token;
 
     public DiscogsQueryService(DiscogsBucketProvider discogsBucketProvider, BucketService bucketService, RestTemplateBuilder restTemplateBuilder) {
         this.discogsBucketProvider = discogsBucketProvider;
@@ -68,7 +72,12 @@ public class DiscogsQueryService {
         // See https://www.discogs.com/developers/
         String userAgent = String.format("%s/%s +%s", applicationName, applicationVersion, applicationContact);
 
-        return restTemplateBuilder.defaultHeader(HttpHeaders.USER_AGENT, userAgent).build();
+        RestTemplateBuilder builder = restTemplateBuilder.defaultHeader(HttpHeaders.USER_AGENT, userAgent);
+        if (!StringUtils.isEmpty(token)) {
+            // https://www.discogs.com/developers/#page:authentication
+            builder = builder.defaultHeader(HttpHeaders.AUTHORIZATION, String.format("Discogs token=%s", token));
+        }
+        return builder.build();
     }
 
 }
