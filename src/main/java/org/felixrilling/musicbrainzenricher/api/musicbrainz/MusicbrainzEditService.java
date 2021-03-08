@@ -9,6 +9,7 @@ import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class MusicbrainzEditService {
@@ -23,7 +24,7 @@ public class MusicbrainzEditService {
         this.bucketService = bucketService;
     }
 
-    public void addReleaseGroupUserTags(@NotNull String mbid, @NotNull Set<String> tags) throws MBWS2Exception {
+    public void addReleaseGroupUserTags(@NotNull UUID mbid, @NotNull Set<String> tags) throws MBWS2Exception {
         bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
         ReleaseGroup releaseGroup = new ReleaseGroup();
@@ -33,7 +34,7 @@ public class MusicbrainzEditService {
         includesWs2.setUserTags(true);
         releaseGroup.setIncludes(includesWs2);
 
-        releaseGroup.lookUp(mbid);
+        releaseGroup.lookUp(mbid.toString());
 
         releaseGroup.AddTags(tags.toArray(new String[0]));
     }

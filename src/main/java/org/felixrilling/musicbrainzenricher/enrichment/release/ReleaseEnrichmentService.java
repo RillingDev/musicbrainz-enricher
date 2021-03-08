@@ -90,7 +90,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
             logger.info("Submitting new tags '{}' for release group '{}'.", result.getNewGenres(), releaseGroup
                     .getId());
             try {
-                musicbrainzEditService.addReleaseGroupUserTags(releaseGroup.getId(), result.getNewGenres());
+                musicbrainzEditService.addReleaseGroupUserTags(UUID.fromString(releaseGroup.getId()), result.getNewGenres());
             } catch (MBWS2Exception e) {
                 logger.error("Could not submit tags.", e);
             }
