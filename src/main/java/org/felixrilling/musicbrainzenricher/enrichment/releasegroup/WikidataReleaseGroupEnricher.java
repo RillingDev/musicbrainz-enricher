@@ -4,7 +4,7 @@ import org.felixrilling.musicbrainzenricher.api.wikidata.WikidataService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.core.GenreRepository;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
-import org.felixrilling.musicbrainzenricher.enrichment.RegexUtils;
+import org.felixrilling.musicbrainzenricher.util.RegexUtils;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;

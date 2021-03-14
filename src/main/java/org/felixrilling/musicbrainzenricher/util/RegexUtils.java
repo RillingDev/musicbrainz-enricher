@@ -1,4 +1,4 @@
-package org.felixrilling.musicbrainzenricher.enrichment;
+package org.felixrilling.musicbrainzenricher.util;
 
 import org.jetbrains.annotations.NotNull;
 

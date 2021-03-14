@@ -19,8 +19,8 @@ public class DiscogsRelease {
             @JsonProperty(value = "genres", required = true) Set<String> genres,
             @JsonProperty(value = "styles") Set<String> styles
     ) {
-        this.genres = genres;
-        this.styles = styles;
+        this.genres = Set.copyOf(genres);
+        this.styles =  Set.copyOf(styles);
     }
 
     public Set<String> getGenres() {
