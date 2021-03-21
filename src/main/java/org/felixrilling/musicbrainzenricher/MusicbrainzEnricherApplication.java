@@ -36,8 +36,8 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
         DataType dataType = parseDataType(args[0]);
         try {
             if (args.length == 2) {
-                String mbid = args[1];
-                musicbrainzEnricherService.runInSingleMode(dataType, UUID.fromString(mbid));
+                UUID mbid = UUID.fromString(args[1]);
+                musicbrainzEnricherService.runInSingleMode(dataType, mbid);
             } else {
                 musicbrainzEnricherService.runInAutoQueryMode(dataType);
             }

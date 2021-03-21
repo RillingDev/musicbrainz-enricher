@@ -5,10 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 // Not a 'real' repository because we only look up primitive values and not entities
 @Component
@@ -25,9 +22,9 @@ public class GenreRepository {
                 (rs, rowNum) -> rs.getString("name")));
     }
 
-    public String findGenreNameByMbid(String mbid) throws SQLException {
+    public String findGenreNameByMbid(UUID mbid) throws SQLException {
         return jdbcTemplate
-                .queryForObject("SELECT g.name FROM genre g WHERE g.gid::TEXT LIKE ?", String.class, mbid);
+                .queryForObject("SELECT g.name FROM genre g WHERE g.gid::TEXT LIKE ?", String.class, mbid.toString());
     }
 
 }

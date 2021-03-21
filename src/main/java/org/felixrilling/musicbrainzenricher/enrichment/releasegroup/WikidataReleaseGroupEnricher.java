@@ -16,10 +16,7 @@ import org.wikidata.wdtk.datamodel.interfaces.StringValue;
 import org.wikidata.wdtk.datamodel.interfaces.Value;
 
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -92,7 +89,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
             logger.warn("Unexpected musicbrainz link type: '{}'.", value);
             return Optional.empty();
         }
-        String mbid = ((StringValue) value).getString();
+        UUID mbid = UUID.fromString(((StringValue) value).getString());
         try {
             return Optional.ofNullable(genreRepository.findGenreNameByMbid(mbid));
         } catch (SQLException e) {
