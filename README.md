@@ -17,6 +17,7 @@ Queries musicbrainz' API and fetches data from linked source like Discogs or Spo
 - Release Groups (mode = `release-group`)
     - Discogs
     - Allmusic
+    - Wikidata
 
 ## Configuration
 
