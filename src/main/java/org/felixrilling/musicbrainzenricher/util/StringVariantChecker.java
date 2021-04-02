@@ -4,6 +4,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,7 +13,10 @@ import java.util.stream.Collectors;
  * This is done by using delimiters representing common string variant
  * delimiters in the english language, such as "-" (e.g. "hip-hop" vs "hip hop"),
  * and checking if two words are the same ignoring these delimiters.
+ * String case is ignored.
  * Note that due to the complexity of language, this tool only covers basic cases.
+ *
+ * As instances of this class are de-facto stateless, thread safety is provided.
  */
 public class StringVariantChecker {
 
@@ -29,7 +33,7 @@ public class StringVariantChecker {
 
     private Set<String> createVariants(@NotNull String string) {
         // FIXME: Does not support mixed variants (e.g. 'hip-hop and foo')
-        return delimiters.stream().map(delimiter -> string.replaceAll(delimiter, ""))
+        return delimiters.stream().map(delimiter -> string.toLowerCase(Locale.ROOT).replaceAll(delimiter, ""))
                 .collect(Collectors.toSet());
     }
 }
