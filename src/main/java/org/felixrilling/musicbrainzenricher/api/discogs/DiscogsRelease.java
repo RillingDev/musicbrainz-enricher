@@ -3,6 +3,7 @@ package org.felixrilling.musicbrainzenricher.api.discogs;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
@@ -11,7 +12,7 @@ import java.util.Set;
  */
 // See e.g. https://api.discogs.com/releases/249504
 public class DiscogsRelease {
-    private final Set<String> genres;
+    private final @NotNull Set<String> genres;
     private final Set<String> styles;
 
     @JsonCreator
@@ -20,10 +21,10 @@ public class DiscogsRelease {
             @JsonProperty(value = "styles") Set<String> styles
     ) {
         this.genres = Set.copyOf(genres);
-        this.styles =  Set.copyOf(styles);
+        this.styles = styles != null ? Set.copyOf(styles) : null;
     }
 
-    public Set<String> getGenres() {
+    public @NotNull Set<String> getGenres() {
         return genres;
     }
 
