@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
-import java.sql.SQLException;
-import java.util.*;
+import java.util.Set;
+import java.util.UUID;
 
 // Not a 'real' repository because we only look up primitive values and not entities
 @Component
@@ -22,7 +22,7 @@ public class GenreRepository {
                 (rs, rowNum) -> rs.getString("name")));
     }
 
-    public String findGenreNameByMbid(UUID mbid) throws SQLException {
+    public String findGenreNameByMbid(UUID mbid) {
         return jdbcTemplate
                 .queryForObject("SELECT g.name FROM genre g WHERE g.gid::TEXT LIKE ?", String.class, mbid.toString());
     }

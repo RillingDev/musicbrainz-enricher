@@ -15,7 +15,6 @@ import org.wikidata.wdtk.datamodel.interfaces.Statement;
 import org.wikidata.wdtk.datamodel.interfaces.StringValue;
 import org.wikidata.wdtk.datamodel.interfaces.Value;
 
-import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -90,12 +89,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
             return Optional.empty();
         }
         UUID mbid = UUID.fromString(((StringValue) value).getString());
-        try {
-            return Optional.ofNullable(genreRepository.findGenreNameByMbid(mbid));
-        } catch (SQLException e) {
-            logger.warn("Could not find genre for MBID: '{}'.", mbid, e);
-            return Optional.empty();
-        }
+        return Optional.ofNullable(genreRepository.findGenreNameByMbid(mbid));
     }
 
     @Override

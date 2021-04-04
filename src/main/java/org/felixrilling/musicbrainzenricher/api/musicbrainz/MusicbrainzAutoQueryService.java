@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -27,34 +26,26 @@ public class MusicbrainzAutoQueryService {
     }
 
     public void autoQueryReleasesWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
-        try {
-            long count = releaseRepository.countReleasesWhereRelationshipsExist();
-            logger.info("Found a total of {} releases with at least one relationship.", count);
+        long count = releaseRepository.countReleasesWhereRelationshipsExist();
+        logger.info("Found a total of {} releases with at least one relationship.", count);
 
-            long offset = 0;
-            while (offset < count) {
-                logger.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
-                releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
-                offset += LIMIT;
-            }
-        } catch (SQLException e) {
-            throw new QueryException("Could not query releases.", e);
+        long offset = 0;
+        while (offset < count) {
+            logger.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
+            releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
+            offset += LIMIT;
         }
     }
 
     public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
-        try {
-            long count = releaseGroupRepository.countReleaseGroupsWhereRelationshipsExist();
-            logger.info("Found a total of {} release groups with at least one relationship.", count);
+        long count = releaseGroupRepository.countReleaseGroupsWhereRelationshipsExist();
+        logger.info("Found a total of {} release groups with at least one relationship.", count);
 
-            long offset = 0;
-            while (offset < count) {
-                logger.info("Loading {} release groups with offset {} with at least one relationship...", LIMIT, offset);
-                releaseGroupRepository.findReleaseGroupsMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
-                offset += LIMIT;
-            }
-        } catch (SQLException e) {
-            throw new QueryException("Could not query release groups.", e);
+        long offset = 0;
+        while (offset < count) {
+            logger.info("Loading {} release groups with offset {} with at least one relationship...", LIMIT, offset);
+            releaseGroupRepository.findReleaseGroupsMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
+            offset += LIMIT;
         }
     }
 
