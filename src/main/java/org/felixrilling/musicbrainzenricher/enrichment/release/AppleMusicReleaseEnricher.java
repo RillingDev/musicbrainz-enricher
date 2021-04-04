@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 @Service
 class AppleMusicReleaseEnricher implements GenreEnricher {
 
-    private static final Logger logger = LoggerFactory.getLogger(AppleMusicReleaseEnricher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppleMusicReleaseEnricher.class);
 
     private static final Pattern HOST_REGEX = Pattern.compile("(?:itunes|music)\\.apple\\.com");
     private static final Evaluator TAG_QUERY = QueryParser.parse(".product-meta");
@@ -53,7 +53,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 
         // We can only process genres if they are in english.
         if (!hasLocaleLanguage(document.get(), Locale.ENGLISH)) {
-            logger.debug("Skipping '{}' because the locale is not supported.", relation.getTargetId());
+            LOGGER.debug("Skipping '{}' because the locale is not supported.", relation.getTargetId());
             return Set.of();
         }
 
@@ -65,7 +65,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 
         Matcher matcher = META_REGEX.matcher(metaText);
         if (!matcher.matches()) {
-            logger.warn("Could not match meta text. This might be because we were redirected.");
+            LOGGER.warn("Could not match meta text. This might be because we were redirected.");
             return Set.of();
         }
         return Set.of(matcher.group("genre"));
@@ -95,7 +95,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
         try {
             url = new URL(relation.getTargetId());
         } catch (MalformedURLException e) {
-            logger.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
+            LOGGER.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
             return false;
         }
         return HOST_REGEX.matcher(url.getHost()).matches();

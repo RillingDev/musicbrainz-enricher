@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Service
 public class HistoryService {
-    private static final Logger logger = LoggerFactory.getLogger(HistoryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
     private static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
     private static final ZoneOffset ZONE = ZoneOffset.UTC;
@@ -25,7 +25,7 @@ public class HistoryService {
     }
 
     public boolean checkIsDue(@NotNull DataType dataType, @NotNull UUID mbid) {
-        logger.trace("Checking history entry for '{}' ({}).", mbid, dataType);
+        LOGGER.trace("Checking history entry for '{}' ({}).", mbid, dataType);
         return historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid)
                 .map(this::checkIsDue).orElse(true);
     }
@@ -42,7 +42,7 @@ public class HistoryService {
             return entry;
         });
         historyEntry.setLastChecked(ZonedDateTime.now(ZONE));
-        logger.trace("Persisting history entry: '{}'.", historyEntry);
+        LOGGER.trace("Persisting history entry: '{}'.", historyEntry);
         historyEntryRepository.save(historyEntry);
     }
 }

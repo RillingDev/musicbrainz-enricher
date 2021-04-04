@@ -17,7 +17,7 @@ import java.util.Set;
 
 @Service
 public class WikidataService {
-    private static final Logger logger = LoggerFactory.getLogger(WikidataService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikidataService.class);
 
     private final BasicApiConnection wikidataApiConnection = BasicApiConnection.getWikidataApiConnection();
 
@@ -33,11 +33,11 @@ public class WikidataService {
         try {
             entityDocument = fetcher.getEntityDocument(entityId);
         } catch (MediaWikiApiErrorException | IOException e) {
-            logger.error("Could not fetch document: '{}'.", entityId, e);
+            LOGGER.error("Could not fetch document: '{}'.", entityId, e);
             return Optional.empty();
         }
         if (!(entityDocument instanceof ItemDocument)) {
-            logger.warn("Unexpected document: '{}'.", entityDocument);
+            LOGGER.warn("Unexpected document: '{}'.", entityDocument);
             return Optional.empty();
         }
 

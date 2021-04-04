@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 @Service
 class WikidataReleaseGroupEnricher implements GenreEnricher {
 
-    private static final Logger logger = LoggerFactory.getLogger(WikidataReleaseGroupEnricher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WikidataReleaseGroupEnricher.class);
 
     private static final String GENRE_PROPERTY_ID = "P136";
     private static final String MUSICBRAINZ_LINK_PROPERTY_ID = "P8052";
@@ -57,7 +57,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
     public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
         Optional<String> id = RegexUtils.maybeGroup(ID_REGEX.matcher(relation.getTargetId()), "id");
         if (id.isEmpty()) {
-            logger.warn("Could not find ID in '{}'.", relation.getTargetId());
+            LOGGER.warn("Could not find ID in '{}'.", relation.getTargetId());
             return Set.of();
         }
         // We can skip genre matching as we use the genre names directly from Musicbrainz.
@@ -68,7 +68,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
         Set<String> genres = new HashSet<>();
         for (Statement genreStatement : genreStatements) {
             if (!(genreStatement.getValue() instanceof EntityIdValue)) {
-                logger.warn("Unexpected genre statement type: '{}'.", genreStatement);
+                LOGGER.warn("Unexpected genre statement type: '{}'.", genreStatement);
             } else {
                 findGenreName(((EntityIdValue) genreStatement.getValue()).getId()).ifPresent(genres::add);
             }
@@ -80,12 +80,12 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
         Optional<List<Statement>> musicbrainzLinkStatements = wikidataService
                 .findEntityPropertyValues(genreId, MUSICBRAINZ_LINK_PROPERTY_ID);
         if (musicbrainzLinkStatements.map(List::isEmpty).orElse(true)) {
-            logger.warn("No musicbrainz link found for genre: '{}'.", genreId);
+            LOGGER.warn("No musicbrainz link found for genre: '{}'.", genreId);
             return Optional.empty();
         }
         Value value = musicbrainzLinkStatements.get().get(0).getValue();
         if (!(value instanceof StringValue)) {
-            logger.warn("Unexpected musicbrainz link type: '{}'.", value);
+            LOGGER.warn("Unexpected musicbrainz link type: '{}'.", value);
             return Optional.empty();
         }
         UUID mbid = UUID.fromString(((StringValue) value).getString());

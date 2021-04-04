@@ -63,14 +63,14 @@ class HistoryEntry {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
-        HistoryEntry that = (HistoryEntry) o;
+        HistoryEntry that = (HistoryEntry) obj;
         return id == that.id &&
                 dataType == that.dataType &&
                 mbid.equals(that.mbid) &&

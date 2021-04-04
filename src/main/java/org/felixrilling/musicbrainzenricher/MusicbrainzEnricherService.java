@@ -15,7 +15,7 @@ import java.util.UUID;
 @Service
 public class MusicbrainzEnricherService {
 
-    private static final Logger logger = LoggerFactory.getLogger(MusicbrainzEnricherService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherService.class);
 
     private final ApplicationContext applicationContext;
     private final MusicbrainzAutoQueryService musicbrainzAutoQueryService;
@@ -46,17 +46,17 @@ public class MusicbrainzEnricherService {
 
     private void executeEnrichment(@NotNull DataType dataType, @NotNull UUID mbid, @NotNull EnrichmentService enrichmentService) {
         if (!historyService.checkIsDue(dataType, mbid)) {
-            logger.debug("Check is not due for '{}' ({}), skipping.", mbid, dataType);
+            LOGGER.debug("Check is not due for '{}' ({}), skipping.", mbid, dataType);
             return;
         }
-        logger.info("Starting enrichment for '{}' ({}).", mbid, dataType);
+        LOGGER.info("Starting enrichment for '{}' ({}).", mbid, dataType);
         try {
             enrichmentService.enrich(mbid);
         } catch (Exception e) {
-            logger.error("Could not enrich {}' ({}).", mbid, dataType, e);
+            LOGGER.error("Could not enrich {}' ({}).", mbid, dataType, e);
             return;
         }
-        logger.info("Completed enrichment for '{}' ({}).", mbid, dataType);
+        LOGGER.info("Completed enrichment for '{}' ({}).", mbid, dataType);
         historyService.markAsChecked(dataType, mbid);
     }
 

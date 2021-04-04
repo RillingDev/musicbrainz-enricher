@@ -19,7 +19,7 @@ import java.util.Optional;
 @Service
 public class DiscogsQueryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(DiscogsQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsQueryService.class);
     private static final String BASE_URL = "https://api.discogs.com";
 
     private final DiscogsBucketProvider discogsBucketProvider;
@@ -51,7 +51,7 @@ public class DiscogsQueryService {
             return Optional.ofNullable(createWebClient()
                     .getForObject(BASE_URL + "/releases/{id}", DiscogsRelease.class, Map.of("id", id)));
         } catch (RestClientException e) {
-            logger.warn("Could not look up release '{}'.", id, e);
+            LOGGER.warn("Could not look up release '{}'.", id, e);
             return Optional.empty();
         }
     }
@@ -63,7 +63,7 @@ public class DiscogsQueryService {
             return Optional.ofNullable(createWebClient()
                     .getForObject(BASE_URL + "/masters/{id}", DiscogsMaster.class, Map.of("id", id)));
         } catch (RestClientException e) {
-            logger.warn("Could not look up master '{}'.", id, e);
+            LOGGER.warn("Could not look up master '{}'.", id, e);
             return Optional.empty();
         }
     }

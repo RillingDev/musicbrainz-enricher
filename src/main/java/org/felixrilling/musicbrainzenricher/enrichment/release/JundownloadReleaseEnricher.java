@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 @Service
 class JundownloadReleaseEnricher implements GenreEnricher {
 
-    private static final Logger logger = LoggerFactory.getLogger(JundownloadReleaseEnricher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JundownloadReleaseEnricher.class);
 
     private static final Pattern HOST_REGEX = Pattern.compile("www\\.junodownload\\.com");
     private static final Evaluator TAG_QUERY = QueryParser.parse("[itemprop='genre']");
@@ -57,7 +57,7 @@ class JundownloadReleaseEnricher implements GenreEnricher {
         try {
             url = new URL(relation.getTargetId());
         } catch (MalformedURLException e) {
-            logger.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
+            LOGGER.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
             return false;
         }
         return HOST_REGEX.matcher(url.getHost()).matches();

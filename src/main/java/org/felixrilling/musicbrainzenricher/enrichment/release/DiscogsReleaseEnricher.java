@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 @Service
 class DiscogsReleaseEnricher implements GenreEnricher {
 
-    private static final Logger logger = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
 
     private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://www\\.discogs\\.com/release/(?<id>\\d+)");
 
@@ -38,7 +38,7 @@ class DiscogsReleaseEnricher implements GenreEnricher {
     public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
         Optional<String> discogsId = RegexUtils.maybeGroup(URL_REGEX.matcher(relation.getTargetId()), "id");
         if (discogsId.isEmpty()) {
-            logger.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
+            LOGGER.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
             return Set.of();
         }
         return discogsQueryService.lookUpRelease(discogsId.get()).map(release -> genreMatcherService.match(extractGenres(release)))

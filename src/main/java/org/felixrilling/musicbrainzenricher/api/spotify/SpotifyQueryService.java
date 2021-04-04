@@ -22,7 +22,7 @@ import java.util.Optional;
 @Service
 public class SpotifyQueryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpotifyQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpotifyQueryService.class);
 
     private final SpotifyBucketProvider spotifyBucketProvider;
     private final BucketService bucketService;
@@ -43,7 +43,7 @@ public class SpotifyQueryService {
 
     public @NotNull Optional<Album> lookUpRelease(@NotNull final String id) {
         if (hasMissingCredentials()) {
-            logger.warn("No credentials set, skipping lookup.");
+            LOGGER.warn("No credentials set, skipping lookup.");
             return Optional.empty();
         }
 
@@ -52,7 +52,7 @@ public class SpotifyQueryService {
         try {
             return Optional.of(getApi().getAlbum(id).build().execute());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
-            logger.warn("Could not look up album.", e);
+            LOGGER.warn("Could not look up album.", e);
             return Optional.empty();
         }
     }

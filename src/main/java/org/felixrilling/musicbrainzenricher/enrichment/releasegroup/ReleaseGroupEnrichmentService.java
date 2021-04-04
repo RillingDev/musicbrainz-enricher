@@ -24,7 +24,7 @@ import java.util.UUID;
 @Service
 public class ReleaseGroupEnrichmentService implements EnrichmentService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ReleaseGroupEnrichmentService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseGroupEnrichmentService.class);
 
     private final CoreEnrichmentService coreEnrichmentService;
     private final MusicbrainzLookupService musicbrainzLookupService;
@@ -45,12 +45,12 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
         Optional<ReleaseGroupWs2> releaseGroupOptional = musicbrainzLookupService.lookUpReleaseGroup(mbid, includes);
 
         if (releaseGroupOptional.isEmpty()) {
-            logger.warn("Could not find release group '{}'.", mbid);
+            LOGGER.warn("Could not find release group '{}'.", mbid);
             return;
         }
 
         ReleaseGroupWs2 releaseGroup = releaseGroupOptional.get();
-        logger.trace("Loaded release group data: '{}'.", releaseGroup);
+        LOGGER.trace("Loaded release group data: '{}'.", releaseGroup);
         ReleaseGroupEnrichmentResult result = new ReleaseGroupEnrichmentResult();
         for (RelationWs2 relation : releaseGroup.getRelationList().getRelations()) {
             boolean atLeastOneEnricherCompleted = false;
@@ -61,7 +61,7 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
                 }
             }
             if (!atLeastOneEnricherCompleted) {
-                logger.debug("Could not find any enricher for '{}'.", relation.getTargetId());
+                LOGGER.debug("Could not find any enricher for '{}'.", relation.getTargetId());
             }
         }
         updateEntity(releaseGroup, result);
@@ -75,7 +75,7 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
 
     private void executeGenreEnrichment(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull RelationWs2 relation, @NotNull GenreEnricher releaseEnricher, @NotNull ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult result) {
         Set<String> foundTags = releaseEnricher.fetchGenres(relation);
-        logger.debug("Enricher '{}' found genres '{}' for release group '{}'.", releaseEnricher
+        LOGGER.debug("Enricher '{}' found genres '{}' for release group '{}'.", releaseEnricher
                 .getClass().getSimpleName(), foundTags, releaseGroup.getId());
 
         result.getNewGenres().addAll(foundTags);
@@ -83,12 +83,12 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
 
     private void updateEntity(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull ReleaseGroupEnrichmentResult result) {
         if (!result.getNewGenres().isEmpty()) {
-            logger.info("Submitting new tags '{}' for release group '{}'.", result.getNewGenres(), releaseGroup
+            LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.getNewGenres(), releaseGroup
                     .getId());
             try {
                 musicbrainzEditService.addReleaseGroupUserTags(UUID.fromString(releaseGroup.getId()), result.getNewGenres());
             } catch (MBWS2Exception e) {
-                logger.error("Could not submit tags.", e);
+                LOGGER.error("Could not submit tags.", e);
             }
         }
     }

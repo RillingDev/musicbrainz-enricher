@@ -12,17 +12,17 @@ import java.util.Optional;
 @Service
 public class ScrapingService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ScrapingService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingService.class);
 
     public Optional<Document> load(String url) {
         try {
             Document document = Jsoup.connect(url).get();
             return Optional.of(document);
         } catch (IOException e) {
-            if (logger.isDebugEnabled()) {
-                logger.warn("Could not connect to '{}'.", url, e);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.warn("Could not connect to '{}'.", url, e);
             } else {
-                logger.warn("Could not connect to '{}'.", url);
+                LOGGER.warn("Could not connect to '{}'.", url);
             }
             return Optional.empty();
         }

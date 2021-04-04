@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 @Service
 class BandcampReleaseEnricher implements GenreEnricher {
 
-    private static final Logger logger = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
 
     private static final Pattern HOST_REGEX = Pattern.compile(".+\\.bandcamp\\.com");
     private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > a");
@@ -58,7 +58,7 @@ class BandcampReleaseEnricher implements GenreEnricher {
         try {
             url = new URL(relation.getTargetId());
         } catch (MalformedURLException e) {
-            logger.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
+            LOGGER.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
             return false;
         }
         return HOST_REGEX.matcher(url.getHost()).matches();

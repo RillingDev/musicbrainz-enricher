@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 @Service
 public class MusicbrainzAutoQueryService {
 
-    private static final Logger logger = LoggerFactory.getLogger(MusicbrainzAutoQueryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzAutoQueryService.class);
 
     private static final int LIMIT = 100;
 
@@ -27,11 +27,11 @@ public class MusicbrainzAutoQueryService {
 
     public void autoQueryReleasesWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
         long count = releaseRepository.countReleasesWhereRelationshipsExist();
-        logger.info("Found a total of {} releases with at least one relationship.", count);
+        LOGGER.info("Found a total of {} releases with at least one relationship.", count);
 
         long offset = 0;
         while (offset < count) {
-            logger.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
+            LOGGER.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
             releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
             offset += LIMIT;
         }
@@ -39,11 +39,11 @@ public class MusicbrainzAutoQueryService {
 
     public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
         long count = releaseGroupRepository.countReleaseGroupsWhereRelationshipsExist();
-        logger.info("Found a total of {} release groups with at least one relationship.", count);
+        LOGGER.info("Found a total of {} release groups with at least one relationship.", count);
 
         long offset = 0;
         while (offset < count) {
-            logger.info("Loading {} release groups with offset {} with at least one relationship...", LIMIT, offset);
+            LOGGER.info("Loading {} release groups with offset {} with at least one relationship...", LIMIT, offset);
             releaseGroupRepository.findReleaseGroupsMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
             offset += LIMIT;
         }

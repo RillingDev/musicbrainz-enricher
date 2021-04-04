@@ -12,7 +12,7 @@ import java.util.*;
 @Service
 public class GenreMatcherService {
 
-    private static final Logger logger = LoggerFactory.getLogger(GenreMatcherService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GenreMatcherService.class);
 
     private static final StringVariantChecker STRING_VARIANT_CHECKER = new StringVariantChecker(Set.of("-", " ", " and ", " & "));
 
@@ -36,7 +36,7 @@ public class GenreMatcherService {
         for (String unmatchedGenre : unmatchedGenres) {
             matchSingle(knownGenres, unmatchedGenre).ifPresent(matches::add);
         }
-        logger.trace("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
+        LOGGER.trace("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
 
         return Collections.unmodifiableSet(matches);
     }

@@ -12,7 +12,7 @@ import java.util.UUID;
 @SpringBootApplication
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
-    private static final Logger logger = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
 
     private final MusicbrainzEnricherService musicbrainzEnricherService;
 
@@ -42,7 +42,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
                 musicbrainzEnricherService.runInAutoQueryMode(dataType);
             }
         } catch (Exception e) {
-            logger.error("Unexpected error.", e);
+            LOGGER.error("Unexpected error.", e);
         }
     }
 
