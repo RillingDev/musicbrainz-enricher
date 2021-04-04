@@ -65,7 +65,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
     }
 
     private @NotNull Set<String> extractGenreNames(@NotNull List<Statement> genreStatements) {
-        Set<String> genres = new HashSet<>();
+        Set<String> genres = new HashSet<>(genreStatements.size());
         for (Statement genreStatement : genreStatements) {
             if (!(genreStatement.getValue() instanceof EntityIdValue)) {
                 LOGGER.warn("Unexpected genre statement type: '{}'.", genreStatement);

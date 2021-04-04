@@ -61,4 +61,10 @@ public class MusicbrainzLookupService {
             throw new QueryException("Could not look up release group'" + mbid + "'.", e);
         }
     }
+
+    private static class QueryException extends RuntimeException {
+        QueryException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
 }

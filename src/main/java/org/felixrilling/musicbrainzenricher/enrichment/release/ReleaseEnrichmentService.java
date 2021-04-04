@@ -103,7 +103,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
     }
 
     private static class ReleaseEnrichmentResult {
-        private final Set<String> newGenres = new HashSet<>();
+        private final Set<String> newGenres = new HashSet<>(10);
 
         @NotNull Set<String> getNewGenres() {
             return newGenres;
