@@ -36,7 +36,7 @@ class MusicbrainzApiService {
         return webService;
     }
 
-    private @NotNull String getClientName(@NotNull String applicationName, @NotNull String applicationVersion, @NotNull String applicationContact) {
+    private static @NotNull String getClientName(@NotNull String applicationName, @NotNull String applicationVersion, @NotNull String applicationContact) {
         // See https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
         // While Musicbrainz states that contact details should be added, these seem to cause issues with the Java API.
         return String.format("%s/%s", applicationName, applicationVersion);

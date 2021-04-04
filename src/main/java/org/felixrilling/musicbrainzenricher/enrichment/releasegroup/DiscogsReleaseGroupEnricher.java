@@ -54,7 +54,7 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
     }
 
     @Override
-    public boolean relationSupported(@NotNull RelationWs2 relation) {
+    public boolean isRelationSupported(@NotNull RelationWs2 relation) {
         return "http://musicbrainz.org/ns/rel-2.0#discogs".equals(relation.getType()) && "http://musicbrainz.org/ns/rel-2.0#url"
                 .equals(relation.getTargetType());
     }

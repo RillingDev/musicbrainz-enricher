@@ -32,7 +32,7 @@ class SpotifyReleaseEnricher implements GenreEnricher {
     @Override
     public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
         return spotifyQueryService.lookUpRelease(findReleaseId(relation.getTargetId())).map(release -> {
-            HashSet<String> genres = new HashSet<>(Arrays.asList(release.getGenres()));
+            Set<String> genres = new HashSet<>(Arrays.asList(release.getGenres()));
             return genreMatcherService.match(genres);
         }).orElse(Set.of());
     }
@@ -46,7 +46,7 @@ class SpotifyReleaseEnricher implements GenreEnricher {
     }
 
     @Override
-    public boolean relationSupported(@NotNull RelationWs2 relation) {
+    public boolean isRelationSupported(@NotNull RelationWs2 relation) {
         if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
             return false;
         }

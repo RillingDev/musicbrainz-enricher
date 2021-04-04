@@ -41,7 +41,7 @@ public class WikidataService {
             return Optional.empty();
         }
 
-        StatementGroup statementGroup = ((ItemDocument) entityDocument).findStatementGroup(propertyIdValue);
+        StatementGroup statementGroup = ((StatementDocument) entityDocument).findStatementGroup(propertyIdValue);
         if (statementGroup == null) {
             return Optional.empty();
         }

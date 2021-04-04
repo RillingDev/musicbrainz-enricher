@@ -18,7 +18,7 @@ public class CoreEnrichmentService {
     public Set<Enricher> findFittingEnrichers(final EnrichmentService enrichmentService) {
         return applicationContext
                 .getBeansOfType(Enricher.class).values().stream()
-                .filter(enricher -> enricher.getDataType().equals(enrichmentService.getDataType()))
+                .filter(enricher -> enricher.getDataType() == enrichmentService.getDataType())
                 .collect(Collectors.toSet());
     }
 }

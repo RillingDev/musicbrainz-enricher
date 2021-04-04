@@ -63,7 +63,7 @@ public class MusicbrainzEnricherService {
     private @NotNull EnrichmentService findFittingEnrichmentService(@NotNull DataType dataType) {
         return applicationContext
                 .getBeansOfType(EnrichmentService.class).values().stream()
-                .filter(enrichmentService -> enrichmentService.getDataType().equals(dataType))
+                .filter(enrichmentService -> enrichmentService.getDataType() == dataType)
                 .findFirst().orElseThrow(() -> new IllegalArgumentException("No enrichment service exists for data type '" + dataType + "'."));
     }
 }

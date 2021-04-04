@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-public class RegexUtils {
+public final class RegexUtils {
 
     private RegexUtils() {
     }

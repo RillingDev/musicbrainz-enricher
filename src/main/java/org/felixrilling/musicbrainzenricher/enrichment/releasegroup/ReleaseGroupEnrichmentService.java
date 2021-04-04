@@ -55,7 +55,7 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
         for (RelationWs2 relation : releaseGroup.getRelationList().getRelations()) {
             boolean atLeastOneEnricherCompleted = false;
             for (Enricher enricher : coreEnrichmentService.findFittingEnrichers(this)) {
-                if (enricher.relationSupported(relation)) {
+                if (enricher.isRelationSupported(relation)) {
                     atLeastOneEnricherCompleted = true;
                     executeEnrichment(releaseGroup, relation, enricher, result);
                 }
@@ -101,7 +101,7 @@ public class ReleaseGroupEnrichmentService implements EnrichmentService {
     private static class ReleaseGroupEnrichmentResult {
         private final Set<String> newGenres = new HashSet<>();
 
-        public @NotNull Set<String> getNewGenres() {
+        @NotNull Set<String> getNewGenres() {
             return newGenres;
         }
     }
