@@ -4,15 +4,18 @@ import com.wrapper.spotify.SpotifyApi;
 import com.wrapper.spotify.exceptions.SpotifyWebApiException;
 import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
 import com.wrapper.spotify.model_objects.specification.Album;
+import com.wrapper.spotify.requests.data.albums.GetAlbumRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ParseException;
 import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Optional;
@@ -33,7 +36,10 @@ public class SpotifyQueryService {
     @Value("${musicbrainz-enricher.spotify.client-secret}")
     private String clientSecret;
 
-    private SpotifyApi spotifyApi;
+    // De-facto final. May be null if no credentials exist.
+    // Note that getAuthorizedApiClient() should be used for API calls.
+    private SpotifyApi apiClient;
+
     private Instant tokenExpiration;
 
     SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
@@ -41,8 +47,13 @@ public class SpotifyQueryService {
         this.bucketService = bucketService;
     }
 
+    @PostConstruct
+    void init() {
+        apiClient = createApiClient();
+    }
+
     public @NotNull Optional<Album> lookUpRelease(@NotNull final String id) {
-        if (hasMissingCredentials()) {
+        if (apiClient == null) {
             LOGGER.warn("No credentials set, skipping lookup.");
             return Optional.empty();
         }
@@ -50,35 +61,38 @@ public class SpotifyQueryService {
         bucketService.consumeSingleBlocking(spotifyBucketProvider.getBucket());
 
         try {
-            return Optional.of(getApi().getAlbum(id).build().execute());
+            GetAlbumRequest request = getAuthorizedApiClient().getAlbum(id).build();
+            return Optional.of(request.execute());
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             LOGGER.warn("Could not look up album.", e);
             return Optional.empty();
         }
     }
 
-    private boolean hasMissingCredentials() {
-        return StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret);
-    }
-
-    private @NotNull SpotifyApi getApi() throws IOException, SpotifyWebApiException, ParseException {
-        if (spotifyApi == null) {
-            if (hasMissingCredentials()) {
-                throw new IllegalStateException("No client id or secret provided.");
-            }
-            spotifyApi = new SpotifyApi.Builder()
-                    .setClientId(clientId)
-                    .setClientSecret(clientSecret)
-                    .build();
+    // https://github.com/thelinmichael/spotify-web-api-java#client-credentials-flow
+    private @NotNull SpotifyApi getAuthorizedApiClient() throws IOException, SpotifyWebApiException, ParseException {
+        if (apiClient == null) {
+            throw new IllegalStateException("Cannot authorize client if none is set.");
         }
 
         Instant now = Instant.now();
         if (tokenExpiration == null || tokenExpiration.isBefore(now)) {
-            ClientCredentials credentials = spotifyApi.clientCredentials().build().execute();
-            spotifyApi.setAccessToken(credentials.getAccessToken());
+            ClientCredentials credentials = apiClient.clientCredentials().build().execute();
+            apiClient.setAccessToken(credentials.getAccessToken());
             tokenExpiration = now.plusSeconds(credentials.getExpiresIn());
         }
-
-        return spotifyApi;
+        return apiClient;
     }
+
+    private @Nullable SpotifyApi createApiClient() {
+        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
+            LOGGER.warn("No credentials set, skipping API client creation.");
+            return null;
+        }
+        return new SpotifyApi.Builder()
+                .setClientId(clientId)
+                .setClientSecret(clientSecret)
+                .build();
+    }
+
 }
