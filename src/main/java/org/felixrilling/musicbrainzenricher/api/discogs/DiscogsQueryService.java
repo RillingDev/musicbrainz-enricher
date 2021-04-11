@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,17 +40,25 @@ public class DiscogsQueryService {
     @Value("${musicbrainz-enricher.discogs.token}")
     private String token;
 
-    public DiscogsQueryService(DiscogsBucketProvider discogsBucketProvider, BucketService bucketService, RestTemplateBuilder restTemplateBuilder) {
+    // De-facto final.
+    private RestTemplate webClient;
+
+    DiscogsQueryService(DiscogsBucketProvider discogsBucketProvider, BucketService bucketService, RestTemplateBuilder restTemplateBuilder) {
         this.discogsBucketProvider = discogsBucketProvider;
         this.bucketService = bucketService;
         this.restTemplateBuilder = restTemplateBuilder;
+    }
+
+    @PostConstruct
+    void init() {
+        webClient = createWebClient();
     }
 
     public @NotNull Optional<DiscogsRelease> lookUpRelease(@NotNull final String id) {
         bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
 
         try {
-            return Optional.ofNullable(createWebClient()
+            return Optional.ofNullable(webClient
                     .getForObject("/releases/{id}", DiscogsRelease.class, Map.of("id", id)));
         } catch (RestClientException e) {
             LOGGER.warn("Could not look up release '{}'.", id, e);
@@ -61,7 +70,7 @@ public class DiscogsQueryService {
         bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
 
         try {
-            return Optional.ofNullable(createWebClient()
+            return Optional.ofNullable(webClient
                     .getForObject("/masters/{id}", DiscogsMaster.class, Map.of("id", id)));
         } catch (RestClientException e) {
             LOGGER.warn("Could not look up master '{}'.", id, e);
