@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -49,7 +50,7 @@ public class DiscogsQueryService {
 
         try {
             return Optional.ofNullable(createWebClient()
-                    .getForObject(BASE_URL + "/releases/{id}", DiscogsRelease.class, Map.of("id", id)));
+                    .getForObject("/releases/{id}", DiscogsRelease.class, Map.of("id", id)));
         } catch (RestClientException e) {
             LOGGER.warn("Could not look up release '{}'.", id, e);
             return Optional.empty();
@@ -61,7 +62,7 @@ public class DiscogsQueryService {
 
         try {
             return Optional.ofNullable(createWebClient()
-                    .getForObject(BASE_URL + "/masters/{id}", DiscogsMaster.class, Map.of("id", id)));
+                    .getForObject("/masters/{id}", DiscogsMaster.class, Map.of("id", id)));
         } catch (RestClientException e) {
             LOGGER.warn("Could not look up master '{}'.", id, e);
             return Optional.empty();
@@ -72,7 +73,10 @@ public class DiscogsQueryService {
         // See https://www.discogs.com/developers/
         String userAgent = String.format("%s/%s +%s", applicationName, applicationVersion, applicationContact);
 
-        RestTemplateBuilder builder = restTemplateBuilder.defaultHeader(HttpHeaders.USER_AGENT, userAgent);
+        RestTemplateBuilder builder = restTemplateBuilder
+                .rootUri(BASE_URL)
+                .defaultHeader(HttpHeaders.USER_AGENT, userAgent)
+                .defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
         if (!StringUtils.isEmpty(token)) {
             // https://www.discogs.com/developers/#page:authentication
             builder = builder.defaultHeader(HttpHeaders.AUTHORIZATION, String.format("Discogs token=%s", token));
