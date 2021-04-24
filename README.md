@@ -9,40 +9,47 @@ Queries musicbrainz' API and fetches data from linked sources like Discogs or Sp
 ### Supported Relationship Sources
 
 - Releases (mode = `release`)
-    - Discogs
-    - Spotify
-    - Bandcamp
     - Apple Music / iTunes
-    - Junodownload
-- Release Groups (mode = `release-group`)
+    - Bandcamp
     - Discogs
+    - Junodownload
+    - Spotify
+- Release Groups (mode = `release-group`)
     - Allmusic
+    - Discogs
     - Wikidata
 
 ## Configuration
 
-The following values should be passed as startup flags (e.g. `-Dmusicbrainz-enricher.musicbrainz.username=myUserName`)
+This application uses Spring Boot which allows for easy handling of configurations. The following
+can either be passed as command line arguments (e.g. `--musicbrainz-enricher.host=foo`), or in a
+file called `application.properties` in the current working directory (e.g.
+containing `musicbrainz-enricher.host=foo`).
 
-- `musicbrainz-enricher.host` (Either test.musicbrainz.org or musicbrainz.org)
+- `musicbrainz-enricher.host` (Either "test.musicbrainz.org" or "musicbrainz.org")
 - Credentials
     - Musicbrainz
         - `musicbrainz-enricher.musicbrainz.username`
         - `musicbrainz-enricher.musicbrainz.password`
-    - Spotify (can be left empty to disable spotify)
+    - Discogs API (can be left empty to use (slower) unauthenticated discogs API access)
+        - `musicbrainz-enricher.discogs.token`
+    - Spotify API (can be left empty to disable spotify API access)
         - `musicbrainz-enricher.spotify.client-id`
         - `musicbrainz-enricher.spotify.client-secret`
-        
+
 ## Usage
 
-Before starting, set up <https://github.com/metabrainz/musicbrainz-docker> locally with the database port open.
+Before starting, set up <https://github.com/metabrainz/musicbrainz-docker> locally with the database
+port open.
 
-This tool can run in auto-query or single mode. Auto-Query mode will enrich every entity from the musicbrainz database. Single mode takes a musicbrainz MBID and will enrich the result.
+This tool can run in auto-query or single mode. Auto-query mode will enrich every entity from the
+musicbrainz database. Single mode takes a musicbrainz MBID and will enrich the matching entity.
 
-Auto-Query mode: 
-`java [startup flags] -jar musicbrainz-enricher*.jar 'release'`.
+Auto-query mode:
+`java -jar musicbrainz-enricher*.jar 'release'`.
 
-Single mode: 
-`java [startup flags] -jar musicbrainz-enricher*.jar 'release' 'MBID'`.
+Single mode:
+`java -jar musicbrainz-enricher*.jar 'release' 'MBID'`.
 
 ### Local History DB
 
