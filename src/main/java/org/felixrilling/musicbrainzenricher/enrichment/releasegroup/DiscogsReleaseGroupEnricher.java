@@ -24,7 +24,7 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsReleaseGroupEnricher.class);
 
-    private static final Pattern URL_REGEX = Pattern.compile("http(?:s?)://www\\.discogs\\.com/master/(?<id>\\d+)");
+    private static final Pattern URL_REGEX = Pattern.compile("https?://www\\.discogs\\.com/master/(?<id>\\d+)");
 
     private final GenreMatcherService genreMatcherService;
     private final DiscogsQueryService discogsQueryService;
