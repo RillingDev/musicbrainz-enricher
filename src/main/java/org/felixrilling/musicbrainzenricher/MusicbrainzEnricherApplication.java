@@ -34,15 +34,11 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
         }
 
         DataType dataType = parseDataType(args[0]);
-        try {
-            if (args.length == 2) {
-                UUID mbid = UUID.fromString(args[1]);
-                musicbrainzEnricherService.runInSingleMode(dataType, mbid);
-            } else {
-                musicbrainzEnricherService.runInAutoQueryMode(dataType);
-            }
-        } catch (Exception e) {
-            LOGGER.error("Unexpected error.", e);
+        if (args.length == 2) {
+            UUID mbid = UUID.fromString(args[1]);
+            musicbrainzEnricherService.runInSingleMode(dataType, mbid);
+        } else {
+            musicbrainzEnricherService.runInAutoQueryMode(dataType);
         }
     }
 
