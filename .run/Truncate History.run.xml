@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Truncate History" type="DatabaseScript">
+    <data-source id="c04d2c26-722d-41a5-98a3-935c3b041180" namespace="database/&quot;musicbrainz_db&quot;" />
+    <script-text>TRUNCATE musicbrainz_enricher.history_entry</script-text>
+    <method v="2" />
+  </configuration>
+</component>
