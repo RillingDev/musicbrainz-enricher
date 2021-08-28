@@ -20,7 +20,7 @@ class DiscogsBucketProvider implements BucketProvider {
     private String token;
 
     //https://www.discogs.com/developers/#page:home,header:home-rate-limiting
-    // Increased if authenticated.
+    // Capacity increased if authenticated.
     private final Bandwidth bandwidth = Bandwidth.simple(StringUtils.isEmpty(token) ? 25 : 60, Duration.ofMinutes(1));
 
     private final Bucket bucket = Bucket4j.builder().addLimit(bandwidth).withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE).build();
