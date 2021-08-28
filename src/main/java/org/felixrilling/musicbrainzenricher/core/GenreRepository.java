@@ -13,18 +13,18 @@ public class GenreRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    GenreRepository(@Qualifier("musicbrainzLocalDbJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    GenreRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public Set<String> findGenreNames() {
-        return Set.copyOf(jdbcTemplate.query("SELECT g.name FROM genre g ORDER BY g.name",
+        return Set.copyOf(jdbcTemplate.query("SELECT g.name FROM musicbrainz.genre g ORDER BY g.name",
                 (rs, rowNum) -> rs.getString("name")));
     }
 
     public String findGenreNameByMbid(UUID mbid) {
         return jdbcTemplate
-                .queryForObject("SELECT g.name FROM genre g WHERE g.gid::TEXT LIKE ?", String.class, mbid.toString());
+                .queryForObject("SELECT g.name FROM musicbrainz.genre g WHERE g.gid::TEXT LIKE ?", String.class, mbid.toString());
     }
 
 }

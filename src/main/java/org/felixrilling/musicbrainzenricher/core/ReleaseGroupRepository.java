@@ -14,18 +14,18 @@ public class ReleaseGroupRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
-    ReleaseGroupRepository(@Qualifier("musicbrainzLocalDbJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    ReleaseGroupRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public Long countReleaseGroupsWhereRelationshipsExist() {
         return jdbcTemplate
-                .queryForObject("SELECT COUNT(*) FROM release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM l_release_group_url lrgu)", Long.class);
+                .queryForObject("SELECT COUNT(*) FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)", Long.class);
     }
 
     public List<UUID> findReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) {
         return Collections.unmodifiableList(jdbcTemplate
-                .query("SELECT rg.gid FROM release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM l_release_group_url lrgu) ORDER BY rg.id OFFSET ? LIMIT ?",
+                .query("SELECT rg.gid FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu) ORDER BY rg.id OFFSET ? LIMIT ?",
                         (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit));
     }
 }

@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Entity
-@Table(name = "history_entry")
+@Table(name = "history_entry", schema = "musicbrainz_enricher")
 class HistoryEntry {
 
     @Id

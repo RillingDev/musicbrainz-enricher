@@ -13,17 +13,17 @@ import java.util.UUID;
 public class ReleaseRepository {
     private final JdbcTemplate jdbcTemplate;
 
-    ReleaseRepository(@Qualifier("musicbrainzLocalDbJdbcTemplate") JdbcTemplate jdbcTemplate) {
+    ReleaseRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
     public Long countReleasesWhereRelationshipsExist() {
-        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM release r WHERE r.id IN (SELECT lru.entity0 FROM l_release_url lru)", Long.class);
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM musicbrainz.release r WHERE r.id IN (SELECT lru.entity0 FROM musicbrainz.l_release_url lru)", Long.class);
     }
 
     public List<UUID> findReleaseMbidWhereRelationshipsExist(long offset, int limit) {
         return Collections.unmodifiableList(jdbcTemplate
-                .query("SELECT r.gid FROM release r WHERE r.id IN (SELECT lru.entity0 FROM l_release_url lru) ORDER BY r.id OFFSET ? LIMIT ?",
+                .query("SELECT r.gid FROM musicbrainz.release r WHERE r.id IN (SELECT lru.entity0 FROM musicbrainz.l_release_url lru) ORDER BY r.id OFFSET ? LIMIT ?",
                         (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit));
     }
 }
