@@ -53,4 +53,6 @@ Single mode:
 
 ### Local History DB
 
-This application will remember entities checked already and will only re-check them after duration `n` days, where `n` defaults to 90 days. In order to reset this, delete the musicbrainz-enricher database in `~/.cache/`.
+This application will remember entities checked already and will only re-check them after
+duration `n` days, where `n` defaults to 90 days. In order to reset this, truncate the
+table `history_entry` in the schema `musicbrainz_enricher`.
