@@ -15,7 +15,7 @@
     <name>musicbrainz-enricher</name>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <testcontainers.version>1.16.0</testcontainers.version>
     </properties>
 
