@@ -14,11 +14,11 @@ import java.util.Set;
 @Component
 public interface GenreEnricher extends Enricher {
 
-    /**
-     * Returns a set of musicbrainz compatible genre names that belong to the relation target.
-     *
-     * @param relation Relation.
-     * @return a set of genres.
-     */
-    @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation);
+	/**
+	 * Returns a set of musicbrainz compatible genre names that belong to the relation target.
+	 *
+	 * @param relation Relation.
+	 * @return a set of genres.
+	 */
+	@NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation);
 }

@@ -12,13 +12,13 @@ import org.springframework.stereotype.Component;
 @Component
 public interface Enricher extends DataTypeAware {
 
-    /**
-     * Checks if a relation of the data type is supported for enrichment.
-     * Often enrichers check if e.g. an URL stored in the relation is supported.
-     *
-     * @param relation Relation to check.
-     * @return if the relation is supported.
-     */
-    boolean isRelationSupported(@NotNull RelationWs2 relation);
+	/**
+	 * Checks if a relation of the data type is supported for enrichment.
+	 * Often enrichers check if e.g. an URL stored in the relation is supported.
+	 *
+	 * @param relation Relation to check.
+	 * @return if the relation is supported.
+	 */
+	boolean isRelationSupported(@NotNull RelationWs2 relation);
 
 }

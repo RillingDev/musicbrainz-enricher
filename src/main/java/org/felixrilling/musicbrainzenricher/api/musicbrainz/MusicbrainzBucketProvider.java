@@ -14,13 +14,16 @@ import java.time.Duration;
 @Scope("singleton")
 class MusicbrainzBucketProvider implements BucketProvider {
 
-    // See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
-    private static final Bandwidth BANDWIDTH = Bandwidth.simple(1, Duration.ofSeconds(1));
+	// See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
+	private static final Bandwidth BANDWIDTH = Bandwidth.simple(1, Duration.ofSeconds(1));
 
-    private final Bucket bucket = Bucket4j.builder().addLimit(BANDWIDTH).withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE).build();
+	private final Bucket bucket = Bucket4j.builder()
+		.addLimit(BANDWIDTH)
+		.withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE)
+		.build();
 
-    @Override
-    public Bucket getBucket() {
-        return bucket;
-    }
+	@Override
+	public Bucket getBucket() {
+		return bucket;
+	}
 }

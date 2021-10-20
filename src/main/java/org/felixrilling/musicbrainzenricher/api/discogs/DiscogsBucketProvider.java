@@ -16,17 +16,20 @@ import java.time.Duration;
 @Scope("singleton")
 class DiscogsBucketProvider implements BucketProvider {
 
-    @Value("${musicbrainz-enricher.discogs.token}")
-    private String token;
+	@Value("${musicbrainz-enricher.discogs.token}")
+	private String token;
 
-    //https://www.discogs.com/developers/#page:home,header:home-rate-limiting
-    // Capacity increased if authenticated.
-    private final Bandwidth bandwidth = Bandwidth.simple(StringUtils.isEmpty(token) ? 25 : 60, Duration.ofMinutes(1));
+	//https://www.discogs.com/developers/#page:home,header:home-rate-limiting
+	// Capacity increased if authenticated.
+	private final Bandwidth bandwidth = Bandwidth.simple(StringUtils.isEmpty(token) ? 25 : 60, Duration.ofMinutes(1));
 
-    private final Bucket bucket = Bucket4j.builder().addLimit(bandwidth).withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE).build();
+	private final Bucket bucket = Bucket4j.builder()
+		.addLimit(bandwidth)
+		.withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE)
+		.build();
 
-    @Override
-    public Bucket getBucket() {
-        return bucket;
-    }
+	@Override
+	public Bucket getBucket() {
+		return bucket;
+	}
 }

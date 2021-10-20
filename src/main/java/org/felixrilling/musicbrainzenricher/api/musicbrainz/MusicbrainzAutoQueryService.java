@@ -13,41 +13,41 @@ import java.util.function.Consumer;
 @Service
 public class MusicbrainzAutoQueryService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzAutoQueryService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzAutoQueryService.class);
 
-    private static final int LIMIT = 100;
+	private static final int LIMIT = 100;
 
-    private final ReleaseRepository releaseRepository;
-    private final ReleaseGroupRepository releaseGroupRepository;
+	private final ReleaseRepository releaseRepository;
+	private final ReleaseGroupRepository releaseGroupRepository;
 
-    MusicbrainzAutoQueryService(ReleaseRepository releaseRepository, ReleaseGroupRepository releaseGroupRepository) {
-        this.releaseRepository = releaseRepository;
-        this.releaseGroupRepository = releaseGroupRepository;
-    }
+	MusicbrainzAutoQueryService(ReleaseRepository releaseRepository, ReleaseGroupRepository releaseGroupRepository) {
+		this.releaseRepository = releaseRepository;
+		this.releaseGroupRepository = releaseGroupRepository;
+	}
 
-    public void autoQueryReleasesWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
-        long count = releaseRepository.countReleasesWhereRelationshipsExist();
-        LOGGER.info("Found a total of {} releases with at least one relationship.", count);
+	public void autoQueryReleasesWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
+		long count = releaseRepository.countReleasesWhereRelationshipsExist();
+		LOGGER.info("Found a total of {} releases with at least one relationship.", count);
 
-        long offset = 0;
-        while (offset < count) {
-            LOGGER.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
-            releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
-            offset += LIMIT;
-        }
-    }
+		long offset = 0;
+		while (offset < count) {
+			LOGGER.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
+			releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
+			offset += LIMIT;
+		}
+	}
 
-    public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
-        long count = releaseGroupRepository.countReleaseGroupsWhereRelationshipsExist();
-        LOGGER.info("Found a total of {} release groups with at least one relationship.", count);
+	public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
+		long count = releaseGroupRepository.countReleaseGroupsWhereRelationshipsExist();
+		LOGGER.info("Found a total of {} release groups with at least one relationship.", count);
 
-        long offset = 0;
-        while (offset < count) {
-            LOGGER.info("Loading {} release groups with offset {} with at least one relationship...", LIMIT, offset);
-            releaseGroupRepository.findReleaseGroupsMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
-            offset += LIMIT;
-        }
-    }
+		long offset = 0;
+		while (offset < count) {
+			LOGGER.info("Loading {} release groups with offset {} with at least one relationship...", LIMIT, offset);
+			releaseGroupRepository.findReleaseGroupsMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
+			offset += LIMIT;
+		}
+	}
 
 
 }

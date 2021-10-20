@@ -25,74 +25,71 @@ import java.util.Optional;
 @Service
 public class SpotifyQueryService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SpotifyQueryService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(SpotifyQueryService.class);
 
-    private final SpotifyBucketProvider spotifyBucketProvider;
-    private final BucketService bucketService;
+	private final SpotifyBucketProvider spotifyBucketProvider;
+	private final BucketService bucketService;
 
-    @Value("${musicbrainz-enricher.spotify.client-id}")
-    private String clientId;
+	@Value("${musicbrainz-enricher.spotify.client-id}")
+	private String clientId;
 
-    @Value("${musicbrainz-enricher.spotify.client-secret}")
-    private String clientSecret;
+	@Value("${musicbrainz-enricher.spotify.client-secret}")
+	private String clientSecret;
 
-    // De-facto final. May be null if no credentials exist.
-    // Note that getAuthorizedApiClient() should be used for API calls.
-    private SpotifyApi apiClient;
+	// De-facto final. May be null if no credentials exist.
+	// Note that getAuthorizedApiClient() should be used for API calls.
+	private SpotifyApi apiClient;
 
-    private Instant tokenExpiration;
+	private Instant tokenExpiration;
 
-    SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
-        this.spotifyBucketProvider = spotifyBucketProvider;
-        this.bucketService = bucketService;
-    }
+	SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
+		this.spotifyBucketProvider = spotifyBucketProvider;
+		this.bucketService = bucketService;
+	}
 
-    @PostConstruct
-    void init() {
-        apiClient = createApiClient();
-    }
+	@PostConstruct
+	void init() {
+		apiClient = createApiClient();
+	}
 
-    public @NotNull Optional<Album> lookUpRelease(@NotNull final String id) {
-        if (apiClient == null) {
-            LOGGER.warn("No credentials set, skipping lookup.");
-            return Optional.empty();
-        }
+	public @NotNull Optional<Album> lookUpRelease(@NotNull final String id) {
+		if (apiClient == null) {
+			LOGGER.warn("No credentials set, skipping lookup.");
+			return Optional.empty();
+		}
 
-        bucketService.consumeSingleBlocking(spotifyBucketProvider.getBucket());
+		bucketService.consumeSingleBlocking(spotifyBucketProvider.getBucket());
 
-        try {
-            GetAlbumRequest request = getAuthorizedApiClient().getAlbum(id).build();
-            return Optional.of(request.execute());
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            LOGGER.warn("Could not look up album.", e);
-            return Optional.empty();
-        }
-    }
+		try {
+			GetAlbumRequest request = getAuthorizedApiClient().getAlbum(id).build();
+			return Optional.of(request.execute());
+		} catch (IOException | SpotifyWebApiException | ParseException e) {
+			LOGGER.warn("Could not look up album.", e);
+			return Optional.empty();
+		}
+	}
 
-    // https://github.com/thelinmichael/spotify-web-api-java#client-credentials-flow
-    private @NotNull SpotifyApi getAuthorizedApiClient() throws IOException, SpotifyWebApiException, ParseException {
-        if (apiClient == null) {
-            throw new IllegalStateException("Cannot authorize client if none is set.");
-        }
+	// https://github.com/thelinmichael/spotify-web-api-java#client-credentials-flow
+	private @NotNull SpotifyApi getAuthorizedApiClient() throws IOException, SpotifyWebApiException, ParseException {
+		if (apiClient == null) {
+			throw new IllegalStateException("Cannot authorize client if none is set.");
+		}
 
-        Instant now = Instant.now();
-        if (tokenExpiration == null || tokenExpiration.isBefore(now)) {
-            ClientCredentials credentials = apiClient.clientCredentials().build().execute();
-            apiClient.setAccessToken(credentials.getAccessToken());
-            tokenExpiration = now.plusSeconds(credentials.getExpiresIn());
-        }
-        return apiClient;
-    }
+		Instant now = Instant.now();
+		if (tokenExpiration == null || tokenExpiration.isBefore(now)) {
+			ClientCredentials credentials = apiClient.clientCredentials().build().execute();
+			apiClient.setAccessToken(credentials.getAccessToken());
+			tokenExpiration = now.plusSeconds(credentials.getExpiresIn());
+		}
+		return apiClient;
+	}
 
-    private @Nullable SpotifyApi createApiClient() {
-        if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
-            LOGGER.warn("No credentials set, skipping API client creation.");
-            return null;
-        }
-        return new SpotifyApi.Builder()
-                .setClientId(clientId)
-                .setClientSecret(clientSecret)
-                .build();
-    }
+	private @Nullable SpotifyApi createApiClient() {
+		if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
+			LOGGER.warn("No credentials set, skipping API client creation.");
+			return null;
+		}
+		return new SpotifyApi.Builder().setClientId(clientId).setClientSecret(clientSecret).build();
+	}
 
 }

@@ -38,68 +38,70 @@ import java.util.regex.Pattern;
 @Service
 class WikidataReleaseGroupEnricher implements GenreEnricher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikidataReleaseGroupEnricher.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(WikidataReleaseGroupEnricher.class);
 
-    private static final String GENRE_PROPERTY_ID = "P136";
-    private static final String MUSICBRAINZ_LINK_PROPERTY_ID = "P8052";
+	private static final String GENRE_PROPERTY_ID = "P136";
+	private static final String MUSICBRAINZ_LINK_PROPERTY_ID = "P8052";
 
-    private static final Pattern ID_REGEX = Pattern.compile(".+/(?<id>Q\\d+)$");
+	private static final Pattern ID_REGEX = Pattern.compile(".+/(?<id>Q\\d+)$");
 
-    private final WikidataService wikidataService;
-    private final GenreRepository genreRepository;
+	private final WikidataService wikidataService;
+	private final GenreRepository genreRepository;
 
-    WikidataReleaseGroupEnricher(WikidataService wikidataService, GenreRepository genreRepository) {
-        this.wikidataService = wikidataService;
-        this.genreRepository = genreRepository;
-    }
+	WikidataReleaseGroupEnricher(WikidataService wikidataService, GenreRepository genreRepository) {
+		this.wikidataService = wikidataService;
+		this.genreRepository = genreRepository;
+	}
 
-    @Override
-    public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
-        Optional<String> id = RegexUtils.maybeGroup(ID_REGEX.matcher(relation.getTargetId()), "id");
-        if (id.isEmpty()) {
-            LOGGER.warn("Could not find ID in '{}'.", relation.getTargetId());
-            return Set.of();
-        }
-        // We can skip genre matching as we use the genre names directly from Musicbrainz.
-        return wikidataService.findEntityPropertyValues(id.get(), GENRE_PROPERTY_ID).map(this::extractGenreNames).orElse(Set.of());
-    }
+	@Override
+	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+		Optional<String> id = RegexUtils.maybeGroup(ID_REGEX.matcher(relation.getTargetId()), "id");
+		if (id.isEmpty()) {
+			LOGGER.warn("Could not find ID in '{}'.", relation.getTargetId());
+			return Set.of();
+		}
+		// We can skip genre matching as we use the genre names directly from Musicbrainz.
+		return wikidataService.findEntityPropertyValues(id.get(), GENRE_PROPERTY_ID)
+			.map(this::extractGenreNames)
+			.orElse(Set.of());
+	}
 
-    private @NotNull Set<String> extractGenreNames(@NotNull List<Statement> genreStatements) {
-        Set<String> genres = new HashSet<>(genreStatements.size());
-        for (Statement genreStatement : genreStatements) {
-            if (!(genreStatement.getValue() instanceof EntityIdValue)) {
-                LOGGER.warn("Unexpected genre statement type: '{}'.", genreStatement);
-            } else {
-                findGenreName(((EntityIdValue) genreStatement.getValue()).getId()).ifPresent(genres::add);
-            }
-        }
-        return genres;
-    }
+	private @NotNull Set<String> extractGenreNames(@NotNull List<Statement> genreStatements) {
+		Set<String> genres = new HashSet<>(genreStatements.size());
+		for (Statement genreStatement : genreStatements) {
+			if (!(genreStatement.getValue() instanceof EntityIdValue)) {
+				LOGGER.warn("Unexpected genre statement type: '{}'.", genreStatement);
+			} else {
+				findGenreName(((EntityIdValue) genreStatement.getValue()).getId()).ifPresent(genres::add);
+			}
+		}
+		return genres;
+	}
 
-    private @NotNull Optional<String> findGenreName(@NotNull String genreId) {
-        Optional<List<Statement>> musicbrainzLinkStatements = wikidataService
-                .findEntityPropertyValues(genreId, MUSICBRAINZ_LINK_PROPERTY_ID);
-        if (musicbrainzLinkStatements.map(List::isEmpty).orElse(true)) {
-            LOGGER.warn("No musicbrainz link found for genre: '{}'.", genreId);
-            return Optional.empty();
-        }
-        Value value = musicbrainzLinkStatements.get().get(0).getValue();
-        if (!(value instanceof StringValue)) {
-            LOGGER.warn("Unexpected musicbrainz link type: '{}'.", value);
-            return Optional.empty();
-        }
-        UUID mbid = UUID.fromString(((StringValue) value).getString());
-        return Optional.ofNullable(genreRepository.findGenreNameByMbid(mbid));
-    }
+	private @NotNull Optional<String> findGenreName(@NotNull String genreId) {
+		Optional<List<Statement>> musicbrainzLinkStatements = wikidataService.findEntityPropertyValues(genreId,
+			MUSICBRAINZ_LINK_PROPERTY_ID);
+		if (musicbrainzLinkStatements.map(List::isEmpty).orElse(true)) {
+			LOGGER.warn("No musicbrainz link found for genre: '{}'.", genreId);
+			return Optional.empty();
+		}
+		Value value = musicbrainzLinkStatements.get().get(0).getValue();
+		if (!(value instanceof StringValue)) {
+			LOGGER.warn("Unexpected musicbrainz link type: '{}'.", value);
+			return Optional.empty();
+		}
+		UUID mbid = UUID.fromString(((StringValue) value).getString());
+		return Optional.ofNullable(genreRepository.findGenreNameByMbid(mbid));
+	}
 
-    @Override
-    public boolean isRelationSupported(@NotNull RelationWs2 relation) {
-        return "http://musicbrainz.org/ns/rel-2.0#wikidata".equals(relation.getType()) && "http://musicbrainz.org/ns/rel-2.0#url"
-                .equals(relation.getTargetType());
-    }
+	@Override
+	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+		return "http://musicbrainz.org/ns/rel-2.0#wikidata".equals(relation.getType()) &&
+			"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
+	}
 
-    @Override
-    public @NotNull DataType getDataType() {
-        return DataType.RELEASE_GROUP;
-    }
+	@Override
+	public @NotNull DataType getDataType() {
+		return DataType.RELEASE_GROUP;
+	}
 }

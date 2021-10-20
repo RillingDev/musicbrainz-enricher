@@ -18,53 +18,56 @@ import java.util.UUID;
 @Service
 public class MusicbrainzLookupService {
 
-    private final MusicbrainzApiService musicbrainzApiService;
-    private final MusicbrainzBucketProvider musicbrainzBucketProvider;
-    private final BucketService bucketService;
+	private final MusicbrainzApiService musicbrainzApiService;
+	private final MusicbrainzBucketProvider musicbrainzBucketProvider;
+	private final BucketService bucketService;
 
-    MusicbrainzLookupService(MusicbrainzApiService musicbrainzApiService, MusicbrainzBucketProvider musicbrainzBucketProvider, BucketService bucketService) {
-        this.musicbrainzApiService = musicbrainzApiService;
-        this.musicbrainzBucketProvider = musicbrainzBucketProvider;
-        this.bucketService = bucketService;
-    }
+	MusicbrainzLookupService(MusicbrainzApiService musicbrainzApiService,
+							 MusicbrainzBucketProvider musicbrainzBucketProvider,
+							 BucketService bucketService) {
+		this.musicbrainzApiService = musicbrainzApiService;
+		this.musicbrainzBucketProvider = musicbrainzBucketProvider;
+		this.bucketService = bucketService;
+	}
 
-    public @NotNull Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes) {
-        bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+	public @NotNull Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes) {
+		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
-        Release release = new Release();
-        release.setQueryWs(musicbrainzApiService.createWebService());
+		Release release = new Release();
+		release.setQueryWs(musicbrainzApiService.createWebService());
 
-        release.setIncludes(includes);
+		release.setIncludes(includes);
 
-        try {
-            return Optional.of(release.lookUp(mbid.toString()));
-        } catch (ResourceNotFoundException e) {
-            return Optional.empty();
-        } catch (MBWS2Exception e) {
-            throw new QueryException("Could not look up release '" + mbid + "'.", e);
-        }
-    }
+		try {
+			return Optional.of(release.lookUp(mbid.toString()));
+		} catch (ResourceNotFoundException e) {
+			return Optional.empty();
+		} catch (MBWS2Exception e) {
+			throw new QueryException("Could not look up release '" + mbid + "'.", e);
+		}
+	}
 
-    public @NotNull Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid, @NotNull ReleaseGroupIncludesWs2 includes) {
-        bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+	public @NotNull Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid,
+																 @NotNull ReleaseGroupIncludesWs2 includes) {
+		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
-        ReleaseGroup releaseGroup = new ReleaseGroup();
-        releaseGroup.setQueryWs(musicbrainzApiService.createWebService());
+		ReleaseGroup releaseGroup = new ReleaseGroup();
+		releaseGroup.setQueryWs(musicbrainzApiService.createWebService());
 
-        releaseGroup.setIncludes(includes);
+		releaseGroup.setIncludes(includes);
 
-        try {
-            return Optional.of(releaseGroup.lookUp(mbid.toString()));
-        } catch (ResourceNotFoundException e) {
-            return Optional.empty();
-        } catch (MBWS2Exception e) {
-            throw new QueryException("Could not look up release group'" + mbid + "'.", e);
-        }
-    }
+		try {
+			return Optional.of(releaseGroup.lookUp(mbid.toString()));
+		} catch (ResourceNotFoundException e) {
+			return Optional.empty();
+		} catch (MBWS2Exception e) {
+			throw new QueryException("Could not look up release group'" + mbid + "'.", e);
+		}
+	}
 
-    private static class QueryException extends RuntimeException {
-        QueryException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
+	private static class QueryException extends RuntimeException {
+		QueryException(String message, Throwable cause) {
+			super(message, cause);
+		}
+	}
 }

@@ -9,16 +9,17 @@ import java.util.stream.Collectors;
 @Service
 public class CoreEnrichmentService {
 
-    private final ApplicationContext applicationContext;
+	private final ApplicationContext applicationContext;
 
-    CoreEnrichmentService(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
-    }
+	CoreEnrichmentService(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
+	}
 
-    public Set<Enricher> findFittingEnrichers(final EnrichmentService enrichmentService) {
-        return applicationContext
-                .getBeansOfType(Enricher.class).values().stream()
-                .filter(enricher -> enricher.getDataType() == enrichmentService.getDataType())
-                .collect(Collectors.toSet());
-    }
+	public Set<Enricher> findFittingEnrichers(final EnrichmentService enrichmentService) {
+		return applicationContext.getBeansOfType(Enricher.class)
+			.values()
+			.stream()
+			.filter(enricher -> enricher.getDataType() == enrichmentService.getDataType())
+			.collect(Collectors.toSet());
+	}
 }

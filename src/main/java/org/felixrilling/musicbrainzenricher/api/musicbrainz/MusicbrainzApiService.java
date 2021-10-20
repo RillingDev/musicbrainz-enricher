@@ -9,36 +9,38 @@ import org.springframework.stereotype.Service;
 @Service
 class MusicbrainzApiService {
 
-    @Value("${musicbrainz-enricher.host}")
-    private String host;
+	@Value("${musicbrainz-enricher.host}")
+	private String host;
 
-    @Value("${musicbrainz-enricher.name}")
-    private String applicationName;
+	@Value("${musicbrainz-enricher.name}")
+	private String applicationName;
 
-    @Value("${musicbrainz-enricher.version}")
-    private String applicationVersion;
+	@Value("${musicbrainz-enricher.version}")
+	private String applicationVersion;
 
-    @Value("${musicbrainz-enricher.contact}")
-    private String applicationContact;
+	@Value("${musicbrainz-enricher.contact}")
+	private String applicationContact;
 
-    @Value("${musicbrainz-enricher.musicbrainz.username}")
-    private String username;
+	@Value("${musicbrainz-enricher.musicbrainz.username}")
+	private String username;
 
-    @Value("${musicbrainz-enricher.musicbrainz.password}")
-    private String password;
+	@Value("${musicbrainz-enricher.musicbrainz.password}")
+	private String password;
 
-    @NotNull WebService createWebService() {
-        HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2();
-        webService.setClient(getClientName(applicationName, applicationVersion, applicationContact));
-        webService.setUsername(username);
-        webService.setPassword(password);
-        webService.setHost(host);
-        return webService;
-    }
+	@NotNull WebService createWebService() {
+		HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2();
+		webService.setClient(getClientName(applicationName, applicationVersion, applicationContact));
+		webService.setUsername(username);
+		webService.setPassword(password);
+		webService.setHost(host);
+		return webService;
+	}
 
-    private static @NotNull String getClientName(@NotNull String applicationName, @NotNull String applicationVersion, @NotNull String applicationContact) {
-        // See https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
-        // While Musicbrainz states that contact details should be added, these seem to cause issues with the Java API.
-        return String.format("%s/%s", applicationName, applicationVersion);
-    }
+	private static @NotNull String getClientName(@NotNull String applicationName,
+												 @NotNull String applicationVersion,
+												 @NotNull String applicationContact) {
+		// See https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
+		// While Musicbrainz states that contact details should be added, these seem to cause issues with the Java API.
+		return String.format("%s/%s", applicationName, applicationVersion);
+	}
 }

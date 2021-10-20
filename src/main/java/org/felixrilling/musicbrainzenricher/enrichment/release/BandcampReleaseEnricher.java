@@ -27,45 +27,48 @@ import java.util.regex.Pattern;
 @Service
 class BandcampReleaseEnricher implements GenreEnricher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
 
-    private static final Pattern HOST_REGEX = Pattern.compile(".+\\.bandcamp\\.com");
-    private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > a");
+	private static final Pattern HOST_REGEX = Pattern.compile(".+\\.bandcamp\\.com");
+	private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > a");
 
-    private final GenreMatcherService genreMatcherService;
-    private final ScrapingService scrapingService;
+	private final GenreMatcherService genreMatcherService;
+	private final ScrapingService scrapingService;
 
-    BandcampReleaseEnricher(GenreMatcherService genreMatcherService, ScrapingService scrapingService) {
-        this.genreMatcherService = genreMatcherService;
-        this.scrapingService = scrapingService;
-    }
+	BandcampReleaseEnricher(GenreMatcherService genreMatcherService, ScrapingService scrapingService) {
+		this.genreMatcherService = genreMatcherService;
+		this.scrapingService = scrapingService;
+	}
 
-    @Override
-    public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
-        return scrapingService.load(relation.getTargetId()).map(this::extractTags).map(genreMatcherService::match).orElse(Set.of());
-    }
+	@Override
+	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+		return scrapingService.load(relation.getTargetId())
+			.map(this::extractTags)
+			.map(genreMatcherService::match)
+			.orElse(Set.of());
+	}
 
-    private @NotNull Set<String> extractTags(@NotNull Document document) {
-        return new HashSet<>(document.select(TAG_QUERY).eachText());
-    }
+	private @NotNull Set<String> extractTags(@NotNull Document document) {
+		return new HashSet<>(document.select(TAG_QUERY).eachText());
+	}
 
-    @Override
-    public boolean isRelationSupported(@NotNull RelationWs2 relation) {
-        if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
-            return false;
-        }
-        URL url;
-        try {
-            url = new URL(relation.getTargetId());
-        } catch (MalformedURLException e) {
-            LOGGER.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
-            return false;
-        }
-        return HOST_REGEX.matcher(url.getHost()).matches();
-    }
+	@Override
+	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
+			return false;
+		}
+		URL url;
+		try {
+			url = new URL(relation.getTargetId());
+		} catch (MalformedURLException e) {
+			LOGGER.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
+			return false;
+		}
+		return HOST_REGEX.matcher(url.getHost()).matches();
+	}
 
-    @Override
-    public @NotNull DataType getDataType() {
-        return DataType.RELEASE;
-    }
+	@Override
+	public @NotNull DataType getDataType() {
+		return DataType.RELEASE;
+	}
 }

@@ -14,14 +14,17 @@ import java.time.Duration;
 @Scope("singleton")
 class SpotifyBucketProvider implements BucketProvider {
 
-    // https://developer.spotify.com/documentation/web-api/
-    // Note: Spotify itself does not disclose an exact rate, this is only a guess to avoid running into it.
-    private static final Bandwidth BANDWIDTH = Bandwidth.simple(10, Duration.ofMinutes(1));
+	// https://developer.spotify.com/documentation/web-api/
+	// Note: Spotify itself does not disclose an exact rate, this is only a guess to avoid running into it.
+	private static final Bandwidth BANDWIDTH = Bandwidth.simple(10, Duration.ofMinutes(1));
 
-    private final Bucket bucket = Bucket4j.builder().addLimit(BANDWIDTH).withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE).build();
+	private final Bucket bucket = Bucket4j.builder()
+		.addLimit(BANDWIDTH)
+		.withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE)
+		.build();
 
-    @Override
-    public Bucket getBucket() {
-        return bucket;
-    }
+	@Override
+	public Bucket getBucket() {
+		return bucket;
+	}
 }

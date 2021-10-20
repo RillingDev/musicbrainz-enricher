@@ -19,44 +19,44 @@ import java.util.regex.Pattern;
 @Service
 class SpotifyReleaseEnricher implements GenreEnricher {
 
-    private static final Pattern URL_REGEX = Pattern.compile("https?://open\\.spotify\\.com/album/(?<id>\\w+)");
+	private static final Pattern URL_REGEX = Pattern.compile("https?://open\\.spotify\\.com/album/(?<id>\\w+)");
 
-    private final GenreMatcherService genreMatcherService;
-    private final SpotifyQueryService spotifyQueryService;
+	private final GenreMatcherService genreMatcherService;
+	private final SpotifyQueryService spotifyQueryService;
 
-    SpotifyReleaseEnricher(GenreMatcherService genreMatcherService, SpotifyQueryService spotifyQueryService) {
-        this.genreMatcherService = genreMatcherService;
-        this.spotifyQueryService = spotifyQueryService;
-    }
+	SpotifyReleaseEnricher(GenreMatcherService genreMatcherService, SpotifyQueryService spotifyQueryService) {
+		this.genreMatcherService = genreMatcherService;
+		this.spotifyQueryService = spotifyQueryService;
+	}
 
-    @Override
-    public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
-        return spotifyQueryService.lookUpRelease(findReleaseId(relation.getTargetId())).map(release -> {
-            Set<String> genres = new HashSet<>(Arrays.asList(release.getGenres()));
-            return genreMatcherService.match(genres);
-        }).orElse(Set.of());
-    }
+	@Override
+	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+		return spotifyQueryService.lookUpRelease(findReleaseId(relation.getTargetId())).map(release -> {
+			Set<String> genres = new HashSet<>(Arrays.asList(release.getGenres()));
+			return genreMatcherService.match(genres);
+		}).orElse(Set.of());
+	}
 
 
-    private @NotNull String findReleaseId(@NotNull String relationUrl) {
-        Matcher matcher = URL_REGEX.matcher(relationUrl);
-        //noinspection ResultOfMethodCallIgnored We know we matched in #relationFits
-        matcher.matches();
-        return matcher.group("id");
-    }
+	private @NotNull String findReleaseId(@NotNull String relationUrl) {
+		Matcher matcher = URL_REGEX.matcher(relationUrl);
+		//noinspection ResultOfMethodCallIgnored We know we matched in #relationFits
+		matcher.matches();
+		return matcher.group("id");
+	}
 
-    @Override
-    public boolean isRelationSupported(@NotNull RelationWs2 relation) {
-        if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
-            return false;
-        }
+	@Override
+	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
+			return false;
+		}
 
-        String targetUrl = relation.getTargetId();
-        return URL_REGEX.matcher(targetUrl).matches();
-    }
+		String targetUrl = relation.getTargetId();
+		return URL_REGEX.matcher(targetUrl).matches();
+	}
 
-    @Override
-    public @NotNull DataType getDataType() {
-        return DataType.RELEASE;
-    }
+	@Override
+	public @NotNull DataType getDataType() {
+		return DataType.RELEASE;
+	}
 }

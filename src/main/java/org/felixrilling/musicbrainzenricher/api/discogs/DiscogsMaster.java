@@ -12,23 +12,21 @@ import java.util.Set;
  */
 // See e.g. https://api.discogs.com/masters/1640131
 public class DiscogsMaster {
-    private final @NotNull Set<String> genres;
-    private final Set<String> styles;
+	private final @NotNull Set<String> genres;
+	private final Set<String> styles;
 
-    @JsonCreator
-    public DiscogsMaster(
-            @JsonProperty(value = "genres", required = true) Set<String> genres,
-            @JsonProperty(value = "styles") Set<String> styles
-    ) {
-        this.genres = Set.copyOf(genres);
-        this.styles = styles != null ? Set.copyOf(styles) : null;
-    }
+	@JsonCreator
+	public DiscogsMaster(@JsonProperty(value = "genres", required = true) Set<String> genres,
+						 @JsonProperty(value = "styles") Set<String> styles) {
+		this.genres = Set.copyOf(genres);
+		this.styles = styles != null ? Set.copyOf(styles) : null;
+	}
 
-    public @NotNull Set<String> getGenres() {
-        return genres;
-    }
+	public @NotNull Set<String> getGenres() {
+		return genres;
+	}
 
-    public Set<String> getStyles() {
-        return styles;
-    }
+	public Set<String> getStyles() {
+		return styles;
+	}
 }

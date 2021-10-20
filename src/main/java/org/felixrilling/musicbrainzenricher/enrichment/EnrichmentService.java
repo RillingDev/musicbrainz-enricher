@@ -11,10 +11,10 @@ import java.util.UUID;
 @Service
 public interface EnrichmentService extends DataTypeAware {
 
-    /**
-     * Enriches the entity this mbid matches.
-     *
-     * @param mbid Mbid of the source entity.
-     */
-    void enrich(@NotNull UUID mbid);
+	/**
+	 * Enriches the entity this mbid matches.
+	 *
+	 * @param mbid Mbid of the source entity.
+	 */
+	void enrich(@NotNull UUID mbid);
 }

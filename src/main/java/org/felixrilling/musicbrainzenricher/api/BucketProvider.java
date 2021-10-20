@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 @Component
 public interface BucketProvider {
 
-    Bucket getBucket();
+	Bucket getBucket();
 
 }

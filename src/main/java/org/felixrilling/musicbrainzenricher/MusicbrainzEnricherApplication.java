@@ -12,46 +12,46 @@ import java.util.UUID;
 @SpringBootApplication
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
 
-    private final MusicbrainzEnricherService musicbrainzEnricherService;
+	private final MusicbrainzEnricherService musicbrainzEnricherService;
 
-    MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService) {
-        this.musicbrainzEnricherService = musicbrainzEnricherService;
-    }
+	MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService) {
+		this.musicbrainzEnricherService = musicbrainzEnricherService;
+	}
 
-    public static void main(String[] args) {
-        SpringApplication.run(MusicbrainzEnricherApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(MusicbrainzEnricherApplication.class, args);
+	}
 
-    @Override
-    public void run(String... args) {
-        if (args.length < 1) {
-            throw new IllegalArgumentException("Expected at least 1 arguments but found none.");
-        }
-        if (args.length > 2) {
-            throw new IllegalArgumentException("Expected at most 2 parameters but found " + args.length + ".");
-        }
+	@Override
+	public void run(String... args) {
+		if (args.length < 1) {
+			throw new IllegalArgumentException("Expected at least 1 arguments but found none.");
+		}
+		if (args.length > 2) {
+			throw new IllegalArgumentException("Expected at most 2 parameters but found " + args.length + ".");
+		}
 
-        DataType dataType = parseDataType(args[0]);
-        if (args.length == 2) {
-            UUID mbid = UUID.fromString(args[1]);
-            musicbrainzEnricherService.runInSingleMode(dataType, mbid);
-        } else {
-            musicbrainzEnricherService.runInAutoQueryMode(dataType);
-        }
-    }
+		DataType dataType = parseDataType(args[0]);
+		if (args.length == 2) {
+			UUID mbid = UUID.fromString(args[1]);
+			musicbrainzEnricherService.runInSingleMode(dataType, mbid);
+		} else {
+			musicbrainzEnricherService.runInAutoQueryMode(dataType);
+		}
+	}
 
 
-    private DataType parseDataType(String modeString) {
-        switch (modeString) {
-            case "release":
-                return DataType.RELEASE;
-            case "release-group":
-                return DataType.RELEASE_GROUP;
-            default:
-                throw new IllegalArgumentException("Could not process mode '" + modeString + "'.");
-        }
-    }
+	private DataType parseDataType(String modeString) {
+		switch (modeString) {
+			case "release":
+				return DataType.RELEASE;
+			case "release-group":
+				return DataType.RELEASE_GROUP;
+			default:
+				throw new IllegalArgumentException("Could not process mode '" + modeString + "'.");
+		}
+	}
 
 }

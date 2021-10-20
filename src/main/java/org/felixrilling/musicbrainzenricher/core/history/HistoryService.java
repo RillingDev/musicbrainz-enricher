@@ -13,36 +13,35 @@ import java.util.UUID;
 
 @Service
 public class HistoryService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
-    private static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
-    private static final ZoneOffset ZONE = ZoneOffset.UTC;
+	private static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
+	private static final ZoneOffset ZONE = ZoneOffset.UTC;
 
-    private final HistoryEntryRepository historyEntryRepository;
+	private final HistoryEntryRepository historyEntryRepository;
 
-    HistoryService(HistoryEntryRepository historyEntryRepository) {
-        this.historyEntryRepository = historyEntryRepository;
-    }
+	HistoryService(HistoryEntryRepository historyEntryRepository) {
+		this.historyEntryRepository = historyEntryRepository;
+	}
 
-    public boolean checkIsDue(@NotNull DataType dataType, @NotNull UUID mbid) {
-        LOGGER.trace("Checking history entry for '{}' ({}).", mbid, dataType);
-        return historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid)
-                .map(this::checkIsDue).orElse(true);
-    }
+	public boolean checkIsDue(@NotNull DataType dataType, @NotNull UUID mbid) {
+		LOGGER.trace("Checking history entry for '{}' ({}).", mbid, dataType);
+		return historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid).map(this::checkIsDue).orElse(true);
+	}
 
-    private boolean checkIsDue(@NotNull HistoryEntry historyEntry) {
-        return historyEntry.getLastChecked().isBefore(ZonedDateTime.now(ZONE).minus(RECHECK_TIMESPAN));
-    }
+	private boolean checkIsDue(@NotNull HistoryEntry historyEntry) {
+		return historyEntry.getLastChecked().isBefore(ZonedDateTime.now(ZONE).minus(RECHECK_TIMESPAN));
+	}
 
-    public void markAsChecked(@NotNull DataType dataType, @NotNull UUID mbid) {
-        HistoryEntry historyEntry = historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid).orElseGet(() -> {
-            HistoryEntry entry = new HistoryEntry();
-            entry.setDataType(dataType);
-            entry.setMbid(mbid);
-            return entry;
-        });
-        historyEntry.setLastChecked(ZonedDateTime.now(ZONE));
-        LOGGER.trace("Persisting history entry: '{}'.", historyEntry);
-        historyEntryRepository.save(historyEntry);
-    }
+	public void markAsChecked(@NotNull DataType dataType, @NotNull UUID mbid) {
+		HistoryEntry historyEntry = historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid).orElseGet(() -> {
+			HistoryEntry entry = new HistoryEntry();
+			entry.setDataType(dataType);
+			entry.setMbid(mbid);
+			return entry;
+		});
+		historyEntry.setLastChecked(ZonedDateTime.now(ZONE));
+		LOGGER.trace("Persisting history entry: '{}'.", historyEntry);
+		historyEntryRepository.save(historyEntry);
+	}
 }

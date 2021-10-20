@@ -22,45 +22,46 @@ import java.util.regex.Pattern;
 @Service
 class DiscogsReleaseEnricher implements GenreEnricher {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
 
-    private static final Pattern URL_REGEX = Pattern.compile("https?://www\\.discogs\\.com/release/(?<id>\\d+)");
+	private static final Pattern URL_REGEX = Pattern.compile("https?://www\\.discogs\\.com/release/(?<id>\\d+)");
 
-    private final GenreMatcherService genreMatcherService;
-    private final DiscogsQueryService discogsQueryService;
+	private final GenreMatcherService genreMatcherService;
+	private final DiscogsQueryService discogsQueryService;
 
-    DiscogsReleaseEnricher(GenreMatcherService genreMatcherService, DiscogsQueryService discogsQueryService) {
-        this.genreMatcherService = genreMatcherService;
-        this.discogsQueryService = discogsQueryService;
-    }
+	DiscogsReleaseEnricher(GenreMatcherService genreMatcherService, DiscogsQueryService discogsQueryService) {
+		this.genreMatcherService = genreMatcherService;
+		this.discogsQueryService = discogsQueryService;
+	}
 
-    @Override
-    public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
-        Optional<String> discogsId = RegexUtils.maybeGroup(URL_REGEX.matcher(relation.getTargetId()), "id");
-        if (discogsId.isEmpty()) {
-            LOGGER.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
-            return Set.of();
-        }
-        return discogsQueryService.lookUpRelease(discogsId.get()).map(release -> genreMatcherService.match(extractGenres(release)))
-                .orElse(Set.of());
-    }
+	@Override
+	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+		Optional<String> discogsId = RegexUtils.maybeGroup(URL_REGEX.matcher(relation.getTargetId()), "id");
+		if (discogsId.isEmpty()) {
+			LOGGER.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
+			return Set.of();
+		}
+		return discogsQueryService.lookUpRelease(discogsId.get())
+			.map(release -> genreMatcherService.match(extractGenres(release)))
+			.orElse(Set.of());
+	}
 
-    private @NotNull Set<String> extractGenres(@NotNull DiscogsRelease release) {
-        Set<String> genres = new HashSet<>(release.getGenres());
-        if (release.getStyles() != null) {
-            genres.addAll(release.getStyles());
-        }
-        return genres;
-    }
+	private @NotNull Set<String> extractGenres(@NotNull DiscogsRelease release) {
+		Set<String> genres = new HashSet<>(release.getGenres());
+		if (release.getStyles() != null) {
+			genres.addAll(release.getStyles());
+		}
+		return genres;
+	}
 
-    @Override
-    public boolean isRelationSupported(@NotNull RelationWs2 relation) {
-        return "http://musicbrainz.org/ns/rel-2.0#discogs".equals(relation.getType()) && "http://musicbrainz.org/ns/rel-2.0#url"
-                .equals(relation.getTargetType());
-    }
+	@Override
+	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+		return "http://musicbrainz.org/ns/rel-2.0#discogs".equals(relation.getType()) &&
+			"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
+	}
 
-    @Override
-    public @NotNull DataType getDataType() {
-        return DataType.RELEASE;
-    }
+	@Override
+	public @NotNull DataType getDataType() {
+		return DataType.RELEASE;
+	}
 }

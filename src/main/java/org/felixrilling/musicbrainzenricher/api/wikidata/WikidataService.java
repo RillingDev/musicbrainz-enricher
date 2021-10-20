@@ -17,34 +17,35 @@ import java.util.Set;
 
 @Service
 public class WikidataService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WikidataService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(WikidataService.class);
 
-    private final BasicApiConnection wikidataApiConnection = BasicApiConnection.getWikidataApiConnection();
+	private final BasicApiConnection wikidataApiConnection = BasicApiConnection.getWikidataApiConnection();
 
-    public @NotNull Optional<List<Statement>> findEntityPropertyValues(@NotNull String entityId, @NotNull String propertyId) {
-        PropertyIdValue propertyIdValue = Datamodel.makeWikidataPropertyIdValue(propertyId);
+	public @NotNull Optional<List<Statement>> findEntityPropertyValues(@NotNull String entityId,
+																	   @NotNull String propertyId) {
+		PropertyIdValue propertyIdValue = Datamodel.makeWikidataPropertyIdValue(propertyId);
 
-        WikibaseDataFetcher fetcher = new WikibaseDataFetcher(wikidataApiConnection, Datamodel.SITE_WIKIDATA);
-        fetcher.getFilter().excludeAllLanguages();
-        fetcher.getFilter().excludeAllSiteLinks();
-        fetcher.getFilter().setPropertyFilter(Set.of(propertyIdValue));
+		WikibaseDataFetcher fetcher = new WikibaseDataFetcher(wikidataApiConnection, Datamodel.SITE_WIKIDATA);
+		fetcher.getFilter().excludeAllLanguages();
+		fetcher.getFilter().excludeAllSiteLinks();
+		fetcher.getFilter().setPropertyFilter(Set.of(propertyIdValue));
 
-        EntityDocument entityDocument;
-        try {
-            entityDocument = fetcher.getEntityDocument(entityId);
-        } catch (MediaWikiApiErrorException | IOException e) {
-            LOGGER.error("Could not fetch document: '{}'.", entityId, e);
-            return Optional.empty();
-        }
-        if (!(entityDocument instanceof ItemDocument)) {
-            LOGGER.warn("Unexpected document: '{}'.", entityDocument);
-            return Optional.empty();
-        }
+		EntityDocument entityDocument;
+		try {
+			entityDocument = fetcher.getEntityDocument(entityId);
+		} catch (MediaWikiApiErrorException | IOException e) {
+			LOGGER.error("Could not fetch document: '{}'.", entityId, e);
+			return Optional.empty();
+		}
+		if (!(entityDocument instanceof ItemDocument)) {
+			LOGGER.warn("Unexpected document: '{}'.", entityDocument);
+			return Optional.empty();
+		}
 
-        StatementGroup statementGroup = ((StatementDocument) entityDocument).findStatementGroup(propertyIdValue);
-        if (statementGroup == null) {
-            return Optional.empty();
-        }
-        return Optional.of(statementGroup.getStatements());
-    }
+		StatementGroup statementGroup = ((StatementDocument) entityDocument).findStatementGroup(propertyIdValue);
+		if (statementGroup == null) {
+			return Optional.empty();
+		}
+		return Optional.of(statementGroup.getStatements());
+	}
 }

@@ -12,158 +12,158 @@ import javax.validation.constraints.Pattern;
 @Validated
 public class ApplicationConfigurationProperties {
 
-    /**
-     * Musicbrainz host, e.g. {@code musicbrainz.org} or {@code test.musicbrainz.org}.
-     */
-    @NotBlank
-    private String host;
+	/**
+	 * Musicbrainz host, e.g. {@code musicbrainz.org} or {@code test.musicbrainz.org}.
+	 */
+	@NotBlank
+	private String host;
 
 
-    /**
-     * Application ID/name.
-     */
-    @NotBlank
-    @Pattern(regexp = "^\\w+$")
-    private String name;
+	/**
+	 * Application ID/name.
+	 */
+	@NotBlank
+	@Pattern(regexp = "^\\w+$")
+	private String name;
 
-    /**
-     * Application version.
-     */
-    @NotBlank
-    private String version;
+	/**
+	 * Application version.
+	 */
+	@NotBlank
+	private String version;
 
-    /**
-     * Application contact data (mail address or URL).
-     */
-    @NotBlank
-    private String contact;
-
-
-    /**
-     * Musicbrainz credentials.
-     * You should probably pass these as command line flags.
-     */
-    private MusicbrainzCredentials musicbrainz;
+	/**
+	 * Application contact data (mail address or URL).
+	 */
+	@NotBlank
+	private String contact;
 
 
-    /**
-     * Discogs credentials.
-     * You should probably pass these as command line flags.
-     * Blank sub-values disable authenticated discogs access.
-     */
-    private DiscogsCredentials discogs;
+	/**
+	 * Musicbrainz credentials.
+	 * You should probably pass these as command line flags.
+	 */
+	private MusicbrainzCredentials musicbrainz;
 
-    /**
-     * Spotify credentials.
-     * You should probably pass these as command line flags.
-     * Blank sub-values disable spotify integration.
-     */
-    private SpotifyCredentials spotify;
 
-    public String getHost() {
-        return host;
-    }
+	/**
+	 * Discogs credentials.
+	 * You should probably pass these as command line flags.
+	 * Blank sub-values disable authenticated discogs access.
+	 */
+	private DiscogsCredentials discogs;
 
-    public void setHost(String host) {
-        this.host = host;
-    }
+	/**
+	 * Spotify credentials.
+	 * You should probably pass these as command line flags.
+	 * Blank sub-values disable spotify integration.
+	 */
+	private SpotifyCredentials spotify;
 
-    public String getName() {
-        return name;
-    }
+	public String getHost() {
+		return host;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setHost(String host) {
+		this.host = host;
+	}
 
-    public String getVersion() {
-        return version;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setVersion(String version) {
-        this.version = version;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getContact() {
-        return contact;
-    }
+	public String getVersion() {
+		return version;
+	}
 
-    public void setContact(String contact) {
-        this.contact = contact;
-    }
+	public void setVersion(String version) {
+		this.version = version;
+	}
 
-    public MusicbrainzCredentials getMusicbrainz() {
-        return musicbrainz;
-    }
+	public String getContact() {
+		return contact;
+	}
 
-    public void setMusicbrainz(MusicbrainzCredentials musicbrainz) {
-        this.musicbrainz = musicbrainz;
-    }
+	public void setContact(String contact) {
+		this.contact = contact;
+	}
 
-    public SpotifyCredentials getSpotify() {
-        return spotify;
-    }
+	public MusicbrainzCredentials getMusicbrainz() {
+		return musicbrainz;
+	}
 
-    public void setSpotify(SpotifyCredentials spotify) {
-        this.spotify = spotify;
-    }
+	public void setMusicbrainz(MusicbrainzCredentials musicbrainz) {
+		this.musicbrainz = musicbrainz;
+	}
 
-    private static class MusicbrainzCredentials {
-        @NotBlank
-        private String username;
+	public SpotifyCredentials getSpotify() {
+		return spotify;
+	}
 
-        @NotBlank
-        private String password;
+	public void setSpotify(SpotifyCredentials spotify) {
+		this.spotify = spotify;
+	}
 
-        public String getUsername() {
-            return username;
-        }
+	private static class MusicbrainzCredentials {
+		@NotBlank
+		private String username;
 
-        public void setUsername(String username) {
-            this.username = username;
-        }
+		@NotBlank
+		private String password;
 
-        public String getPassword() {
-            return password;
-        }
+		public String getUsername() {
+			return username;
+		}
 
-        public void setPassword(String password) {
-            this.password = password;
-        }
-    }
+		public void setUsername(String username) {
+			this.username = username;
+		}
 
-    // https://www.discogs.com/developers/#page:authentication
-    private static class DiscogsCredentials {
-        private String token;
+		public String getPassword() {
+			return password;
+		}
 
-        public String getToken() {
-            return token;
-        }
+		public void setPassword(String password) {
+			this.password = password;
+		}
+	}
 
-        public void setToken(String token) {
-            this.token = token;
-        }
-    }
+	// https://www.discogs.com/developers/#page:authentication
+	private static class DiscogsCredentials {
+		private String token;
 
-    private static class SpotifyCredentials {
-        private String clientId;
+		public String getToken() {
+			return token;
+		}
 
-        private String clientSecret;
+		public void setToken(String token) {
+			this.token = token;
+		}
+	}
 
-        public String getClientId() {
-            return clientId;
-        }
+	private static class SpotifyCredentials {
+		private String clientId;
 
-        public void setClientId(String clientId) {
-            this.clientId = clientId;
-        }
+		private String clientSecret;
 
-        public String getClientSecret() {
-            return clientSecret;
-        }
+		public String getClientId() {
+			return clientId;
+		}
 
-        public void setClientSecret(String clientSecret) {
-            this.clientSecret = clientSecret;
-        }
-    }
+		public void setClientId(String clientId) {
+			this.clientId = clientId;
+		}
+
+		public String getClientSecret() {
+			return clientSecret;
+		}
+
+		public void setClientSecret(String clientSecret) {
+			this.clientSecret = clientSecret;
+		}
+	}
 }

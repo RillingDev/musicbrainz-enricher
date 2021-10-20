@@ -9,15 +9,15 @@ Queries musicbrainz' API and fetches data from linked sources like Discogs or Sp
 ### Supported Relationship Sources
 
 - Releases (mode = `release`)
-    - Apple Music / iTunes
-    - Bandcamp
-    - Discogs
-    - Junodownload
-    - Spotify
+	- Apple Music / iTunes
+	- Bandcamp
+	- Discogs
+	- Junodownload
+	- Spotify
 - Release Groups (mode = `release-group`)
-    - Allmusic
-    - Discogs
-    - Wikidata
+	- Allmusic
+	- Discogs
+	- Wikidata
 
 ## Configuration
 
@@ -28,14 +28,14 @@ containing `musicbrainz-enricher.host=foo`).
 
 - `musicbrainz-enricher.host` (Either "test.musicbrainz.org" or "musicbrainz.org")
 - Credentials
-    - Musicbrainz
-        - `musicbrainz-enricher.musicbrainz.username`
-        - `musicbrainz-enricher.musicbrainz.password`
-    - Discogs API (can be left empty to use (slower) unauthenticated discogs API access)
-        - `musicbrainz-enricher.discogs.token`
-    - Spotify API (can be left empty to disable spotify API access)
-        - `musicbrainz-enricher.spotify.client-id`
-        - `musicbrainz-enricher.spotify.client-secret`
+	- Musicbrainz
+		- `musicbrainz-enricher.musicbrainz.username`
+		- `musicbrainz-enricher.musicbrainz.password`
+	- Discogs API (can be left empty to use (slower) unauthenticated discogs API access)
+		- `musicbrainz-enricher.discogs.token`
+	- Spotify API (can be left empty to disable spotify API access)
+		- `musicbrainz-enricher.spotify.client-id`
+		- `musicbrainz-enricher.spotify.client-secret`
 
 ## Usage
 

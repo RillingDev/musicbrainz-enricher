@@ -1,6 +1,5 @@
 package org.felixrilling.musicbrainzenricher.core;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -12,20 +11,23 @@ import java.util.UUID;
 @Component
 public class ReleaseGroupRepository {
 
-    private final JdbcTemplate jdbcTemplate;
+	private final JdbcTemplate jdbcTemplate;
 
-    ReleaseGroupRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
+	ReleaseGroupRepository(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
 
-    public Long countReleaseGroupsWhereRelationshipsExist() {
-        return jdbcTemplate
-                .queryForObject("SELECT COUNT(*) FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)", Long.class);
-    }
+	public Long countReleaseGroupsWhereRelationshipsExist() {
+		return jdbcTemplate.queryForObject(
+			"SELECT COUNT(*) FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)",
+			Long.class);
+	}
 
-    public List<UUID> findReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) {
-        return Collections.unmodifiableList(jdbcTemplate
-                .query("SELECT rg.gid FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu) ORDER BY rg.id OFFSET ? LIMIT ?",
-                        (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit));
-    }
+	public List<UUID> findReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) {
+		return Collections.unmodifiableList(jdbcTemplate.query(
+			"SELECT rg.gid FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu) ORDER BY rg.id OFFSET ? LIMIT ?",
+			(rs, rowNum) -> rs.getObject("gid", UUID.class),
+			offset,
+			limit));
+	}
 }

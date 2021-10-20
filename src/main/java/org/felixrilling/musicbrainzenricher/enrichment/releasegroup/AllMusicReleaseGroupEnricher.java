@@ -22,36 +22,39 @@ import java.util.Set;
 @Service
 class AllMusicReleaseGroupEnricher implements GenreEnricher {
 
-    private static final Evaluator GENRE_QUERY = QueryParser.parse(".genre > div > a");
-    private static final Evaluator STYLES_QUERY = QueryParser.parse(".styles > div > a");
+	private static final Evaluator GENRE_QUERY = QueryParser.parse(".genre > div > a");
+	private static final Evaluator STYLES_QUERY = QueryParser.parse(".styles > div > a");
 
-    private final GenreMatcherService genreMatcherService;
-    private final ScrapingService scrapingService;
+	private final GenreMatcherService genreMatcherService;
+	private final ScrapingService scrapingService;
 
-    AllMusicReleaseGroupEnricher(GenreMatcherService genreMatcherService, ScrapingService scrapingService) {
-        this.genreMatcherService = genreMatcherService;
-        this.scrapingService = scrapingService;
-    }
+	AllMusicReleaseGroupEnricher(GenreMatcherService genreMatcherService, ScrapingService scrapingService) {
+		this.genreMatcherService = genreMatcherService;
+		this.scrapingService = scrapingService;
+	}
 
-    @Override
-    public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
-        return scrapingService.load(relation.getTargetId()).map(this::extractTags).map(genreMatcherService::match).orElse(Set.of());
-    }
+	@Override
+	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+		return scrapingService.load(relation.getTargetId())
+			.map(this::extractTags)
+			.map(genreMatcherService::match)
+			.orElse(Set.of());
+	}
 
-    private @NotNull Set<String> extractTags(@NotNull Document document) {
-        Set<String> tags = new HashSet<>(document.select(GENRE_QUERY).eachText());
-        tags.addAll(document.select(STYLES_QUERY).eachText());
-        return tags;
-    }
+	private @NotNull Set<String> extractTags(@NotNull Document document) {
+		Set<String> tags = new HashSet<>(document.select(GENRE_QUERY).eachText());
+		tags.addAll(document.select(STYLES_QUERY).eachText());
+		return tags;
+	}
 
-    @Override
-    public boolean isRelationSupported(@NotNull RelationWs2 relation) {
-        return "http://musicbrainz.org/ns/rel-2.0#allmusic".equals(relation.getType()) && "http://musicbrainz.org/ns/rel-2.0#url"
-                .equals(relation.getTargetType());
-    }
+	@Override
+	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+		return "http://musicbrainz.org/ns/rel-2.0#allmusic".equals(relation.getType()) &&
+			"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
+	}
 
-    @Override
-    public @NotNull DataType getDataType() {
-        return DataType.RELEASE_GROUP;
-    }
+	@Override
+	public @NotNull DataType getDataType() {
+		return DataType.RELEASE_GROUP;
+	}
 }

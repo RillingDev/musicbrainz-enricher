@@ -12,6 +12,6 @@ import java.util.UUID;
 @Repository
 interface HistoryEntryRepository extends CrudRepository<HistoryEntry, Long> {
 
-    @Query("SELECT he FROM HistoryEntry he WHERE he.dataType = ?1 AND he.mbid = ?2")
-    @NotNull Optional<HistoryEntry> findEntryByTypeAndMbid(@NotNull DataType dataType, @NotNull UUID mbid);
+	@Query("SELECT he FROM HistoryEntry he WHERE he.dataType = ?1 AND he.mbid = ?2")
+	@NotNull Optional<HistoryEntry> findEntryByTypeAndMbid(@NotNull DataType dataType, @NotNull UUID mbid);
 }

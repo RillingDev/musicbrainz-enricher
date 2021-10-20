@@ -16,29 +16,31 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class GenreMatcherServiceTest {
 
-    @Mock
-    private GenreRepository genreRepository;
+	@Mock
+	private GenreRepository genreRepository;
 
-    @InjectMocks
-    private GenreMatcherService genreMatcherService;
+	@InjectMocks
+	private GenreMatcherService genreMatcherService;
 
-    @Test
-    @DisplayName("Corrected name is returned.")
-    void matchReturnsCorrected() {
-        Set<String> genres = Set.of("hip-hop", "drum and bass", "electronic");
-        when(genreRepository.findGenreNames()).thenReturn(genres);
+	@Test
+	@DisplayName("Corrected name is returned.")
+	void matchReturnsCorrected() {
+		Set<String> genres = Set.of("hip-hop", "drum and bass", "electronic");
+		when(genreRepository.findGenreNames()).thenReturn(genres);
 
-        assertThat(genreMatcherService.match(Set.of("hip hop"))).containsExactly("hip-hop");
-        assertThat(genreMatcherService.match(Set.of("drum & bass", "electronic"))).containsExactlyInAnyOrder("drum and bass", "electronic");
-    }
+		assertThat(genreMatcherService.match(Set.of("hip hop"))).containsExactly("hip-hop");
+		assertThat(genreMatcherService.match(Set.of("drum & bass", "electronic"))).containsExactlyInAnyOrder(
+			"drum and bass",
+			"electronic");
+	}
 
-    @Test
-    @DisplayName("Not matching items are skipped.")
-    void matchSkipsNotMatching() {
-        Set<String> genres = Set.of("edm", "hardcore");
-        when(genreRepository.findGenreNames()).thenReturn(genres);
+	@Test
+	@DisplayName("Not matching items are skipped.")
+	void matchSkipsNotMatching() {
+		Set<String> genres = Set.of("edm", "hardcore");
+		when(genreRepository.findGenreNames()).thenReturn(genres);
 
-        assertThat(genreMatcherService.match(Set.of("ebm"))).isEmpty();
-        assertThat(genreMatcherService.match(Set.of("bardcore"))).isEmpty();
-    }
+		assertThat(genreMatcherService.match(Set.of("ebm"))).isEmpty();
+		assertThat(genreMatcherService.match(Set.of("bardcore"))).isEmpty();
+	}
 }
