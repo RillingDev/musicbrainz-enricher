@@ -100,6 +100,14 @@ public class ApplicationConfigurationProperties {
 		this.musicbrainz = musicbrainz;
 	}
 
+	public DiscogsCredentials getDiscogs() {
+		return discogs;
+	}
+
+	public void setDiscogs(DiscogsCredentials discogs) {
+		this.discogs = discogs;
+	}
+
 	public SpotifyCredentials getSpotify() {
 		return spotify;
 	}
