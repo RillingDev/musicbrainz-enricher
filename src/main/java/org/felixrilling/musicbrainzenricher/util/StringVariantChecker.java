@@ -1,12 +1,11 @@
 package org.felixrilling.musicbrainzenricher.util;
 
-import org.apache.commons.collections4.CollectionUtils;
+import com.google.common.collect.Sets;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.Locale;
+import java.text.Collator;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
 /**
  * Tool allowing checking if two strings are variants of the same word.
@@ -21,20 +20,41 @@ import java.util.stream.Collectors;
 public class StringVariantChecker {
 
 	private final Set<String> delimiters;
+	private final Collator collator;
 
-	public StringVariantChecker(@NotNull Set<String> delimiters) {
+	/**
+	 * Constructor.
+	 *
+	 * @param delimiters Delimiters to use when checking for variants.
+	 * @param collator   Collator to use for comparing variants.
+	 */
+	public StringVariantChecker(@NotNull Set<String> delimiters, @NotNull Collator collator) {
 		this.delimiters = Set.copyOf(delimiters);
+		this.collator = collator;
 	}
 
+	/**
+	 * Checks if a and b are variants of each other.
+	 *
+	 * @param a Value a.
+	 * @param b Value b.
+	 * @return if a and b are variants of each other.
+	 */
 	public boolean isVariant(@NotNull String a, @NotNull String b) {
-		Collection<String> intersection = CollectionUtils.intersection(createVariants(a), createVariants(b));
-		return !intersection.isEmpty();
+		if (collator.equals(a, b)) {
+			return true;
+		}
+
+		return !Sets.intersection(createVariants(a), createVariants(b)).isEmpty();
 	}
 
 	private Set<String> createVariants(@NotNull String string) {
-		// FIXME: Does not support mixed variants (e.g. 'hip-hop and foo')
-		return delimiters.stream()
-			.map(delimiter -> string.toLowerCase(Locale.ROOT).replaceAll(delimiter, ""))
-			.collect(Collectors.toSet());
+		Set<String> variants = new TreeSet<>(collator);
+		variants.add(string);
+		for (String delimiter : delimiters) {
+			// FIXME: Does not support mixed variants (e.g. 'hip-hop and foo')
+			variants.add(string.replaceAll(delimiter, ""));
+		}
+		return variants;
 	}
 }

@@ -7,20 +7,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.text.Collator;
+import java.util.*;
 
 @Service
 public class GenreMatcherService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenreMatcherService.class);
 
-	private static final StringVariantChecker STRING_VARIANT_CHECKER = new StringVariantChecker(Set.of("-",
-		" ",
-		" and ",
-		" & "));
+	private static final Collator COLLATOR;
+	private static final StringVariantChecker STRING_VARIANT_CHECKER;
+
+	static {
+		COLLATOR = Collator.getInstance(Locale.ROOT);
+		COLLATOR.setStrength(Collator.PRIMARY);
+		STRING_VARIANT_CHECKER = new StringVariantChecker(Set.of("-", " ", " and ", " & "), COLLATOR);
+	}
 
 	private final GenreRepository genreRepository;
 
