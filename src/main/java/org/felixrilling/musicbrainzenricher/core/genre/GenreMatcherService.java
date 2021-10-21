@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.Collator;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class GenreMatcherService {
@@ -26,6 +27,10 @@ public class GenreMatcherService {
 
 	private final GenreRepository genreRepository;
 
+	// Primitive cache for unmatched genre -> match mapping.
+	// Currently no invalidation available as known genres should not change during runtime.
+	private final Map<String, Optional<String>> matchedGenres = new ConcurrentHashMap<>(500);
+
 	GenreMatcherService(GenreRepository genreRepository) {
 		this.genreRepository = genreRepository;
 	}
@@ -38,13 +43,11 @@ public class GenreMatcherService {
 	 * @return Matching canonical genre names.
 	 */
 	public @NotNull Set<String> match(@NotNull Set<String> unmatchedGenres) {
-		Set<String> knownGenres = genreRepository.findGenreNames();
-
 		Set<String> matches = new HashSet<>(unmatchedGenres.size());
 		for (String unmatchedGenre : unmatchedGenres) {
-			matchSingle(knownGenres, unmatchedGenre).ifPresent(matches::add);
+			matchedGenres.computeIfAbsent(unmatchedGenre, this::matchSingle).ifPresent(matches::add);
 		}
-		LOGGER.trace("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
+		LOGGER.debug("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
 
 		return Collections.unmodifiableSet(matches);
 	}
@@ -52,13 +55,16 @@ public class GenreMatcherService {
 	/**
 	 * Finds the fitting known genre name for any given genre name.
 	 *
-	 * @param knownGenres    Known genre names.
 	 * @param unmatchedGenre Unmatched genre to look up canonical genre name for.
 	 * @return Matching canonical genre name. Empty if no match exists (unknown genre).
 	 */
-	private Optional<String> matchSingle(@NotNull Set<String> knownGenres, @NotNull String unmatchedGenre) {
-		return knownGenres.stream()
+	private Optional<String> matchSingle(@NotNull String unmatchedGenre) {
+		Optional<String> match = genreRepository.findGenreNames()
+			.stream()
 			.filter(knownGenre -> STRING_VARIANT_CHECKER.isVariant(knownGenre, unmatchedGenre))
 			.findFirst();
+		LOGGER.trace("Matched genre '{}' to '{}'.", unmatchedGenre, match);
+		return match;
 	}
+
 }
