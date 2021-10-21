@@ -44,14 +44,11 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
 
 	private DataType parseDataType(String modeString) {
-		switch (modeString) {
-			case "release":
-				return DataType.RELEASE;
-			case "release-group":
-				return DataType.RELEASE_GROUP;
-			default:
-				throw new IllegalArgumentException("Could not process mode '" + modeString + "'.");
-		}
+		return switch (modeString) {
+			case "release" -> DataType.RELEASE;
+			case "release-group" -> DataType.RELEASE_GROUP;
+			default -> throw new IllegalArgumentException("Could not process mode '" + modeString + "'.");
+		};
 	}
 
 }

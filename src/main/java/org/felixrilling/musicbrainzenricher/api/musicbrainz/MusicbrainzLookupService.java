@@ -12,6 +12,7 @@ import org.musicbrainz.model.entity.ReleaseWs2;
 import org.musicbrainz.webservice.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.io.Serial;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -66,6 +67,9 @@ public class MusicbrainzLookupService {
 	}
 
 	private static class QueryException extends RuntimeException {
+		@Serial
+		private static final long serialVersionUID = 5573588744334378954L;
+
 		QueryException(String message, Throwable cause) {
 			super(message, cause);
 		}

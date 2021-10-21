@@ -31,16 +31,14 @@ public class MusicbrainzEnricherService {
 
 	public void runInAutoQueryMode(@NotNull DataType dataType) {
 		switch (dataType) {
-			case RELEASE:
-				musicbrainzAutoQueryService.autoQueryReleasesWithRelationships(mbid -> executeEnrichment(dataType,
-					mbid,
-					findFittingEnrichmentService(dataType)));
-				break;
-			case RELEASE_GROUP:
-				musicbrainzAutoQueryService.autoQueryReleaseGroupsWithRelationships(mbid -> executeEnrichment(dataType,
-					mbid,
-					findFittingEnrichmentService(dataType)));
-				break;
+			case RELEASE -> musicbrainzAutoQueryService.autoQueryReleasesWithRelationships(mbid -> executeEnrichment(
+				dataType,
+				mbid,
+				findFittingEnrichmentService(dataType)));
+			case RELEASE_GROUP -> musicbrainzAutoQueryService.autoQueryReleaseGroupsWithRelationships(mbid -> executeEnrichment(
+				dataType,
+				mbid,
+				findFittingEnrichmentService(dataType)));
 		}
 	}
 
@@ -58,7 +56,7 @@ public class MusicbrainzEnricherService {
 		LOGGER.info("Starting enrichment for '{}' ({}).", mbid, dataType);
 		try {
 			enrichmentService.enrich(mbid);
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			LOGGER.error("Could not enrich {}' ({}).", mbid, dataType, e);
 			return;
 		}

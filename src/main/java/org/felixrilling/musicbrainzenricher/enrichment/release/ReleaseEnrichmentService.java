@@ -3,7 +3,7 @@ package org.felixrilling.musicbrainzenricher.enrichment.release;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
-import org.felixrilling.musicbrainzenricher.enrichment.CoreEnrichmentService;
+import org.felixrilling.musicbrainzenricher.enrichment.EnricherService;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
 import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
@@ -27,20 +27,22 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseEnrichmentService.class);
 
-	private final CoreEnrichmentService coreEnrichmentService;
+	private final EnricherService enricherService;
 	private final MusicbrainzLookupService musicbrainzLookupService;
 	private final MusicbrainzEditService musicbrainzEditService;
 
-	ReleaseEnrichmentService(CoreEnrichmentService coreEnrichmentService,
+	ReleaseEnrichmentService(EnricherService enricherService,
 							 MusicbrainzLookupService musicbrainzLookupService,
 							 MusicbrainzEditService musicbrainzEditService) {
-		this.coreEnrichmentService = coreEnrichmentService;
+		this.enricherService = enricherService;
 		this.musicbrainzLookupService = musicbrainzLookupService;
 		this.musicbrainzEditService = musicbrainzEditService;
 	}
 
 	@Override
 	public void enrich(@NotNull UUID mbid) {
+		Set<Enricher> enrichers = enricherService.findFittingEnrichers(this);
+
 		ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
 		includes.setUrlRelations(true);
 		includes.setTags(true);
@@ -58,7 +60,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 		ReleaseEnrichmentResult result = new ReleaseEnrichmentResult();
 		for (RelationWs2 relation : release.getRelationList().getRelations()) {
 			boolean atLeastOneEnricherCompleted = false;
-			for (Enricher enricher : coreEnrichmentService.findFittingEnrichers(this)) {
+			for (Enricher enricher : enrichers) {
 				if (enricher.isRelationSupported(relation)) {
 					atLeastOneEnricherCompleted = true;
 					executeEnrichment(release, relation, enricher, result);

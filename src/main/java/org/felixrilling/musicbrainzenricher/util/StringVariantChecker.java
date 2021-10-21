@@ -48,7 +48,7 @@ public class StringVariantChecker {
 		return !Sets.intersection(createVariants(a), createVariants(b)).isEmpty();
 	}
 
-	private Set<String> createVariants(@NotNull String string) {
+	private @NotNull Set<String> createVariants(@NotNull String string) {
 		Set<String> variants = new TreeSet<>(collator);
 		variants.add(string);
 		for (String delimiter : delimiters) {
