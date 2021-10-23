@@ -53,12 +53,12 @@ class StringVariantCheckerTest {
 		// https://musicbrainz.org/genres
 		assertThat(new StringVariantChecker(Set.of("-", " "), spanishCollator).isVariant("yé-yé", "ye ye")).isTrue();
 
-		Collator caseInsensitiveCollator = Collator.getInstance(Locale.ENGLISH);
+		Collator caseInsensitiveCollator = Collator.getInstance(Locale.ROOT);
 		caseInsensitiveCollator.setStrength(Collator.SECONDARY);
 		assertThat(new StringVariantChecker(Set.of("-", " "), caseInsensitiveCollator).isVariant("Hip Hop",
 			"hip hop")).isTrue();
 
-		Collator caseSensitiveCollator = Collator.getInstance(Locale.ENGLISH);
+		Collator caseSensitiveCollator = Collator.getInstance(Locale.ROOT);
 		caseSensitiveCollator.setStrength(Collator.TERTIARY);
 		assertThat(new StringVariantChecker(Set.of("-", " "), caseSensitiveCollator).isVariant("Hip Hop",
 			"hip hop")).isFalse();

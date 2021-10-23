@@ -3,10 +3,11 @@ package org.felixrilling.musicbrainzenricher.enrichment.release;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
-import org.felixrilling.musicbrainzenricher.enrichment.EnricherService;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
+import org.felixrilling.musicbrainzenricher.enrichment.EnricherService;
 import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
+import org.felixrilling.musicbrainzenricher.util.MergeUtils;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
@@ -17,15 +18,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ReleaseEnrichmentService implements EnrichmentService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseEnrichmentService.class);
+
+	private static final double GENRE_BEST_PERCENTILE = 70.0;
 
 	private final EnricherService enricherService;
 	private final MusicbrainzLookupService musicbrainzLookupService;
@@ -57,54 +58,52 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 
 		ReleaseWs2 release = releaseOptional.get();
 		LOGGER.trace("Loaded release data: '{}'.", release);
-		ReleaseEnrichmentResult result = new ReleaseEnrichmentResult();
+		Set<ReleaseEnrichmentResult> results = new HashSet<>(enrichers.size());
 		for (RelationWs2 relation : release.getRelationList().getRelations()) {
-			boolean atLeastOneEnricherCompleted = false;
 			for (Enricher enricher : enrichers) {
 				if (enricher.isRelationSupported(relation)) {
-					atLeastOneEnricherCompleted = true;
-					executeEnrichment(release, relation, enricher, result);
+					results.add(executeEnrichment(release, relation, enricher));
 				}
 			}
-			if (!atLeastOneEnricherCompleted) {
+			if (results.isEmpty()) {
 				LOGGER.debug("Could not find any enricher for '{}'.", relation.getTargetId());
 			}
 		}
-		updateEntity(release, result);
+
+		updateEntity(release, mergeResults(results));
 	}
 
-	private void executeEnrichment(@NotNull ReleaseWs2 release,
-								   @NotNull RelationWs2 relation,
-								   @NotNull Enricher enricher,
-								   @NotNull ReleaseEnrichmentResult result) {
-		if (enricher instanceof GenreEnricher) {
-			executeGenreEnrichment(release, relation, (GenreEnricher) enricher, result);
+	private @NotNull ReleaseEnrichmentResult executeEnrichment(@NotNull ReleaseWs2 release,
+															   @NotNull RelationWs2 relation,
+															   @NotNull Enricher enricher) {
+		Set<String> newGenres = new HashSet<>(5);
+		if (enricher instanceof GenreEnricher genreEnricher) {
+			Set<String> genres = genreEnricher.fetchGenres(relation);
+			LOGGER.debug("Enricher '{}' found genres '{}' for release '{}'.",
+				genreEnricher.getClass().getSimpleName(),
+				genres,
+				release.getId());
+
+			newGenres.addAll(genres);
 		}
+
+		return new ReleaseEnrichmentResult(newGenres);
 	}
 
-	private void executeGenreEnrichment(@NotNull ReleaseWs2 release,
-										@NotNull RelationWs2 relation,
-										@NotNull GenreEnricher releaseEnricher,
-										@NotNull ReleaseEnrichmentResult result) {
-		ReleaseGroupWs2 releaseGroup = release.getReleaseGroup();
+	private @NotNull ReleaseEnrichmentResult mergeResults(@NotNull Collection<ReleaseEnrichmentResult> results) {
+		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
+			.map(ReleaseEnrichmentResult::genres)
+			.collect(Collectors.toSet()), GENRE_BEST_PERCENTILE);
 
-		Set<String> foundTags = releaseEnricher.fetchGenres(relation);
-		LOGGER.debug("Enricher '{}' found genres '{}' for release group '{}'.",
-			releaseEnricher.getClass().getSimpleName(),
-			foundTags,
-			releaseGroup.getId());
-		result.getNewGenres().addAll(foundTags);
+		return new ReleaseEnrichmentResult(newGenres);
 	}
 
 	private void updateEntity(@NotNull ReleaseWs2 release, @NotNull ReleaseEnrichmentResult result) {
-		if (!result.getNewGenres().isEmpty()) {
+		if (!result.genres().isEmpty()) {
 			ReleaseGroupWs2 releaseGroup = release.getReleaseGroup();
-			LOGGER.info("Submitting new tags '{}' for release group '{}'.",
-				result.getNewGenres(),
-				releaseGroup.getId());
+			LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.genres(), releaseGroup.getId());
 			try {
-				musicbrainzEditService.addReleaseGroupUserTags(UUID.fromString(releaseGroup.getId()),
-					result.getNewGenres());
+				musicbrainzEditService.addReleaseGroupUserTags(UUID.fromString(releaseGroup.getId()), result.genres());
 			} catch (MBWS2Exception e) {
 				LOGGER.error("Could not submit tags.", e);
 			}
@@ -116,12 +115,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 		return DataType.RELEASE;
 	}
 
-	private static class ReleaseEnrichmentResult {
-		private final Set<String> newGenres = new HashSet<>(10);
-
-		@NotNull Set<String> getNewGenres() {
-			return newGenres;
-		}
+	private static record ReleaseEnrichmentResult(Set<String> genres) {
 	}
 
 }
