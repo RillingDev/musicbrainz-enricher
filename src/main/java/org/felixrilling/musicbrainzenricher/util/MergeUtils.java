@@ -6,11 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MergeUtils {
+public final class MergeUtils {
 	private MergeUtils() {
 	}
-
-	// Oh boy this method is messy.
 
 	/**
 	 * Gets the most common items in the sets.
@@ -22,6 +20,7 @@ public class MergeUtils {
 	 * @param <T>  Set item value.
 	 * @return Set containing items of the original sets with a high count.
 	 */
+	// Oh boy this method is messy. Doesn't help that I don't know much about statistics.
 	@NotNull
 	public static <T> Set<T> getMostCommon(@NotNull Collection<Set<T>> sets, double p) {
 		if (sets.isEmpty()) {
@@ -37,8 +36,7 @@ public class MergeUtils {
 
 		DescriptiveStatistics summaryStatistics = new DescriptiveStatistics();
 		counted.values().forEach(summaryStatistics::addValue);
-		double statisticsPercentile = summaryStatistics.getPercentile(p);
-		double lowestAllowedCount = Math.round(statisticsPercentile);
+		double lowestAllowedCount = summaryStatistics.getPercentile(p);
 
 		return counted.entrySet()
 			.stream()
