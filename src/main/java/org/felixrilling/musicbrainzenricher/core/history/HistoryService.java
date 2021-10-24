@@ -4,6 +4,7 @@ import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -17,6 +18,9 @@ public class HistoryService {
 
 	private static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
 	private static final ZoneOffset ZONE = ZoneOffset.UTC;
+
+	@Value("${musicbrainz-enricher.dry-run}")
+	private boolean dryRun;
 
 	private final HistoryEntryRepository historyEntryRepository;
 
@@ -34,6 +38,10 @@ public class HistoryService {
 	}
 
 	public void markAsChecked(@NotNull DataType dataType, @NotNull UUID mbid) {
+		if (dryRun) {
+			return;
+		}
+
 		HistoryEntry historyEntry = historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid).orElseGet(() -> {
 			HistoryEntry entry = new HistoryEntry();
 			entry.setDataType(dataType);
