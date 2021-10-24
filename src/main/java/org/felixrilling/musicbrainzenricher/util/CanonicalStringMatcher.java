@@ -1,17 +1,17 @@
 package org.felixrilling.musicbrainzenricher.util;
 
+import org.apache.commons.collections4.map.LRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Allows matching a string to its canonical form.
  * A given value will be checked against the provided canonical values using a {@link StringVariantChecker}.
- * Usage is thread-safe.
+ * Not thread safe.
  *
  * @see StringVariantChecker
  */
@@ -33,7 +33,8 @@ public class CanonicalStringMatcher {
 		this.stringVariantChecker = stringVariantChecker;
 		this.canonicalValues = Set.copyOf(canonicalValues);
 
-		cache = new ConcurrentHashMap<>(canonicalValues.size() * 5);
+		// TODO make this configurable to allow usage of thread-safe maps.
+		cache = new LRUMap<>(canonicalValues.size() * 5);
 	}
 
 	/**
