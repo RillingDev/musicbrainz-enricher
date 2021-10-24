@@ -38,6 +38,10 @@ public class ApplicationConfigurationProperties {
 	@NotBlank
 	private String contact;
 
+	/**
+	 * If changes should just be logged and not applied.
+	 */
+	private boolean dryRun;
 
 	/**
 	 * Musicbrainz credentials.
@@ -90,6 +94,14 @@ public class ApplicationConfigurationProperties {
 
 	public void setContact(String contact) {
 		this.contact = contact;
+	}
+
+	public boolean isDryRun() {
+		return dryRun;
+	}
+
+	public void setDryRun(boolean dryRun) {
+		this.dryRun = dryRun;
 	}
 
 	public MusicbrainzCredentials getMusicbrainz() {

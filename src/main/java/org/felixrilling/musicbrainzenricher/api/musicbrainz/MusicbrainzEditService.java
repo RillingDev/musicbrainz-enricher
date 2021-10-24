@@ -6,6 +6,7 @@ import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.ReleaseGroup;
 import org.musicbrainz.includes.IncludesWs2;
 import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -13,6 +14,9 @@ import java.util.UUID;
 
 @Service
 public class MusicbrainzEditService {
+
+	@Value("${musicbrainz-enricher.dry-run}")
+	private boolean dryRun;
 
 	private final MusicbrainzApiService musicbrainzApiService;
 	private final MusicbrainzBucketProvider musicbrainzBucketProvider;
@@ -27,6 +31,10 @@ public class MusicbrainzEditService {
 	}
 
 	public void addReleaseGroupUserTags(@NotNull UUID mbid, @NotNull Set<String> tags) throws MBWS2Exception {
+		if (dryRun) {
+			return;
+		}
+
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
 		ReleaseGroup releaseGroup = new ReleaseGroup();
