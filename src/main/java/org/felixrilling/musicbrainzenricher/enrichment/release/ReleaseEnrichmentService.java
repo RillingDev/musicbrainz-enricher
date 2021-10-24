@@ -3,9 +3,8 @@ package org.felixrilling.musicbrainzenricher.enrichment.release;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
+import org.felixrilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
-import org.felixrilling.musicbrainzenricher.enrichment.EnricherService;
-import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.util.MergeUtils;
 import org.jetbrains.annotations.NotNull;
@@ -16,66 +15,54 @@ import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.musicbrainz.model.entity.ReleaseWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class ReleaseEnrichmentService implements EnrichmentService {
+public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseWs2, ReleaseEnrichmentService.ReleaseEnrichmentResult> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseEnrichmentService.class);
 
 	private static final double GENRE_BEST_PERCENTILE = 70.0;
 
-	private final EnricherService enricherService;
 	private final MusicbrainzLookupService musicbrainzLookupService;
 	private final MusicbrainzEditService musicbrainzEditService;
 
-	ReleaseEnrichmentService(EnricherService enricherService,
+	ReleaseEnrichmentService(ApplicationContext applicationContext,
 							 MusicbrainzLookupService musicbrainzLookupService,
 							 MusicbrainzEditService musicbrainzEditService) {
-		this.enricherService = enricherService;
+		super(applicationContext);
 		this.musicbrainzLookupService = musicbrainzLookupService;
 		this.musicbrainzEditService = musicbrainzEditService;
 	}
 
 	@Override
-	public void enrich(@NotNull UUID mbid) {
-		Set<Enricher> enrichers = enricherService.findFittingEnrichers(this);
+	public @NotNull DataType getDataType() {
+		return DataType.RELEASE;
+	}
 
+	@Override
+	protected @NotNull Optional<ReleaseWs2> fetchEntity(@NotNull UUID mbid) {
 		ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
 		includes.setUrlRelations(true);
 		includes.setTags(true);
 		includes.setUserTags(true);
 		includes.setReleaseGroups(true);
-		Optional<ReleaseWs2> releaseOptional = musicbrainzLookupService.lookUpRelease(mbid, includes);
-
-		if (releaseOptional.isEmpty()) {
-			LOGGER.warn("Could not find release '{}'.", mbid);
-			return;
-		}
-
-		ReleaseWs2 release = releaseOptional.get();
-		LOGGER.trace("Loaded release data: '{}'.", release);
-		Set<ReleaseEnrichmentResult> results = new HashSet<>(enrichers.size());
-		for (RelationWs2 relation : release.getRelationList().getRelations()) {
-			for (Enricher enricher : enrichers) {
-				if (enricher.isRelationSupported(relation)) {
-					results.add(executeEnrichment(release, relation, enricher));
-				}
-			}
-			if (results.isEmpty()) {
-				LOGGER.debug("Could not find any enricher for '{}'.", relation.getTargetId());
-			}
-		}
-
-		updateEntity(release, mergeResults(results));
+		return musicbrainzLookupService.lookUpRelease(mbid, includes);
 	}
 
-	private @NotNull ReleaseEnrichmentResult executeEnrichment(@NotNull ReleaseWs2 release,
-															   @NotNull RelationWs2 relation,
-															   @NotNull Enricher enricher) {
+	@Override
+	protected @NotNull Collection<RelationWs2> extractRelations(@NotNull ReleaseWs2 releaseWs2) {
+		return releaseWs2.getRelationList().getRelations();
+	}
+
+	@Override
+	protected @NotNull ReleaseEnrichmentResult enrich(@NotNull ReleaseWs2 release,
+													  @NotNull RelationWs2 relation,
+													  @NotNull Enricher enricher) {
 		Set<String> newGenres = new HashSet<>(5);
 		if (enricher instanceof GenreEnricher genreEnricher) {
 			Set<String> genres = genreEnricher.fetchGenres(relation);
@@ -90,7 +77,8 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 		return new ReleaseEnrichmentResult(newGenres);
 	}
 
-	private @NotNull ReleaseEnrichmentResult mergeResults(@NotNull Collection<ReleaseEnrichmentResult> results) {
+	@Override
+	protected @NotNull ReleaseEnrichmentResult mergeResults(@NotNull Collection<ReleaseEnrichmentResult> results) {
 		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
 			.map(ReleaseEnrichmentResult::genres)
 			.collect(Collectors.toSet()), GENRE_BEST_PERCENTILE);
@@ -98,7 +86,8 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 		return new ReleaseEnrichmentResult(newGenres);
 	}
 
-	private void updateEntity(@NotNull ReleaseWs2 release, @NotNull ReleaseEnrichmentResult result) {
+	@Override
+	protected void updateEntity(@NotNull ReleaseWs2 release, @NotNull ReleaseEnrichmentResult result) {
 		if (!result.genres().isEmpty()) {
 			ReleaseGroupWs2 releaseGroup = release.getReleaseGroup();
 			LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.genres(), releaseGroup.getId());
@@ -110,12 +99,7 @@ public class ReleaseEnrichmentService implements EnrichmentService {
 		}
 	}
 
-	@Override
-	public @NotNull DataType getDataType() {
-		return DataType.RELEASE;
-	}
-
-	private static record ReleaseEnrichmentResult(Set<String> genres) {
+	protected static record ReleaseEnrichmentResult(@NotNull Set<String> genres) {
 	}
 
 }

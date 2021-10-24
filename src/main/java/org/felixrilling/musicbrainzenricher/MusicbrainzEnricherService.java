@@ -3,7 +3,7 @@ package org.felixrilling.musicbrainzenricher;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzAutoQueryService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.core.history.HistoryService;
-import org.felixrilling.musicbrainzenricher.enrichment.EnrichmentService;
+import org.felixrilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,14 +48,14 @@ public class MusicbrainzEnricherService {
 
 	private void executeEnrichment(@NotNull DataType dataType,
 								   @NotNull UUID mbid,
-								   @NotNull EnrichmentService enrichmentService) {
+								   AbstractEnrichmentService<?, ?> enrichmentService) {
 		if (!historyService.checkIsDue(dataType, mbid)) {
 			LOGGER.debug("Check is not due for '{}' ({}), skipping.", mbid, dataType);
 			return;
 		}
 		LOGGER.info("Starting enrichment for '{}' ({}).", mbid, dataType);
 		try {
-			enrichmentService.enrich(mbid);
+			enrichmentService.executeEnrichment(mbid);
 		} catch (RuntimeException e) {
 			LOGGER.error("Could not enrich {}' ({}).", mbid, dataType, e);
 			return;
@@ -64,8 +64,8 @@ public class MusicbrainzEnricherService {
 		historyService.markAsChecked(dataType, mbid);
 	}
 
-	private @NotNull EnrichmentService findFittingEnrichmentService(@NotNull DataType dataType) {
-		return applicationContext.getBeansOfType(EnrichmentService.class)
+	private AbstractEnrichmentService<?, ?> findFittingEnrichmentService(@NotNull DataType dataType) {
+		return applicationContext.getBeansOfType(AbstractEnrichmentService.class)
 			.values()
 			.stream()
 			.filter(enrichmentService -> enrichmentService.getDataType() == dataType)
