@@ -12,7 +12,7 @@ class MergeUtilsTest {
 	@Test
 	@DisplayName("Returns empty set for no sets provided.")
 	void getMostCommonEmptyForEmptyCollection() {
-		Set<String> actual = MergeUtils.getMostCommon(Set.of(), 50);
+		Set<String> actual = MergeUtils.getMostCommon(Set.of(), 0.5);
 
 		assertThat(actual).isEmpty();
 	}
@@ -22,7 +22,7 @@ class MergeUtilsTest {
 	void getMostCommonEmptyForNoItems() {
 		Set<String> set1 = Set.of();
 
-		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1), 50);
+		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1), 0.5);
 
 		assertThat(actual).isEmpty();
 	}
@@ -32,7 +32,7 @@ class MergeUtilsTest {
 	void getMostCommonReturnsItemsAsIsForSingleSet() {
 		Set<String> set1 = Set.of("foo", "bar");
 
-		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1), 2);
+		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1), 0.02);
 
 		assertThat(actual).containsExactlyInAnyOrder("foo", "bar");
 	}
@@ -43,7 +43,7 @@ class MergeUtilsTest {
 		Set<String> set1 = Set.of("foo", "bar");
 		Set<String> set2 = Set.of("foo");
 
-		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1, set2), 90);
+		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1, set2), 0.9);
 
 		assertThat(actual).containsExactlyInAnyOrder("foo");
 	}
@@ -54,7 +54,7 @@ class MergeUtilsTest {
 		Set<String> set1 = Set.of("foo", "bar");
 		Set<String> set2 = Set.of("fizz");
 
-		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1, set2), 50);
+		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1, set2), 0.5);
 
 		assertThat(actual).containsExactlyInAnyOrder("foo", "bar", "fizz");
 	}
@@ -66,7 +66,7 @@ class MergeUtilsTest {
 		Set<String> set2 = Set.of("foo", "bar", "fizz");
 		Set<String> set3 = Set.of("foo");
 
-		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1, set2, set3), 50);
+		Set<String> actual = MergeUtils.getMostCommon(Set.of(set1, set2, set3), 0.5);
 
 		assertThat(actual).containsExactlyInAnyOrder("foo", "bar");
 	}

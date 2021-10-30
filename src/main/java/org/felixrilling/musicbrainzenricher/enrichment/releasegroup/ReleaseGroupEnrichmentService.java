@@ -25,7 +25,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseGroupEnrichmentService.class);
 
-	private static final double GENRE_BEST_PERCENTILE = 70.0;
+	private static final double MIN_GENRE_USAGE = 0.90;
 
 	private final MusicbrainzLookupService musicbrainzLookupService;
 	private final MusicbrainzEditService musicbrainzEditService;
@@ -79,7 +79,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	protected @NotNull ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult mergeResults(@NotNull Collection<ReleaseGroupEnrichmentResult> results) {
 		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
 			.map(ReleaseGroupEnrichmentResult::genres)
-			.collect(Collectors.toSet()), GENRE_BEST_PERCENTILE);
+			.collect(Collectors.toSet()), MIN_GENRE_USAGE);
 
 		return new ReleaseGroupEnrichmentResult(newGenres);
 	}

@@ -1,6 +1,5 @@
 package org.felixrilling.musicbrainzenricher.util;
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -13,36 +12,47 @@ public final class MergeUtils {
 	/**
 	 * Gets the most common items in the sets.
 	 * The more of the sets an item exists in, the higher its count will be.
-	 * The higher `p`, the higher an items count has to be to be included in the result.
+	 * The higher `minUsagePercentage`, the higher an items count has to be to be included in the result.
 	 *
-	 * @param sets Collection of sets to analyze the contents of.
-	 * @param p    Percentile to calculate the required count by. {@link DescriptiveStatistics#getPercentile(double)}
-	 * @param <T>  Set item value.
+	 * @param sets               Collection of sets to analyze the contents of.
+	 * @param minUsagePercentage Percentage from 0 to 1.
+	 *                           If e.g. 0.9 is used, all values with a count of at least 90%
+	 *                           of the item of the highest count are included.
+	 * @param <T>                Set item value.
 	 * @return Set containing items of the original sets with a high count.
 	 */
-	// Oh boy this method is messy. Doesn't help that I don't know much about statistics.
 	@NotNull
-	public static <T> Set<T> getMostCommon(@NotNull Collection<Set<T>> sets, double p) {
+	public static <T> Set<T> getMostCommon(@NotNull Collection<Set<T>> sets, double minUsagePercentage) {
+		if (minUsagePercentage < 0 || minUsagePercentage > 1) {
+			throw new IllegalArgumentException("minUsagePercentage must be from 0 to 1.");
+		}
+
 		if (sets.isEmpty()) {
 			return Set.of();
 		}
+		if (sets.size() == 1) {
+			return Set.copyOf(sets.iterator().next());
+		}
 
 		List<T> all = mergeIntoList(sets);
+		return getMostCommon(all, minUsagePercentage);
+	}
+
+	@NotNull
+	private static <T> Set<T> getMostCommon(List<T> all, double minUsagePercentage) {
 		if (all.isEmpty()) {
 			return Set.of();
 		}
 
+		// Roughly based on Musicbrainz Picard's picard.track.Track._convert_folksonomy_tags_to_genre
 		Map<T, Integer> counted = count(all);
+		// Max count must be present as we know the map is not empty.
+		int maxCount = counted.values().stream().max(Integer::compareTo).orElseThrow();
 
-		DescriptiveStatistics summaryStatistics = new DescriptiveStatistics();
-		counted.values().forEach(summaryStatistics::addValue);
-		double lowestAllowedCount = summaryStatistics.getPercentile(p);
-
-		return counted.entrySet()
-			.stream()
-			.filter(entry -> entry.getValue() >= lowestAllowedCount)
-			.map(Map.Entry::getKey)
-			.collect(Collectors.toUnmodifiableSet());
+		return counted.entrySet().stream().filter(entry -> {
+			double usagePercentage = ((double) entry.getValue()) / maxCount;
+			return usagePercentage >= minUsagePercentage;
+		}).map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
 	}
 
 	@NotNull
