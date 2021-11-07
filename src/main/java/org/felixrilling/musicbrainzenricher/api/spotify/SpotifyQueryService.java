@@ -1,10 +1,5 @@
 package org.felixrilling.musicbrainzenricher.api.spotify;
 
-import com.wrapper.spotify.SpotifyApi;
-import com.wrapper.spotify.exceptions.SpotifyWebApiException;
-import com.wrapper.spotify.model_objects.credentials.ClientCredentials;
-import com.wrapper.spotify.model_objects.specification.Album;
-import com.wrapper.spotify.requests.data.albums.GetAlbumRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ParseException;
 import org.felixrilling.musicbrainzenricher.api.BucketService;
@@ -14,6 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import se.michaelthelin.spotify.SpotifyApi;
+import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
+import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
+import se.michaelthelin.spotify.model_objects.specification.Album;
+import se.michaelthelin.spotify.requests.data.albums.GetAlbumRequest;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
