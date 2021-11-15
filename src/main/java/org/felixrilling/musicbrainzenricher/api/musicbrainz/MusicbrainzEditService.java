@@ -41,9 +41,9 @@ public class MusicbrainzEditService {
 		releaseGroup.setQueryWs(musicbrainzApiService.createWebService());
 
 		IncludesWs2 includesWs2 = new ReleaseGroupIncludesWs2();
-		includesWs2.setUserTags(true);
+		// Note that we do not include user tags.
+		// Doing so would make us re-submit user tags that were created previously.
 		releaseGroup.setIncludes(includesWs2);
-
 		releaseGroup.lookUp(mbid.toString());
 
 		releaseGroup.AddTags(tags.toArray(new String[0]));
