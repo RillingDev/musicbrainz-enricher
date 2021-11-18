@@ -10,6 +10,8 @@ import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.musicbrainz.model.entity.ReleaseWs2;
 import org.musicbrainz.webservice.ResourceNotFoundException;
+import org.musicbrainz.webservice.WebService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.Serial;
@@ -19,14 +21,14 @@ import java.util.UUID;
 @Service
 public class MusicbrainzLookupService {
 
-	private final MusicbrainzApiService musicbrainzApiService;
+	private final WebService webService;
 	private final MusicbrainzBucketProvider musicbrainzBucketProvider;
 	private final BucketService bucketService;
 
-	MusicbrainzLookupService(MusicbrainzApiService musicbrainzApiService,
+	MusicbrainzLookupService(@Qualifier("musicbrainzWebService") WebService webService,
 							 MusicbrainzBucketProvider musicbrainzBucketProvider,
 							 BucketService bucketService) {
-		this.musicbrainzApiService = musicbrainzApiService;
+		this.webService = webService;
 		this.musicbrainzBucketProvider = musicbrainzBucketProvider;
 		this.bucketService = bucketService;
 	}
@@ -35,7 +37,7 @@ public class MusicbrainzLookupService {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
 		Release release = new Release();
-		release.setQueryWs(musicbrainzApiService.createWebService());
+		release.setQueryWs(webService);
 
 		release.setIncludes(includes);
 
@@ -53,7 +55,7 @@ public class MusicbrainzLookupService {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
 		ReleaseGroup releaseGroup = new ReleaseGroup();
-		releaseGroup.setQueryWs(musicbrainzApiService.createWebService());
+		releaseGroup.setQueryWs(webService);
 
 		releaseGroup.setIncludes(includes);
 

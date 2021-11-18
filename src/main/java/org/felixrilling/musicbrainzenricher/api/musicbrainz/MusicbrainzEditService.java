@@ -6,6 +6,8 @@ import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.ReleaseGroup;
 import org.musicbrainz.includes.IncludesWs2;
 import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
+import org.musicbrainz.webservice.WebService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +20,14 @@ public class MusicbrainzEditService {
 	@Value("${musicbrainz-enricher.dry-run}")
 	private boolean dryRun;
 
-	private final MusicbrainzApiService musicbrainzApiService;
+	private final WebService webService;
 	private final MusicbrainzBucketProvider musicbrainzBucketProvider;
 	private final BucketService bucketService;
 
-	MusicbrainzEditService(MusicbrainzApiService musicbrainzApiService,
+	MusicbrainzEditService(@Qualifier("musicbrainzWebService") WebService webService,
 						   MusicbrainzBucketProvider musicbrainzBucketProvider,
 						   BucketService bucketService) {
-		this.musicbrainzApiService = musicbrainzApiService;
+		this.webService = webService;
 		this.musicbrainzBucketProvider = musicbrainzBucketProvider;
 		this.bucketService = bucketService;
 	}
@@ -38,7 +40,7 @@ public class MusicbrainzEditService {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
 		ReleaseGroup releaseGroup = new ReleaseGroup();
-		releaseGroup.setQueryWs(musicbrainzApiService.createWebService());
+		releaseGroup.setQueryWs(webService);
 
 		IncludesWs2 includesWs2 = new ReleaseGroupIncludesWs2();
 		// Note that we do not include user tags.

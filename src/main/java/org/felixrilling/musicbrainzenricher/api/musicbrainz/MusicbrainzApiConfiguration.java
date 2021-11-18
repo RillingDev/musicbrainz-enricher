@@ -4,10 +4,11 @@ import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.webservice.WebService;
 import org.musicbrainz.webservice.impl.HttpClientWebServiceWs2;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Service
-class MusicbrainzApiService {
+@Configuration
+class MusicbrainzApiConfiguration {
 
 	@Value("${musicbrainz-enricher.host}")
 	private String host;
@@ -27,6 +28,8 @@ class MusicbrainzApiService {
 	@Value("${musicbrainz-enricher.musicbrainz.password}")
 	private String password;
 
+
+	@Bean("musicbrainzWebService")
 	@NotNull WebService createWebService() {
 		HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2(applicationName,
 			applicationVersion,
