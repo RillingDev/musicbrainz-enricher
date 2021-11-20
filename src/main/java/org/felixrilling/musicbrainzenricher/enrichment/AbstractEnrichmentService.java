@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractEnrichmentService<TEntity, UResult> implements DataTypeAware {
@@ -14,9 +15,11 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEnrichmentService.class);
 
 	private final ApplicationContext applicationContext;
+	private final CompletionService<UResult> completionService;
 
-	protected AbstractEnrichmentService(ApplicationContext applicationContext) {
+	protected AbstractEnrichmentService(ApplicationContext applicationContext, ExecutorService executorService) {
 		this.applicationContext = applicationContext;
+		completionService = new ExecutorCompletionService<>(executorService);
 	}
 
 	public void executeEnrichment(@NotNull UUID mbid) {

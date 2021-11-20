@@ -6,8 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Scope;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SpringBootApplication
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
@@ -42,6 +46,11 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 		}
 	}
 
+	@Bean("executor")
+	@Scope("singleton")
+	public ExecutorService executorService() {
+		return Executors.newFixedThreadPool(5);
+	}
 
 	private DataType parseDataType(String modeString) {
 		return switch (modeString) {

@@ -14,10 +14,12 @@ import org.musicbrainz.model.RelationWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,9 +33,10 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	private final MusicbrainzEditService musicbrainzEditService;
 
 	ReleaseGroupEnrichmentService(ApplicationContext applicationContext,
+								  @Qualifier("executor") ExecutorService executorService,
 								  MusicbrainzLookupService musicbrainzLookupService,
 								  MusicbrainzEditService musicbrainzEditService) {
-		super(applicationContext);
+		super(applicationContext, executorService);
 		this.musicbrainzLookupService = musicbrainzLookupService;
 		this.musicbrainzEditService = musicbrainzEditService;
 	}
@@ -61,6 +64,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	protected @NotNull ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult enrich(@NotNull ReleaseGroupWs2 releaseGroup,
 																						 @NotNull RelationWs2 relation,
 																						 @NotNull Enricher enricher) {
+		LOGGER.debug("Starting enricher '{}' for '{}'.", enricher, relation);
 		Set<String> newGenres = new HashSet<>(5);
 		if (enricher instanceof GenreEnricher genreEnricher) {
 			Set<String> genres = genreEnricher.fetchGenres(relation);
@@ -71,6 +75,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 
 			newGenres.addAll(genres);
 		}
+		LOGGER.debug("Completed enricher '{}' for '{}'.", enricher, relation);
 
 		return new ReleaseGroupEnrichmentResult(newGenres);
 	}
