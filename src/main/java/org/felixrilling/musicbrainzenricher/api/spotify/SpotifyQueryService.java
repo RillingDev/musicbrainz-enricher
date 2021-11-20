@@ -42,6 +42,8 @@ public class SpotifyQueryService {
 
 	private Instant tokenExpiration;
 
+	private final Object reAuthLock = new Object();
+
 	SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
 		this.spotifyBucketProvider = spotifyBucketProvider;
 		this.bucketService = bucketService;
@@ -51,6 +53,7 @@ public class SpotifyQueryService {
 	void init() {
 		apiClient = createApiClient();
 	}
+
 
 	public @NotNull Optional<Album> lookUpRelease(@NotNull final String id) {
 		if (apiClient == null) {
@@ -76,10 +79,12 @@ public class SpotifyQueryService {
 		}
 
 		Instant now = Instant.now();
-		if (tokenExpiration == null || tokenExpiration.isBefore(now)) {
-			ClientCredentials credentials = apiClient.clientCredentials().build().execute();
-			apiClient.setAccessToken(credentials.getAccessToken());
-			tokenExpiration = now.plusSeconds(credentials.getExpiresIn());
+		synchronized (reAuthLock) {
+			if (tokenExpiration == null || tokenExpiration.isBefore(now)) {
+				ClientCredentials credentials = apiClient.clientCredentials().build().execute();
+				apiClient.setAccessToken(credentials.getAccessToken());
+				tokenExpiration = now.plusSeconds(credentials.getExpiresIn());
+			}
 		}
 		return apiClient;
 	}
