@@ -4,6 +4,7 @@ import org.apache.commons.collections4.map.LRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -11,13 +12,13 @@ import java.util.Set;
 /**
  * Allows matching a string to its canonical form.
  * A given value will be checked against the provided canonical values using a {@link StringVariantChecker}.
- * Not thread safe.
  *
  * @see StringVariantChecker
  */
 public class CanonicalStringMatcher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CanonicalStringMatcher.class);
+	private static final int SIZE_FACTOR = 5;
 
 	private final StringVariantChecker stringVariantChecker;
 	private final Set<String> canonicalValues;
@@ -33,8 +34,7 @@ public class CanonicalStringMatcher {
 		this.stringVariantChecker = stringVariantChecker;
 		this.canonicalValues = Set.copyOf(canonicalValues);
 
-		// TODO make this configurable to allow usage of thread-safe maps.
-		cache = new LRUMap<>(canonicalValues.size() * 5);
+		cache = Collections.synchronizedMap(new LRUMap<>(canonicalValues.size() * SIZE_FACTOR));
 	}
 
 	/**
