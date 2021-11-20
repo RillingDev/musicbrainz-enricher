@@ -89,7 +89,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 		if (!result.genres().isEmpty()) {
 			LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.genres(), releaseGroup.getId());
 			try {
-				musicbrainzEditService.addReleaseGroupUserTags(UUID.fromString(releaseGroup.getId()), result.genres());
+				musicbrainzEditService.submitReleaseGroupUserTags(releaseGroup, result.genres());
 			} catch (MBWS2Exception e) {
 				LOGGER.error("Could not submit tags.", e);
 			}
