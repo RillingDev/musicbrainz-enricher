@@ -31,15 +31,30 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 		TEntity entity = entityOptional.get();
 
 		Set<Enricher> enrichers = findFittingEnrichers();
-		Set<UResult> results = new HashSet<>(enrichers.size());
-		for (RelationWs2 relation : extractRelations(entity)) {
+		Collection<RelationWs2> relations = extractRelations(entity);
+		Set<Future<UResult>> futures = new HashSet<>(enrichers.size() * relations.size());
+		for (RelationWs2 relation : relations) {
 			for (Enricher enricher : enrichers) {
 				if (enricher.isRelationSupported(relation)) {
-					results.add(enrich(entity, relation, enricher));
+					futures.add(completionService.submit(() -> enrich(entity, relation, enricher)));
 				}
 			}
-			if (results.isEmpty()) {
-				LOGGER.debug("Could not find any enricher for '{}'.", relation.getTargetId());
+		}
+
+		Set<UResult> results = new HashSet<>(futures.size());
+		int received = 0;
+		while (received < futures.size()) {
+			try {
+				UResult result = completionService.take().get(); // Blocks if none available
+				results.add(result);
+				received++;
+			} catch (InterruptedException e) {
+				LOGGER.warn("Interrupted, skipping enrichment.", e);
+				Thread.currentThread().interrupt();
+				return;
+			} catch (ExecutionException e) {
+				LOGGER.error("Execution of enricher failed.", e);
+				received++;
 			}
 		}
 
