@@ -22,27 +22,17 @@
 *.iml
 
 # Vendor Files
-node_modules/
 
 # Debug Files
-npm-debug.*
 
 # Temp Files
-tsconfig.tsbuildinfo
-tsconfig.*.tsbuildinfo
 
 
 
 # Build Output files
 target
 
-main.js
-main.js.map
-main.js.LICENSE.txt
 
-main.css
-main.css.map
-
-
-
+# Misc Files
+local/
 keystore/
