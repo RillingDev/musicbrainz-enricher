@@ -1,10 +1,12 @@
 package org.felixrilling.musicbrainzenricher.util;
 
+import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@ThreadSafe
 public final class MergeUtils {
 	private MergeUtils() {
 	}

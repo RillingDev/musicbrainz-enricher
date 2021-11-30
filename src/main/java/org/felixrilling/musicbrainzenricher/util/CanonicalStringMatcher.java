@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.util;
 
+import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.collections4.map.LRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import java.util.Set;
  *
  * @see StringVariantChecker
  */
+@ThreadSafe
 public class CanonicalStringMatcher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CanonicalStringMatcher.class);

@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher.util;
 
 import com.google.common.collect.Sets;
+import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.Collator;
@@ -14,9 +15,8 @@ import java.util.TreeSet;
  * and checking if two words are the same ignoring these delimiters.
  * String case is ignored.
  * Note that due to the complexity of language, this tool only covers basic cases.
- * <p>
- * As instances of this class are de-facto stateless, thread safety is provided.
  */
+@ThreadSafe
 public class StringVariantChecker {
 
 	private final Set<String> delimiters;

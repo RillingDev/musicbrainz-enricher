@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.api;
 
+import net.jcip.annotations.ThreadSafe;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Service
+@ThreadSafe
 public class ScrapingService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingService.class);
