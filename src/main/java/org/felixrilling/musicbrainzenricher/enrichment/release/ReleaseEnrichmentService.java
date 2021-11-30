@@ -103,7 +103,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 		}
 	}
 
-	protected static record ReleaseEnrichmentResult(@NotNull Set<String> genres) {
+	protected record ReleaseEnrichmentResult(@NotNull Set<String> genres) {
 	}
 
 }

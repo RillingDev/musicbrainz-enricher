@@ -101,7 +101,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 		}
 	}
 
-	public static record ReleaseGroupEnrichmentResult(@NotNull Set<String> genres) {
+	protected record ReleaseGroupEnrichmentResult(@NotNull Set<String> genres) {
 	}
 
 }
