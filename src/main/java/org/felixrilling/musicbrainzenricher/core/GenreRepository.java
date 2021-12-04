@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,11 +26,11 @@ public class GenreRepository {
 		return Set.copyOf(genreNames);
 	}
 
-	public String findGenreNameByMbid(@NotNull UUID mbid) {
-		// TODO: check nullity
-		return jdbcTemplate.queryForObject("SELECT g.name FROM musicbrainz.genre g WHERE g.gid::TEXT LIKE ?",
+	public Optional<String> findGenreNameByMbid(@NotNull UUID mbid) {
+		return Optional.ofNullable(jdbcTemplate.queryForObject(
+			"SELECT g.name FROM musicbrainz.genre g WHERE g.gid::TEXT LIKE ?",
 			String.class,
-			mbid.toString());
+			mbid.toString()));
 	}
 
 }

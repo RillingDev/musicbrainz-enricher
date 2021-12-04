@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 // Not a 'real' repository because we only look up primitive values and not entities
@@ -18,11 +19,10 @@ public class ReleaseGroupRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	public Long countReleaseGroupsWhereRelationshipsExist() {
-		// TODO: check nullity
-		return jdbcTemplate.queryForObject(
+	public long countReleaseGroupsWhereRelationshipsExist() {
+		return Objects.requireNonNull(jdbcTemplate.queryForObject(
 			"SELECT COUNT(*) FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)",
-			Long.class);
+			Long.class));
 	}
 
 	@NotNull

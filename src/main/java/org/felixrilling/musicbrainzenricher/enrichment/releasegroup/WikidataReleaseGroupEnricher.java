@@ -94,7 +94,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 			return Optional.empty();
 		}
 		UUID mbid = UUID.fromString(((StringValue) value).getString());
-		return Optional.ofNullable(genreRepository.findGenreNameByMbid(mbid));
+		return genreRepository.findGenreNameByMbid(mbid);
 	}
 
 	@Override
