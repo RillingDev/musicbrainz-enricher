@@ -5,6 +5,7 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.local.SynchronizationStrategy;
 import org.felixrilling.musicbrainzenricher.api.BucketProvider;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ class SpotifyBucketProvider implements BucketProvider {
 		.build();
 
 	@Override
+	@NotNull
 	public Bucket getBucket() {
 		return bucket;
 	}

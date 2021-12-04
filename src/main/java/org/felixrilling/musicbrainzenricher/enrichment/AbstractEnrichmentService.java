@@ -61,19 +61,24 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 		updateEntity(entity, mergeResults(results));
 	}
 
-	protected abstract @NotNull Optional<TEntity> fetchEntity(@NotNull UUID mbid);
+	@NotNull
+	protected abstract Optional<TEntity> fetchEntity(@NotNull UUID mbid);
 
-	protected abstract @NotNull Collection<RelationWs2> extractRelations(@NotNull TEntity entity);
+	@NotNull
+	protected abstract Collection<RelationWs2> extractRelations(@NotNull TEntity entity);
 
-	protected abstract @NotNull UResult enrich(@NotNull TEntity entity,
-											   @NotNull RelationWs2 relation,
-											   @NotNull Enricher enricher);
+	@NotNull
+	protected abstract UResult enrich(@NotNull TEntity entity,
+									  @NotNull RelationWs2 relation,
+									  @NotNull Enricher enricher);
 
-	protected abstract @NotNull UResult mergeResults(@NotNull Collection<UResult> results);
+	@NotNull
+	protected abstract UResult mergeResults(@NotNull Collection<UResult> results);
 
 	protected abstract void updateEntity(@NotNull TEntity entity, @NotNull UResult result);
 
-	private @NotNull Set<Enricher> findFittingEnrichers() {
+	@NotNull
+	private Set<Enricher> findFittingEnrichers() {
 		return applicationContext.getBeansOfType(Enricher.class)
 			.values()
 			.stream()

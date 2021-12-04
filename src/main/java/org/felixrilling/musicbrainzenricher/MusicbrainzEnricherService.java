@@ -64,6 +64,7 @@ public class MusicbrainzEnricherService {
 		historyService.markAsChecked(dataType, mbid);
 	}
 
+	@NotNull
 	private AbstractEnrichmentService<?, ?> findFittingEnrichmentService(@NotNull DataType dataType) {
 		return applicationContext.getBeansOfType(AbstractEnrichmentService.class)
 			.values()

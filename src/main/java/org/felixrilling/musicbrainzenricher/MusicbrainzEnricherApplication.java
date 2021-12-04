@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher;
 
 import org.felixrilling.musicbrainzenricher.core.DataType;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -52,6 +53,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 		return Executors.newFixedThreadPool(5);
 	}
 
+	@NotNull
 	private DataType parseDataType(String modeString) {
 		return switch (modeString) {
 			case "release" -> DataType.RELEASE;

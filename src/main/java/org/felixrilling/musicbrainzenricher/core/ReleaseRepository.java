@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.core;
 
+import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -17,16 +18,19 @@ public class ReleaseRepository {
 	}
 
 	public Long countReleasesWhereRelationshipsExist() {
+		// TODO: check nullity
 		return jdbcTemplate.queryForObject(
 			"SELECT COUNT(*) FROM musicbrainz.release r WHERE r.id IN (SELECT lru.entity0 FROM musicbrainz.l_release_url lru)",
 			Long.class);
 	}
 
+	@NotNull
 	public List<UUID> findReleaseMbidWhereRelationshipsExist(long offset, int limit) {
-		return Collections.unmodifiableList(jdbcTemplate.query(
+		List<UUID> mbids = jdbcTemplate.query(
 			"SELECT r.gid FROM musicbrainz.release r WHERE r.id IN (SELECT lru.entity0 FROM musicbrainz.l_release_url lru) ORDER BY r.id OFFSET ? LIMIT ?",
 			(rs, rowNum) -> rs.getObject("gid", UUID.class),
 			offset,
-			limit));
+			limit);
+		return Collections.unmodifiableList(mbids);
 	}
 }

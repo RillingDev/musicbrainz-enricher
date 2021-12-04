@@ -9,7 +9,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.text.Collator;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Set;
 
 @Service
 public class GenreMatcherService {
@@ -40,7 +43,8 @@ public class GenreMatcherService {
 	 * @param unmatchedGenres Unmatched genres to look up canonical genre names for.
 	 * @return Matching canonical genre names.
 	 */
-	public @NotNull Set<String> match(@NotNull Set<String> unmatchedGenres) {
+	@NotNull
+	public Set<String> match(@NotNull Set<String> unmatchedGenres) {
 		Set<String> matches = new HashSet<>(unmatchedGenres.size());
 		for (String unmatchedGenre : unmatchedGenres) {
 			getCanonicalStringMatcher().canonicalize(unmatchedGenre).ifPresent(matches::add);
@@ -50,6 +54,7 @@ public class GenreMatcherService {
 		return Collections.unmodifiableSet(matches);
 	}
 
+	@NotNull
 	private CanonicalStringMatcher getCanonicalStringMatcher() {
 		// Lazy-load to load genres after initial construction.
 		// Not atomic, but running this twice does not really matter.

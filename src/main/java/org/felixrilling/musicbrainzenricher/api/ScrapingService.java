@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher.api;
 
 import net.jcip.annotations.ThreadSafe;
+import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -16,7 +17,8 @@ public class ScrapingService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingService.class);
 
-	public Optional<Document> load(String url) {
+	@NotNull
+	public Optional<Document> load(@NotNull String url) {
 		try {
 			Document document = Jsoup.connect(url).get();
 			return Optional.of(document);

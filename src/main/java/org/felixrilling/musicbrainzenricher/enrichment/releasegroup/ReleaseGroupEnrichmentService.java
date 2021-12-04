@@ -42,12 +42,14 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	}
 
 	@Override
-	public @NotNull DataType getDataType() {
+	@NotNull
+	public DataType getDataType() {
 		return DataType.RELEASE_GROUP;
 	}
 
 	@Override
-	protected @NotNull Optional<ReleaseGroupWs2> fetchEntity(@NotNull UUID mbid) {
+	@NotNull
+	protected Optional<ReleaseGroupWs2> fetchEntity(@NotNull UUID mbid) {
 		ReleaseGroupIncludesWs2 includes = new ReleaseGroupIncludesWs2();
 		includes.setUrlRelations(true);
 		includes.setTags(true);
@@ -56,14 +58,16 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	}
 
 	@Override
-	protected @NotNull Collection<RelationWs2> extractRelations(@NotNull ReleaseGroupWs2 releaseGroupWs2) {
+	@NotNull
+	protected Collection<RelationWs2> extractRelations(@NotNull ReleaseGroupWs2 releaseGroupWs2) {
 		return releaseGroupWs2.getRelationList().getRelations();
 	}
 
 	@Override
-	protected @NotNull ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult enrich(@NotNull ReleaseGroupWs2 releaseGroup,
-																						 @NotNull RelationWs2 relation,
-																						 @NotNull Enricher enricher) {
+	@NotNull
+	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult enrich(@NotNull ReleaseGroupWs2 releaseGroup,
+																				@NotNull RelationWs2 relation,
+																				@NotNull Enricher enricher) {
 		LOGGER.debug("Starting enricher '{}' for '{}'.", enricher, relation);
 		Set<String> newGenres = new HashSet<>(5);
 		if (enricher instanceof GenreEnricher genreEnricher) {
@@ -81,7 +85,8 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	}
 
 	@Override
-	protected @NotNull ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult mergeResults(@NotNull Collection<ReleaseGroupEnrichmentResult> results) {
+	@NotNull
+	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult mergeResults(@NotNull Collection<ReleaseGroupEnrichmentResult> results) {
 		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
 			.map(ReleaseGroupEnrichmentResult::genres)
 			.collect(Collectors.toSet()), MIN_GENRE_USAGE);

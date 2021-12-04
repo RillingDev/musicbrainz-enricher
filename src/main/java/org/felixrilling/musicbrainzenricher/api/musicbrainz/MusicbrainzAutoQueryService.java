@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.core.ReleaseGroupRepository;
 import org.felixrilling.musicbrainzenricher.core.ReleaseRepository;
 import org.jetbrains.annotations.NotNull;
@@ -11,6 +12,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 @Service
+@ThreadSafe
 public class MusicbrainzAutoQueryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzAutoQueryService.class);
@@ -48,6 +50,5 @@ public class MusicbrainzAutoQueryService {
 			offset += LIMIT;
 		}
 	}
-
 
 }

@@ -2,6 +2,7 @@ package org.felixrilling.musicbrainzenricher.util;
 
 import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.collections4.map.LRUMap;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,10 +33,12 @@ public class CanonicalStringMatcher {
 	 * @param canonicalValues      Canonical values that should be matched towards.
 	 * @param stringVariantChecker {@link StringVariantChecker} to use for matching.
 	 */
-	public CanonicalStringMatcher(Set<String> canonicalValues, StringVariantChecker stringVariantChecker) {
+	public CanonicalStringMatcher(@NotNull Set<String> canonicalValues,
+								  @NotNull StringVariantChecker stringVariantChecker) {
 		this.stringVariantChecker = stringVariantChecker;
 		this.canonicalValues = Set.copyOf(canonicalValues);
 
+		// TODO: check if a bounded version of ConcurrentHashMap can be used instead
 		cache = Collections.synchronizedMap(new LRUMap<>(canonicalValues.size() * SIZE_FACTOR));
 	}
 
@@ -45,7 +48,8 @@ public class CanonicalStringMatcher {
 	 * @param unmatchedValue Value to get the canonical form of.
 	 * @return Canonical form, or empty if no canonical match was found.
 	 */
-	public Optional<String> canonicalize(String unmatchedValue) {
+	@NotNull
+	public Optional<String> canonicalize(@NotNull String unmatchedValue) {
 		return cache.computeIfAbsent(unmatchedValue, value -> {
 			Optional<String> match = canonicalValues.stream()
 				.filter(canonicalValue -> stringVariantChecker.isVariant(value, canonicalValue))

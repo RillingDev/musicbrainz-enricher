@@ -40,14 +40,16 @@ class JundownloadReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+	@NotNull
+	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
 		return scrapingService.load(relation.getTargetId())
 			.map(this::extractTags)
 			.map(genreMatcherService::match)
 			.orElse(Set.of());
 	}
 
-	private @NotNull Set<String> extractTags(@NotNull Document document) {
+	@NotNull
+	private Set<String> extractTags(@NotNull Document document) {
 		return Set.of(document.select(TAG_QUERY).attr("content"));
 	}
 
@@ -67,7 +69,8 @@ class JundownloadReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public @NotNull DataType getDataType() {
+	@NotNull
+	public DataType getDataType() {
 		return DataType.RELEASE;
 	}
 }

@@ -54,8 +54,8 @@ public class SpotifyQueryService {
 		apiClient = createApiClient();
 	}
 
-
-	public @NotNull Optional<Album> lookUpRelease(@NotNull final String id) {
+	@NotNull
+	public Optional<Album> lookUpRelease(@NotNull final String id) {
 		if (apiClient == null) {
 			LOGGER.warn("No credentials set, skipping lookup.");
 			return Optional.empty();
@@ -73,7 +73,8 @@ public class SpotifyQueryService {
 	}
 
 	// https://github.com/thelinmichael/spotify-web-api-java#client-credentials-flow
-	private @NotNull SpotifyApi getAuthorizedApiClient() throws IOException, SpotifyWebApiException, ParseException {
+	@NotNull
+	private SpotifyApi getAuthorizedApiClient() throws IOException, SpotifyWebApiException, ParseException {
 		if (apiClient == null) {
 			throw new IllegalStateException("Cannot authorize client if none is set.");
 		}
@@ -89,7 +90,8 @@ public class SpotifyQueryService {
 		return apiClient;
 	}
 
-	private @Nullable SpotifyApi createApiClient() {
+	@Nullable
+	private SpotifyApi createApiClient() {
 		if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
 			LOGGER.warn("No credentials set, skipping API client creation.");
 			return null;

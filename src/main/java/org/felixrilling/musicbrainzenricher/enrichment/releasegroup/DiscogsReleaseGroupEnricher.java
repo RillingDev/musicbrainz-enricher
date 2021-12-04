@@ -35,7 +35,8 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+	@NotNull
+	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
 		Optional<String> discogsId = RegexUtils.maybeGroup(URL_REGEX.matcher(relation.getTargetId()), "id");
 		if (discogsId.isEmpty()) {
 			LOGGER.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
@@ -46,7 +47,8 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
 			.orElse(Set.of());
 	}
 
-	private @NotNull Set<String> extractGenres(@NotNull DiscogsMaster master) {
+	@NotNull
+	private Set<String> extractGenres(@NotNull DiscogsMaster master) {
 		Set<String> genres = new HashSet<>(master.getGenres());
 		if (master.getStyles() != null) {
 			genres.addAll(master.getStyles());
@@ -62,7 +64,8 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
 
 
 	@Override
-	public @NotNull DataType getDataType() {
+	@NotNull
+	public DataType getDataType() {
 		return DataType.RELEASE_GROUP;
 	}
 }

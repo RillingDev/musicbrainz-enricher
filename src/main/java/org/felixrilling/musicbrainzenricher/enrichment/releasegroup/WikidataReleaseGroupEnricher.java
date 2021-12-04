@@ -54,7 +54,8 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+	@NotNull
+	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
 		Optional<String> id = RegexUtils.maybeGroup(ID_REGEX.matcher(relation.getTargetId()), "id");
 		if (id.isEmpty()) {
 			LOGGER.warn("Could not find ID in '{}'.", relation.getTargetId());
@@ -66,7 +67,8 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 			.orElse(Set.of());
 	}
 
-	private @NotNull Set<String> extractGenreNames(@NotNull List<Statement> genreStatements) {
+	@NotNull
+	private Set<String> extractGenreNames(@NotNull List<Statement> genreStatements) {
 		Set<String> genres = new HashSet<>(genreStatements.size());
 		for (Statement genreStatement : genreStatements) {
 			if (!(genreStatement.getValue() instanceof EntityIdValue)) {
@@ -78,7 +80,8 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 		return genres;
 	}
 
-	private @NotNull Optional<String> findGenreName(@NotNull String genreId) {
+	@NotNull
+	private Optional<String> findGenreName(@NotNull String genreId) {
 		Optional<List<Statement>> musicbrainzLinkStatements = wikidataService.findEntityPropertyValues(genreId,
 			MUSICBRAINZ_LINK_PROPERTY_ID);
 		if (musicbrainzLinkStatements.map(List::isEmpty).orElse(true)) {
@@ -101,7 +104,8 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public @NotNull DataType getDataType() {
+	@NotNull
+	public DataType getDataType() {
 		return DataType.RELEASE_GROUP;
 	}
 }

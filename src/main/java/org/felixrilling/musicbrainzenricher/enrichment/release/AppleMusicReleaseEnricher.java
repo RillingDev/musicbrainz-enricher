@@ -45,7 +45,8 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public @NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+	@NotNull
+	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
 		Optional<Document> document = scrapingService.load(relation.getTargetId());
 		if (document.isEmpty()) {
 			return Set.of();
@@ -60,7 +61,8 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 		return genreMatcherService.match(extractTags(document.get()));
 	}
 
-	private @NotNull Set<String> extractTags(@NotNull Document document) {
+	@NotNull
+	private Set<String> extractTags(@NotNull Document document) {
 		String metaText = document.select(TAG_QUERY).text();
 
 		Matcher matcher = META_REGEX.matcher(metaText);
@@ -103,7 +105,8 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 
 
 	@Override
-	public @NotNull DataType getDataType() {
+	@NotNull
+	public DataType getDataType() {
 		return DataType.RELEASE;
 	}
 }

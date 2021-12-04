@@ -22,7 +22,6 @@ import java.util.Optional;
 public class DiscogsQueryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsQueryService.class);
-	private static final String BASE_URL = "https://api.discogs.com";
 
 	private final DiscogsBucketProvider discogsBucketProvider;
 	private final BucketService bucketService;
@@ -56,7 +55,8 @@ public class DiscogsQueryService {
 		webClient = createWebClient();
 	}
 
-	public @NotNull Optional<DiscogsRelease> lookUpRelease(@NotNull final String id) {
+	@NotNull
+	public Optional<DiscogsRelease> lookUpRelease(@NotNull final String id) {
 		bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
 
 		try {
@@ -69,7 +69,8 @@ public class DiscogsQueryService {
 		}
 	}
 
-	public @NotNull Optional<DiscogsMaster> lookUpMaster(@NotNull final String id) {
+	@NotNull
+	public Optional<DiscogsMaster> lookUpMaster(@NotNull final String id) {
 		bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
 
 		try {
@@ -80,11 +81,12 @@ public class DiscogsQueryService {
 		}
 	}
 
-	private @NotNull RestTemplate createWebClient() {
+	@NotNull
+	private RestTemplate createWebClient() {
 		// See https://www.discogs.com/developers/
 		String userAgent = String.format("%s/%s +%s", applicationName, applicationVersion, applicationContact);
 
-		RestTemplateBuilder builder = restTemplateBuilder.rootUri(BASE_URL)
+		RestTemplateBuilder builder = restTemplateBuilder.rootUri("https://api.discogs.com")
 			.defaultHeader(HttpHeaders.USER_AGENT, userAgent)
 			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
 		if (!StringUtils.isEmpty(token)) {

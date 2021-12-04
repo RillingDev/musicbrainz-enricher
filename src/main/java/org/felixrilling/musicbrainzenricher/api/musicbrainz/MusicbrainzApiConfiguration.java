@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
+import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.webservice.WebService;
 import org.musicbrainz.webservice.impl.HttpClientWebServiceWs2;
@@ -8,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@ThreadSafe
 class MusicbrainzApiConfiguration {
 
 	@Value("${musicbrainz-enricher.host}")
@@ -28,7 +30,6 @@ class MusicbrainzApiConfiguration {
 	@Value("${musicbrainz-enricher.musicbrainz.password}")
 	private String password;
 
-
 	@Bean("musicbrainzWebService")
 	@NotNull WebService createWebService() {
 		HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2(applicationName,
@@ -41,7 +42,8 @@ class MusicbrainzApiConfiguration {
 		return webService;
 	}
 
-	private static @NotNull String getClientName(@NotNull String applicationName, @NotNull String applicationVersion) {
+	@NotNull
+	private static String getClientName(@NotNull String applicationName, @NotNull String applicationVersion) {
 		// See org.musicbrainz.webservice.DefaultWebServiceWs2.client
 		return String.format("%s-%s", applicationName, applicationVersion);
 	}

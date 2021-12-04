@@ -33,7 +33,8 @@ public class MusicbrainzLookupService {
 		this.bucketService = bucketService;
 	}
 
-	public @NotNull Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes) {
+	@NotNull
+	public Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes) {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
 		Release release = new Release();
@@ -50,8 +51,8 @@ public class MusicbrainzLookupService {
 		}
 	}
 
-	public @NotNull Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid,
-																 @NotNull ReleaseGroupIncludesWs2 includes) {
+	@NotNull
+	public Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid, @NotNull ReleaseGroupIncludesWs2 includes) {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
 		ReleaseGroup releaseGroup = new ReleaseGroup();
@@ -68,6 +69,7 @@ public class MusicbrainzLookupService {
 		}
 	}
 
+	// TODO: why runtime?
 	private static class QueryException extends RuntimeException {
 		@Serial
 		private static final long serialVersionUID = 5573588744334378954L;
