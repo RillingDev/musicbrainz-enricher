@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 @Service
+@ThreadSafe
 public class MusicbrainzEditService {
 
 	private final boolean dryRun;

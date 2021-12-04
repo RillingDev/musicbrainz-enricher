@@ -4,6 +4,7 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.local.SynchronizationStrategy;
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.BucketProvider;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Scope;
@@ -13,6 +14,7 @@ import java.time.Duration;
 
 @Component
 @Scope("singleton")
+@ThreadSafe
 class SpotifyBucketProvider implements BucketProvider {
 
 	// https://developer.spotify.com/documentation/web-api/

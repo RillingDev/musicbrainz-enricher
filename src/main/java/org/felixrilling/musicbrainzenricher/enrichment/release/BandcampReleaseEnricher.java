@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.ScrapingService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
@@ -25,6 +26,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release/6bc5d3f7-3a7f-43fd-8df6-f1b63710e816
 // https://vectorlovers.bandcamp.com/album/separation-soundtrack
 @Service
+@ThreadSafe
 class BandcampReleaseEnricher implements GenreEnricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BandcampReleaseEnricher.class);

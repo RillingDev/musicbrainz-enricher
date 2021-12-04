@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.spotify.SpotifyQueryService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release/5bcb2971-fdea-4543-baf2-dd41d8b9a3cd
 // https://open.spotify.com/album/0Q2o6ioxIOlKPvRdG1K5da
 @Service
+@ThreadSafe
 class SpotifyReleaseEnricher implements GenreEnricher {
 
 	private static final Pattern URL_REGEX = Pattern.compile("https?://open\\.spotify\\.com/album/(?<id>\\w+)");

@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.api.spotify;
 
+import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ParseException;
 import org.felixrilling.musicbrainzenricher.api.BucketService;
@@ -22,6 +23,7 @@ import java.util.Optional;
 // https://github.com/thelinmichael/spotify-web-api-java
 // https://developer.spotify.com/documentation/web-api/guides/
 @Service
+@ThreadSafe
 public class SpotifyQueryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotifyQueryService.class);
