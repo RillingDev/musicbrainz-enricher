@@ -15,7 +15,7 @@ class HistoryEntry {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
-	private long id;
+	private Long id;
 
 	@Enumerated(EnumType.ORDINAL)
 	@Column(name = "data_type", nullable = false, updatable = false)
@@ -30,11 +30,11 @@ class HistoryEntry {
 	@NotNull
 	private ZonedDateTime lastChecked;
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -71,13 +71,12 @@ class HistoryEntry {
 			return false;
 		}
 		HistoryEntry that = (HistoryEntry) obj;
-		return id == that.id && dataType == that.dataType && mbid.equals(that.mbid) &&
-			lastChecked.equals(that.lastChecked);
+		return dataType == that.dataType && mbid.equals(that.mbid);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, dataType, mbid, lastChecked);
+		return Objects.hash(dataType, mbid);
 	}
 
 	@Override
