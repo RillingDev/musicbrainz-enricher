@@ -14,7 +14,6 @@ import org.musicbrainz.webservice.WebService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.Serial;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +33,8 @@ public class MusicbrainzLookupService {
 	}
 
 	@NotNull
-	public Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes) {
+	public Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes)
+		throws MusicbrainzException {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
 		Release release = new Release();
@@ -47,12 +47,13 @@ public class MusicbrainzLookupService {
 		} catch (ResourceNotFoundException e) {
 			return Optional.empty();
 		} catch (MBWS2Exception e) {
-			throw new QueryException("Could not look up release '" + mbid + "'.", e);
+			throw new MusicbrainzException("Could not look up release '" + mbid + "'.", e);
 		}
 	}
 
 	@NotNull
-	public Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid, @NotNull ReleaseGroupIncludesWs2 includes) {
+	public Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid, @NotNull ReleaseGroupIncludesWs2 includes)
+		throws MusicbrainzException {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
 		ReleaseGroup releaseGroup = new ReleaseGroup();
@@ -65,17 +66,8 @@ public class MusicbrainzLookupService {
 		} catch (ResourceNotFoundException e) {
 			return Optional.empty();
 		} catch (MBWS2Exception e) {
-			throw new QueryException("Could not look up release group'" + mbid + "'.", e);
+			throw new MusicbrainzException("Could not look up release group'" + mbid + "'.", e);
 		}
 	}
 
-	// TODO: why runtime?
-	private static class QueryException extends RuntimeException {
-		@Serial
-		private static final long serialVersionUID = 5573588744334378954L;
-
-		QueryException(String message, Throwable cause) {
-			super(message, cause);
-		}
-	}
 }

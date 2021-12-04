@@ -1,6 +1,7 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzException;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
@@ -8,7 +9,6 @@ import org.felixrilling.musicbrainzenricher.enrichment.Enricher;
 import org.felixrilling.musicbrainzenricher.enrichment.GenreEnricher;
 import org.felixrilling.musicbrainzenricher.util.MergeUtils;
 import org.jetbrains.annotations.NotNull;
-import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.musicbrainz.model.RelationWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
@@ -56,7 +56,13 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 		includes.setTags(true);
 		includes.setUserTags(true);
 		includes.setReleaseGroups(true);
-		return musicbrainzLookupService.lookUpRelease(mbid, includes);
+
+		try {
+			return musicbrainzLookupService.lookUpRelease(mbid, includes);
+		} catch (MusicbrainzException e) {
+			LOGGER.error("Could not query release '{}'.", mbid, e);
+			return Optional.empty();
+		}
 	}
 
 	@Override
@@ -102,7 +108,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 			LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.genres(), releaseGroup.getId());
 			try {
 				musicbrainzEditService.submitReleaseGroupUserTags(releaseGroup, result.genres());
-			} catch (MBWS2Exception e) {
+			} catch (MusicbrainzException e) {
 				LOGGER.error("Could not submit tags.", e);
 			}
 		}

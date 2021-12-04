@@ -38,10 +38,10 @@ public class MusicbrainzEditService {
 	 *
 	 * @param releaseGroup Entity to add tags to. Note that this is mutated to contain the new tags.
 	 * @param tags         Tags to add.
-	 * @throws MBWS2Exception If API access fails.
+	 * @throws MusicbrainzException If API access fails.
 	 */
 	public void submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull Set<String> tags)
-		throws MBWS2Exception {
+		throws MusicbrainzException {
 		if (dryRun) {
 			return;
 		}
@@ -58,8 +58,12 @@ public class MusicbrainzEditService {
 			releaseGroup.addUserTag(userTag);
 		}
 		UserTagSubmissionWs2 query = new UserTagSubmissionWs2(webService);
-		query.addEntity(releaseGroup);
-		query.submit();
+		try {
+			query.addEntity(releaseGroup);
+			query.submit();
+		} catch (MBWS2Exception e) {
+			throw new MusicbrainzException("Could not submit tags.", e);
+		}
 	}
 
 }
