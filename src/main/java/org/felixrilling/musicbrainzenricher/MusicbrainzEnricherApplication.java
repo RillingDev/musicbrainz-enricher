@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -49,8 +50,9 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
 	@Bean("executor")
 	@Scope("singleton")
-	public ExecutorService executorService() {
-		return Executors.newFixedThreadPool(5);
+	public ExecutorService executorService(Environment environment) {
+		int threadPoolSize = environment.getRequiredProperty("musicbrainz-enricher.thread-pool-size", Integer.class);
+		return Executors.newFixedThreadPool(threadPoolSize);
 	}
 
 	@NotNull

@@ -44,6 +44,11 @@ public class ApplicationConfigurationProperties {
 	private boolean dryRun;
 
 	/**
+	 * Size of the thread pool to use for enrichment.
+	 */
+	private int threadPoolSize;
+
+	/**
 	 * Musicbrainz credentials.
 	 * You should probably pass these as command line flags.
 	 */
@@ -102,6 +107,14 @@ public class ApplicationConfigurationProperties {
 
 	public void setDryRun(boolean dryRun) {
 		this.dryRun = dryRun;
+	}
+
+	public int getThreadPoolSize() {
+		return threadPoolSize;
+	}
+
+	public void setThreadPoolSize(int threadPoolSize) {
+		this.threadPoolSize = threadPoolSize;
 	}
 
 	public MusicbrainzCredentials getMusicbrainz() {
