@@ -29,6 +29,7 @@ public class HistoryService {
 		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
 
+	// TODO: move this to SQL
 	public boolean checkIsDue(@NotNull DataType dataType, @NotNull UUID mbid) {
 		LOGGER.trace("Checking history entry for '{}' ({}).", mbid, dataType);
 		return historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid).map(this::checkIsDue).orElse(true);
