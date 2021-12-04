@@ -1,6 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
-import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditController;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzException;
 import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
@@ -31,15 +31,15 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 	private static final double MIN_GENRE_USAGE = 0.90;
 
 	private final MusicbrainzLookupService musicbrainzLookupService;
-	private final MusicbrainzEditService musicbrainzEditService;
+	private final MusicbrainzEditController musicbrainzEditController;
 
 	ReleaseEnrichmentService(ApplicationContext applicationContext,
 							 @Qualifier("executor") ExecutorService executorService,
 							 MusicbrainzLookupService musicbrainzLookupService,
-							 MusicbrainzEditService musicbrainzEditService) {
+							 MusicbrainzEditController musicbrainzEditController) {
 		super(applicationContext, executorService);
 		this.musicbrainzLookupService = musicbrainzLookupService;
-		this.musicbrainzEditService = musicbrainzEditService;
+		this.musicbrainzEditController = musicbrainzEditController;
 	}
 
 	@Override
@@ -107,7 +107,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 			ReleaseGroupWs2 releaseGroup = release.getReleaseGroup();
 			LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.genres(), releaseGroup.getId());
 			try {
-				musicbrainzEditService.submitReleaseGroupUserTags(releaseGroup, result.genres());
+				musicbrainzEditController.submitReleaseGroupUserTags(releaseGroup, result.genres());
 			} catch (MusicbrainzException e) {
 				LOGGER.error("Could not submit tags.", e);
 			}
