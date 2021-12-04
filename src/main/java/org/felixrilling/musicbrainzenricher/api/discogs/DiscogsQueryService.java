@@ -5,15 +5,14 @@ import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Optional;
 
@@ -27,32 +26,21 @@ public class DiscogsQueryService {
 	private final BucketService bucketService;
 	private final RestTemplateBuilder restTemplateBuilder;
 
-	@Value("${musicbrainz-enricher.name}")
-	private String applicationName;
+	private final RestTemplate webClient;
 
-	@Value("${musicbrainz-enricher.version}")
-	private String applicationVersion;
-
-	@Value("${musicbrainz-enricher.contact}")
-	private String applicationContact;
-
-	@Value("${musicbrainz-enricher.discogs.token}")
-	private String token;
-
-	// De-facto final.
-	private RestTemplate webClient;
-
-	DiscogsQueryService(DiscogsBucketProvider discogsBucketProvider,
+	DiscogsQueryService(Environment environment,
+						DiscogsBucketProvider discogsBucketProvider,
 						BucketService bucketService,
 						RestTemplateBuilder restTemplateBuilder) {
 		this.discogsBucketProvider = discogsBucketProvider;
 		this.bucketService = bucketService;
 		this.restTemplateBuilder = restTemplateBuilder;
-	}
 
-	@PostConstruct
-	void init() {
-		webClient = createWebClient();
+		String applicationName = environment.getRequiredProperty("musicbrainz-enricher.name");
+		String applicationVersion = environment.getRequiredProperty("musicbrainz-enricher.version");
+		String applicationContact = environment.getRequiredProperty("musicbrainz-enricher.contact");
+		String token = environment.getProperty("musicbrainz-enricher.discogs.token");
+		webClient = createWebClient(applicationName, applicationVersion, applicationContact, token);
 	}
 
 	@NotNull
@@ -82,7 +70,10 @@ public class DiscogsQueryService {
 	}
 
 	@NotNull
-	private RestTemplate createWebClient() {
+	private RestTemplate createWebClient(@NotNull String applicationName,
+										 @NotNull String applicationVersion,
+										 @NotNull String applicationContact,
+										 String token) {
 		// See https://www.discogs.com/developers/
 		String userAgent = String.format("%s/%s +%s", applicationName, applicationVersion, applicationContact);
 

@@ -8,7 +8,7 @@ import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.musicbrainz.query.submission.UserTagSubmissionWs2;
 import org.musicbrainz.webservice.WebService;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
@@ -16,19 +16,21 @@ import java.util.Set;
 @Service
 public class MusicbrainzEditService {
 
-	@Value("${musicbrainz-enricher.dry-run}")
-	private boolean dryRun;
+	private final boolean dryRun;
 
 	private final WebService webService;
 	private final MusicbrainzBucketProvider musicbrainzBucketProvider;
 	private final BucketService bucketService;
 
-	MusicbrainzEditService(@Qualifier("musicbrainzWebService") WebService webService,
+	MusicbrainzEditService(Environment environment,
+						   @Qualifier("musicbrainzWebService") WebService webService,
 						   MusicbrainzBucketProvider musicbrainzBucketProvider,
 						   BucketService bucketService) {
 		this.webService = webService;
 		this.musicbrainzBucketProvider = musicbrainzBucketProvider;
 		this.bucketService = bucketService;
+
+		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
 
 	/**

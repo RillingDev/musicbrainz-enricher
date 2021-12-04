@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
@@ -15,7 +15,6 @@ import se.michaelthelin.spotify.model_objects.credentials.ClientCredentials;
 import se.michaelthelin.spotify.model_objects.specification.Album;
 import se.michaelthelin.spotify.requests.data.albums.GetAlbumRequest;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Optional;
@@ -30,28 +29,23 @@ public class SpotifyQueryService {
 	private final SpotifyBucketProvider spotifyBucketProvider;
 	private final BucketService bucketService;
 
-	@Value("${musicbrainz-enricher.spotify.client-id}")
-	private String clientId;
-
-	@Value("${musicbrainz-enricher.spotify.client-secret}")
-	private String clientSecret;
-
-	// De-facto final. May be null if no credentials exist.
-	// Note that getAuthorizedApiClient() should be used for API calls.
-	private SpotifyApi apiClient;
+	// May be null if no credentials exist.
+	// Note that getAuthorizedApiClient() should be used for access.
+	private final SpotifyApi apiClient;
 
 	private Instant tokenExpiration;
 
 	private final Object reAuthLock = new Object();
 
-	SpotifyQueryService(SpotifyBucketProvider spotifyBucketProvider, BucketService bucketService) {
+	SpotifyQueryService(Environment environment,
+						SpotifyBucketProvider spotifyBucketProvider,
+						BucketService bucketService) {
 		this.spotifyBucketProvider = spotifyBucketProvider;
 		this.bucketService = bucketService;
-	}
 
-	@PostConstruct
-	void init() {
-		apiClient = createApiClient();
+		String clientId = environment.getProperty("musicbrainz-enricher.spotify.client-id");
+		String clientSecret = environment.getProperty("musicbrainz-enricher.spotify.client-secret");
+		apiClient = createApiClient(clientId, clientSecret);
 	}
 
 	@NotNull
@@ -91,7 +85,7 @@ public class SpotifyQueryService {
 	}
 
 	@Nullable
-	private SpotifyApi createApiClient() {
+	private SpotifyApi createApiClient(String clientId, String clientSecret) {
 		if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
 			LOGGER.warn("No credentials set, skipping API client creation.");
 			return null;

@@ -4,7 +4,7 @@ import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -19,13 +19,14 @@ public class HistoryService {
 	private static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
 	private static final ZoneOffset ZONE = ZoneOffset.UTC;
 
-	@Value("${musicbrainz-enricher.dry-run}")
-	private boolean dryRun;
+	private final boolean dryRun;
 
 	private final HistoryEntryRepository historyEntryRepository;
 
-	HistoryService(HistoryEntryRepository historyEntryRepository) {
+	HistoryService(Environment environment, HistoryEntryRepository historyEntryRepository) {
 		this.historyEntryRepository = historyEntryRepository;
+
+		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
 
 	public boolean checkIsDue(@NotNull DataType dataType, @NotNull UUID mbid) {
