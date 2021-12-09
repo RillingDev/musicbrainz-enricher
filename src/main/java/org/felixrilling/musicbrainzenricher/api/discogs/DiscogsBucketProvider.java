@@ -4,6 +4,7 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.local.SynchronizationStrategy;
+import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.lang3.StringUtils;
 import org.felixrilling.musicbrainzenricher.api.BucketProvider;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +16,7 @@ import java.time.Duration;
 
 @Component
 @Scope("singleton")
+@ThreadSafe
 class DiscogsBucketProvider implements BucketProvider {
 
 	private final Bucket bucket;

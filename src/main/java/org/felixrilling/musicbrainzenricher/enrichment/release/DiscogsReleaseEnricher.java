@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsQueryService;
 import org.felixrilling.musicbrainzenricher.api.discogs.DiscogsRelease;
 import org.felixrilling.musicbrainzenricher.core.DataType;
@@ -20,6 +21,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release/bd3d34dd-218a-4296-afde-b3fa2c39ba29
 // https://www.discogs.com/release/12168718
 @Service
+@ThreadSafe
 class DiscogsReleaseEnricher implements GenreEnricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);

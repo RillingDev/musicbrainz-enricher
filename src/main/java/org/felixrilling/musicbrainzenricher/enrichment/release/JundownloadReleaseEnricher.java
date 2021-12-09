@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.ScrapingService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
@@ -24,6 +25,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release/4a7262b6-a64d-4214-ae61-bb16d15d724c
 // https://www.junodownload.com/products/indivision-mount-vesuvius-newborn-star/4144821-02/
 @Service
+@ThreadSafe
 class JundownloadReleaseEnricher implements GenreEnricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JundownloadReleaseEnricher.class);

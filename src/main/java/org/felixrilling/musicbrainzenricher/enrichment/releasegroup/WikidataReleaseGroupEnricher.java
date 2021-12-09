@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.releasegroup;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.wikidata.WikidataService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.core.GenreRepository;
@@ -36,6 +37,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release-group/a63e5fa6-d6ad-47bd-986d-4a27b0c9de70
 // https://www.wikidata.org/wiki/Q53020187
 @Service
+@ThreadSafe
 class WikidataReleaseGroupEnricher implements GenreEnricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WikidataReleaseGroupEnricher.class);

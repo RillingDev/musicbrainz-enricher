@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.api.discogs;
 
+import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.lang3.StringUtils;
 import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 // https://www.discogs.com/developers/
 @Service
+@ThreadSafe
 public class DiscogsQueryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsQueryService.class);

@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.core;
 
+import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import java.util.UUID;
 
 // Not a 'real' repository because we only look up primitive values and not entities
 @Component
+@ThreadSafe
 public class GenreRepository {
 
 	private final JdbcTemplate jdbcTemplate;

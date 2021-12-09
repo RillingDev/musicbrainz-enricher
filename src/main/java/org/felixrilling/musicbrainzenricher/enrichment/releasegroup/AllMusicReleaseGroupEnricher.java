@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.releasegroup;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.ScrapingService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
@@ -20,6 +21,7 @@ import java.util.Set;
 // https://musicbrainz.org/release-group/a63e5fa6-d6ad-47bd-986d-4a27b0c9de70
 // https://www.allmusic.com/album/mw0003185404
 @Service
+@ThreadSafe
 class AllMusicReleaseGroupEnricher implements GenreEnricher {
 
 	private static final Evaluator GENRE_QUERY = QueryParser.parse(".genre > div > a");

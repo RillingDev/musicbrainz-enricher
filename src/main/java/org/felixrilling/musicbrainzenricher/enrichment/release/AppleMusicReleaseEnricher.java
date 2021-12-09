@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.enrichment.release;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.ScrapingService;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.felixrilling.musicbrainzenricher.core.genre.GenreMatcherService;
@@ -27,6 +28,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release/5bcb2971-fdea-4543-baf2-dd41d8b9a3cd
 // https://music.apple.com/us/album/1383304609
 @Service
+@ThreadSafe
 class AppleMusicReleaseEnricher implements GenreEnricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AppleMusicReleaseEnricher.class);

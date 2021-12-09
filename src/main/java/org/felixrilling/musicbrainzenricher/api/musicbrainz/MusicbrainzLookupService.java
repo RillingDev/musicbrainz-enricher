@@ -1,5 +1,6 @@
 package org.felixrilling.musicbrainzenricher.api.musicbrainz;
 
+import net.jcip.annotations.ThreadSafe;
 import org.felixrilling.musicbrainzenricher.api.BucketService;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
@@ -18,6 +19,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@ThreadSafe
 public class MusicbrainzLookupService {
 
 	private final WebService webService;
