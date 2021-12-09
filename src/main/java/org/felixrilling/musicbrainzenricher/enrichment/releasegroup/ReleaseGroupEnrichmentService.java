@@ -33,7 +33,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	private final MusicbrainzEditController musicbrainzEditController;
 
 	ReleaseGroupEnrichmentService(ApplicationContext applicationContext,
-								  @Qualifier("executor") ExecutorService executorService,
+								  @Qualifier("enrichmentExecutor") ExecutorService executorService,
 								  MusicbrainzLookupService musicbrainzLookupService,
 								  MusicbrainzEditController musicbrainzEditController) {
 		super(applicationContext, executorService);

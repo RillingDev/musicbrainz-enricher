@@ -1,19 +1,19 @@
 package org.felixrilling.musicbrainzenricher;
 
+import org.felixrilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditController;
 import org.felixrilling.musicbrainzenricher.core.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Scope;
-import org.springframework.core.env.Environment;
 
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
@@ -21,9 +21,18 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
 
 	private final MusicbrainzEnricherService musicbrainzEnricherService;
+	private final MusicbrainzEditController musicbrainzEditController;
+	private final ExecutorService enrichmentExecutor;
+	private final ExecutorService submissionExecutor;
 
-	MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService) {
+	MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService,
+								   MusicbrainzEditController musicbrainzEditController,
+								   @Qualifier("enrichmentExecutor") ExecutorService enrichmentExecutor,
+								   @Qualifier("submissionExecutor") ExecutorService submissionExecutor) {
 		this.musicbrainzEnricherService = musicbrainzEnricherService;
+		this.musicbrainzEditController = musicbrainzEditController;
+		this.enrichmentExecutor = enrichmentExecutor;
+		this.submissionExecutor = submissionExecutor;
 	}
 
 	public static void main(String[] args) {
@@ -46,13 +55,32 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 		} else {
 			musicbrainzEnricherService.runInAutoQueryMode(dataType);
 		}
+
+		try {
+			shutdown();
+		} catch (InterruptedException e) {
+			// Can be ignored during application shutdown
+		}
 	}
 
-	@Bean("executor")
-	@Scope("singleton")
-	public ExecutorService executorService(Environment environment) {
-		int threadPoolSize = environment.getRequiredProperty("musicbrainz-enricher.thread-pool-size", Integer.class);
-		return Executors.newFixedThreadPool(threadPoolSize);
+	private void shutdown() throws InterruptedException {
+		LOGGER.debug("Shutting down");
+
+		try {
+			musicbrainzEditController.flush().get();
+		} catch (ExecutionException e) {
+			LOGGER.error("Failed to flush edits.", e);
+		}
+
+		enrichmentExecutor.shutdown();
+		submissionExecutor.shutdown();
+
+		if (!enrichmentExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+			LOGGER.warn("Exceeded timeout for enrichment executor termination.");
+		}
+		if (!submissionExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
+			LOGGER.warn("Exceeded timeout for submission executor termination.");
+		}
 	}
 
 	@NotNull

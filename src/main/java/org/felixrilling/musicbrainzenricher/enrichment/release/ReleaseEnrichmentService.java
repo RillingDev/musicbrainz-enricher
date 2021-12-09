@@ -34,7 +34,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 	private final MusicbrainzEditController musicbrainzEditController;
 
 	ReleaseEnrichmentService(ApplicationContext applicationContext,
-							 @Qualifier("executor") ExecutorService executorService,
+							 @Qualifier("enrichmentExecutor") ExecutorService executorService,
 							 MusicbrainzLookupService musicbrainzLookupService,
 							 MusicbrainzEditController musicbrainzEditController) {
 		super(applicationContext, executorService);
