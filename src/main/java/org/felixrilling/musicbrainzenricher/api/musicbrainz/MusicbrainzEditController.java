@@ -18,6 +18,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+/**
+ * Manages edits against the musicbrainz API.
+ * <p>
+ * This controller also attempts to reduce requests by grouping data submissions. During application shutdown,
+ * {@link #flush()} should be called to ensure all remaining data is submitted.
+ */
 @Service
 @ThreadSafe
 public class MusicbrainzEditController {
@@ -32,8 +38,7 @@ public class MusicbrainzEditController {
 
 	private final Object tagSubmissionLock = new Object();
 
-	public MusicbrainzEditController(MusicbrainzEditService musicbrainzEditService,
-									 @Qualifier("submissionExecutor") ExecutorService executorService) {
+	public MusicbrainzEditController(MusicbrainzEditService musicbrainzEditService, @Qualifier("submissionExecutor") ExecutorService executorService) {
 		this.musicbrainzEditService = musicbrainzEditService;
 		this.executorService = executorService;
 	}
@@ -47,8 +52,7 @@ public class MusicbrainzEditController {
 	 * @return Future for completion.
 	 * @throws MusicbrainzException If API access fails.
 	 */
-	public @NotNull Future<?> submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup,
-														 @NotNull Set<String> tags) throws MusicbrainzException {
+	public @NotNull Future<?> submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull Set<String> tags) throws MusicbrainzException {
 		addTags(releaseGroup, tags);
 		tagSubmissionQueue.add(releaseGroup);
 

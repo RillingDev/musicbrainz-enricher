@@ -34,6 +34,13 @@ public class MusicbrainzEditService {
 		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
 
+	/**
+	 * Submits the given tags set in the given entities.
+	 * Usually this should not be called directly and {@link MusicbrainzEditController} should be used instead.
+	 *
+	 * @param entities Entities with tags set.
+	 * @throws MusicbrainzException If API access fails.
+	 */
 	public void submitUserTags(@NotNull Set<EntityWs2> entities) throws MusicbrainzException {
 		if (dryRun) {
 			return;
