@@ -71,7 +71,7 @@ public class MusicbrainzEnricherService {
 			.stream()
 			.filter(enrichmentService -> enrichmentService.getDataType() == dataType)
 			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException(
-				"No enrichment service exists for data type '" + dataType + "'."));
+			.orElseThrow(() -> new IllegalArgumentException("No enrichment service exists for data type '%s'.".formatted(
+				dataType)));
 	}
 }

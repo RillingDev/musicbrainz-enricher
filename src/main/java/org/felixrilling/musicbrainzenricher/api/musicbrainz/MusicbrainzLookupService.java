@@ -49,7 +49,7 @@ public class MusicbrainzLookupService {
 		} catch (ResourceNotFoundException e) {
 			return Optional.empty();
 		} catch (MBWS2Exception e) {
-			throw new MusicbrainzException("Could not look up release '" + mbid + "'.", e);
+			throw new MusicbrainzException("Could not look up release '%s'.".formatted(mbid), e);
 		}
 	}
 
@@ -68,7 +68,7 @@ public class MusicbrainzLookupService {
 		} catch (ResourceNotFoundException e) {
 			return Optional.empty();
 		} catch (MBWS2Exception e) {
-			throw new MusicbrainzException("Could not look up release group'" + mbid + "'.", e);
+			throw new MusicbrainzException("Could not look up release group'%s'.".formatted(mbid), e);
 		}
 	}
 

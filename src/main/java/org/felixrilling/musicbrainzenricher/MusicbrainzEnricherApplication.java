@@ -45,7 +45,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 			throw new IllegalArgumentException("Expected at least 1 arguments but found none.");
 		}
 		if (args.length > 2) {
-			throw new IllegalArgumentException("Expected at most 2 parameters but found " + args.length + ".");
+			throw new IllegalArgumentException("Expected at most 2 parameters but found %d.".formatted(args.length));
 		}
 
 		DataType dataType = parseDataType(args[0]);
@@ -88,7 +88,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 		return switch (modeString) {
 			case "release" -> DataType.RELEASE;
 			case "release-group" -> DataType.RELEASE_GROUP;
-			default -> throw new IllegalArgumentException("Could not process mode '" + modeString + "'.");
+			default -> throw new IllegalArgumentException("Could not process mode '%s'.".formatted(modeString));
 		};
 	}
 
