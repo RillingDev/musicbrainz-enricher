@@ -4,6 +4,7 @@ import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.Collator;
+import java.util.Comparator;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -19,6 +20,10 @@ import java.util.stream.Collectors;
 @ThreadSafe
 public class StringVariantChecker {
 
+	private static final Comparator<String> DESC_LENGTH_COMP = Comparator.comparing(String::length)
+		.reversed()
+		.thenComparing(Comparator.naturalOrder());
+
 	private final Collator collator;
 	private final Pattern delimiterPattern;
 
@@ -32,7 +37,10 @@ public class StringVariantChecker {
 		if (delimiters.contains("")) {
 			throw new IllegalArgumentException("Empty string is not allowed in delimiters.");
 		}
-		delimiterPattern = Pattern.compile(delimiters.stream().map(Pattern::quote).collect(Collectors.joining("|")));
+		delimiterPattern = Pattern.compile(delimiters.stream()
+			.sorted(DESC_LENGTH_COMP) // Ensure long delimiters are at the start so that e.g " and " matches before " ".
+			.map(Pattern::quote)
+			.collect(Collectors.joining("|")));
 		this.collator = collator;
 	}
 
