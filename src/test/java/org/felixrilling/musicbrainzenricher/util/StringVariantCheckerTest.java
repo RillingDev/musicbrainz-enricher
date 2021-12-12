@@ -26,7 +26,6 @@ class StringVariantCheckerTest {
 		assertThat(stringVariantChecker.isVariant("hophip", "hiphop")).isFalse();
 	}
 
-
 	@Test
 	@DisplayName("Detects variants of mixed delimiters")
 	void isVariantDetectsVariantsMixed() {
