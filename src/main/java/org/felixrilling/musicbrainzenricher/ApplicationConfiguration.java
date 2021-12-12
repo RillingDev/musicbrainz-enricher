@@ -14,7 +14,8 @@ public class ApplicationConfiguration {
 	@Bean("enrichmentExecutor")
 	@Scope("singleton")
 	public ExecutorService enrichmentExecutor(Environment environment) {
-		int threadPoolSize = environment.getRequiredProperty("musicbrainz-enricher.thread-pool-size", Integer.class);
+		int threadPoolSize = environment.getRequiredProperty("musicbrainz-enricher.enrichment-thread-pool-size",
+			Integer.class);
 		return Executors.newFixedThreadPool(threadPoolSize);
 	}
 

@@ -46,7 +46,7 @@ public class ApplicationConfigurationProperties {
 	/**
 	 * Size of the thread pool to use for enrichment.
 	 */
-	private int threadPoolSize;
+	private int enrichmentThreadPoolSize;
 
 	/**
 	 * Musicbrainz credentials.
@@ -109,12 +109,12 @@ public class ApplicationConfigurationProperties {
 		this.dryRun = dryRun;
 	}
 
-	public int getThreadPoolSize() {
-		return threadPoolSize;
+	public int getEnrichmentThreadPoolSize() {
+		return enrichmentThreadPoolSize;
 	}
 
-	public void setThreadPoolSize(int threadPoolSize) {
-		this.threadPoolSize = threadPoolSize;
+	public void setEnrichmentThreadPoolSize(int enrichmentThreadPoolSize) {
+		this.enrichmentThreadPoolSize = enrichmentThreadPoolSize;
 	}
 
 	public MusicbrainzCredentials getMusicbrainz() {
