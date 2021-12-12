@@ -9,27 +9,25 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.text.Collator;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class GenreMatcherService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenreMatcherService.class);
 
-	private static final Collator COLLATOR;
 	private static final StringVariantChecker STRING_VARIANT_CHECKER;
 
 	static {
-		COLLATOR = Collator.getInstance(Locale.ROOT);
-		COLLATOR.setStrength(Collator.PRIMARY);
-		STRING_VARIANT_CHECKER = new StringVariantChecker(Set.of("-", " ", " and ", " & "), COLLATOR);
+		Collator collator = Collator.getInstance(Locale.ROOT);
+		collator.setStrength(Collator.PRIMARY);
+		STRING_VARIANT_CHECKER = new StringVariantChecker(Set.of("-", " ", " and ", " & "), collator);
 	}
 
 	private final GenreRepository genreRepository;
-
 	private CanonicalStringMatcher canonicalStringMatcher;
 
 	GenreMatcherService(GenreRepository genreRepository) {
@@ -45,13 +43,14 @@ public class GenreMatcherService {
 	 */
 	@NotNull
 	public Set<String> match(@NotNull Set<String> unmatchedGenres) {
-		Set<String> matches = new HashSet<>(unmatchedGenres.size());
-		for (String unmatchedGenre : unmatchedGenres) {
-			getCanonicalStringMatcher().canonicalize(unmatchedGenre).ifPresent(matches::add);
-		}
+		Set<String> matches = unmatchedGenres.stream()
+			.map(getCanonicalStringMatcher()::canonicalize)
+			.flatMap(Optional::stream)
+			.collect(Collectors.toUnmodifiableSet());
+
 		LOGGER.debug("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
 
-		return Collections.unmodifiableSet(matches);
+		return matches;
 	}
 
 	@NotNull
