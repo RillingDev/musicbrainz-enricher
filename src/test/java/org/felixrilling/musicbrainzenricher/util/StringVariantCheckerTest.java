@@ -20,8 +20,22 @@ class StringVariantCheckerTest {
 		assertThat(stringVariantChecker.isVariant("hip-hop", "hip hop")).isTrue();
 		assertThat(stringVariantChecker.isVariant("hiphop", "hip hop")).isTrue();
 		assertThat(stringVariantChecker.isVariant("hip-hop", "hiphop")).isTrue();
+		assertThat(stringVariantChecker.isVariant("hip---hop", "hiphop")).isTrue();
 
 		assertThat(stringVariantChecker.isVariant("bip-hop", "hiphop")).isFalse();
+		assertThat(stringVariantChecker.isVariant("hophip", "hiphop")).isFalse();
+	}
+
+
+	@Test
+	@DisplayName("Detects variants of mixed delimiters")
+	void isVariantDetectsVariantsMixed() {
+		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),
+			Collator.getInstance(Locale.ROOT));
+
+		assertThat(stringVariantChecker.isVariant("hiphop-music", "hip-hop music")).isTrue();
+		assertThat(stringVariantChecker.isVariant("hiphop-music", "hiphop music")).isTrue();
+		assertThat(stringVariantChecker.isVariant("hiphop- music", "hip-hop music")).isTrue();
 	}
 
 	@Test

@@ -1,12 +1,12 @@
 package org.felixrilling.musicbrainzenricher.util;
 
-import com.google.common.collect.Sets;
 import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.Collator;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Tool allowing checking if two strings are variants of the same word.
@@ -19,17 +19,20 @@ import java.util.TreeSet;
 @ThreadSafe
 public class StringVariantChecker {
 
-	private final Set<String> delimiters;
 	private final Collator collator;
+	private final Pattern delimiterPattern;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param delimiters Delimiters to use when checking for variants. May contain e.g. {@code "-"} or {@code " and "}.
+	 * @param delimiters Delimiters to use when checking for variants. E.g. {@code "-"} or {@code " and "}.
 	 * @param collator   Collator to use for comparing variants.
 	 */
 	public StringVariantChecker(@NotNull Set<String> delimiters, @NotNull Collator collator) {
-		this.delimiters = Set.copyOf(delimiters);
+		if (delimiters.contains("")) {
+			throw new IllegalArgumentException("Empty string is not allowed in delimiters.");
+		}
+		delimiterPattern = Pattern.compile(delimiters.stream().map(Pattern::quote).collect(Collectors.joining("|")));
 		this.collator = collator;
 	}
 
@@ -42,20 +45,10 @@ public class StringVariantChecker {
 	 * @return if a and b are variants of each other.
 	 */
 	public boolean isVariant(@NotNull String a, @NotNull String b) {
-		if (collator.equals(a, b)) {
-			return true;
-		}
-
-		return !Sets.intersection(createVariants(a), createVariants(b)).isEmpty();
+		return collator.equals(normalize(a), normalize(b));
 	}
 
-	private @NotNull Set<String> createVariants(@NotNull String string) {
-		Set<String> variants = new TreeSet<>(collator);
-		variants.add(string);
-		for (String delimiter : delimiters) {
-			// FIXME: Does not support mixed variants (e.g. 'hip-hop and foo')
-			variants.add(string.replaceAll(delimiter, ""));
-		}
-		return variants;
+	private @NotNull String normalize(@NotNull String string) {
+		return delimiterPattern.matcher(string).replaceAll("");
 	}
 }
