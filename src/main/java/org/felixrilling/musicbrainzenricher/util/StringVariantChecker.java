@@ -13,7 +13,7 @@ import java.util.TreeSet;
  * This is done by using delimiters representing common string variant
  * delimiters in the english language, such as "-" (e.g. "hip-hop" vs "hip hop"),
  * and checking if two words are the same ignoring these delimiters.
- * String case is ignored.
+ * <p>
  * Note that due to the complexity of language, this tool only covers basic cases.
  */
 @ThreadSafe
@@ -25,7 +25,7 @@ public class StringVariantChecker {
 	/**
 	 * Constructor.
 	 *
-	 * @param delimiters Delimiters to use when checking for variants.
+	 * @param delimiters Delimiters to use when checking for variants. May contain e.g. {@code "-"} or {@code " and "}.
 	 * @param collator   Collator to use for comparing variants.
 	 */
 	public StringVariantChecker(@NotNull Set<String> delimiters, @NotNull Collator collator) {
@@ -35,6 +35,7 @@ public class StringVariantChecker {
 
 	/**
 	 * Checks if a and b are variants of each other.
+	 * Order of parameters does not affect the result.
 	 *
 	 * @param a Value a.
 	 * @param b Value b.
