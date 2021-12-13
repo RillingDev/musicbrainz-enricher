@@ -17,7 +17,7 @@ public class MusicbrainzAutoQueryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzAutoQueryService.class);
 
-	private static final int LIMIT = 100;
+	private static final int LIMIT = 1000;
 
 	private final ReleaseRepository releaseRepository;
 	private final ReleaseGroupRepository releaseGroupRepository;
@@ -35,6 +35,7 @@ public class MusicbrainzAutoQueryService {
 		while (offset < count) {
 			LOGGER.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
 			releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
+			LOGGER.info("Loaded {} releases with offset {} with at least one relationship...", LIMIT, offset);
 			offset += LIMIT;
 		}
 	}
