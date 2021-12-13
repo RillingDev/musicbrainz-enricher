@@ -141,62 +141,13 @@ public class ApplicationConfigurationProperties {
 		this.spotify = spotify;
 	}
 
-	private static class MusicbrainzCredentials {
-		@NotBlank
-		private String username;
-
-		@NotBlank
-		private String password;
-
-		public String getUsername() {
-			return username;
-		}
-
-		public void setUsername(String username) {
-			this.username = username;
-		}
-
-		public String getPassword() {
-			return password;
-		}
-
-		public void setPassword(String password) {
-			this.password = password;
-		}
+	private record MusicbrainzCredentials(@NotBlank String username, @NotBlank String password) {
 	}
 
 	// https://www.discogs.com/developers/#page:authentication
-	private static class DiscogsCredentials {
-		private String token;
-
-		public String getToken() {
-			return token;
-		}
-
-		public void setToken(String token) {
-			this.token = token;
-		}
+	private record DiscogsCredentials(String token) {
 	}
 
-	private static class SpotifyCredentials {
-		private String clientId;
-
-		private String clientSecret;
-
-		public String getClientId() {
-			return clientId;
-		}
-
-		public void setClientId(String clientId) {
-			this.clientId = clientId;
-		}
-
-		public String getClientSecret() {
-			return clientSecret;
-		}
-
-		public void setClientSecret(String clientSecret) {
-			this.clientSecret = clientSecret;
-		}
+	private record SpotifyCredentials(String clientId, String clientSecret) {
 	}
 }
