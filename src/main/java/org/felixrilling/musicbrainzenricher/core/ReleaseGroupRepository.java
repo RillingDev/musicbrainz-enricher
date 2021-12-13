@@ -3,15 +3,14 @@ package org.felixrilling.musicbrainzenricher.core;
 import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-// Not a 'real' repository because we only look up primitive values and not entities
-@Component
+@Repository
 @ThreadSafe
 public class ReleaseGroupRepository {
 

@@ -29,14 +29,10 @@ public class HistoryService {
 		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
 
-	// TODO: move this to SQL
 	public boolean checkIsDue(@NotNull DataType dataType, @NotNull UUID mbid) {
 		LOGGER.trace("Checking history entry for '{}' ({}).", mbid, dataType);
-		return historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid).map(this::checkIsDue).orElse(true);
-	}
-
-	private boolean checkIsDue(@NotNull HistoryEntry historyEntry) {
-		return historyEntry.getLastChecked().isBefore(ZonedDateTime.now(ZONE).minus(RECHECK_TIMESPAN));
+		ZonedDateTime consideredActiveIfAfter = getNow().minus(RECHECK_TIMESPAN);
+		return !historyEntryRepository.hasActiveEntry(dataType, mbid, consideredActiveIfAfter);
 	}
 
 	public void markAsChecked(@NotNull DataType dataType, @NotNull UUID mbid) {
@@ -44,14 +40,13 @@ public class HistoryService {
 			return;
 		}
 
-		HistoryEntry historyEntry = historyEntryRepository.findEntryByTypeAndMbid(dataType, mbid).orElseGet(() -> {
-			HistoryEntry entry = new HistoryEntry();
-			entry.setDataType(dataType);
-			entry.setMbid(mbid);
-			return entry;
-		});
-		historyEntry.setLastChecked(ZonedDateTime.now(ZONE));
+		HistoryEntry historyEntry = new HistoryEntry(dataType, mbid, getNow());
 		LOGGER.trace("Persisting history entry: '{}'.", historyEntry);
-		historyEntryRepository.save(historyEntry);
+		historyEntryRepository.persist(historyEntry);
+	}
+
+	@NotNull
+	private ZonedDateTime getNow() {
+		return ZonedDateTime.now(ZONE);
 	}
 }
