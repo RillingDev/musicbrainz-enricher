@@ -21,18 +21,22 @@ public class ReleaseGroupRepository {
 	}
 
 	public long countReleaseGroupsWhereRelationshipsExist() {
-		return Objects.requireNonNull(jdbcTemplate.queryForObject(
-			"SELECT COUNT(*) FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)",
-			Long.class));
+		return Objects.requireNonNull(jdbcTemplate.queryForObject("""
+			SELECT COUNT(*)	FROM musicbrainz.release_group rg
+				WHERE rg.id IN
+					(SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)
+			""", Long.class));
 	}
 
 	@NotNull
 	public List<UUID> findReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) {
-		List<UUID> mbids = jdbcTemplate.query(
-			"SELECT rg.gid FROM musicbrainz.release_group rg WHERE rg.id IN (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu) ORDER BY rg.id OFFSET ? LIMIT ?",
-			(rs, rowNum) -> rs.getObject("gid", UUID.class),
-			offset,
-			limit);
+		List<UUID> mbids = jdbcTemplate.query("""
+			SELECT rg.gid FROM musicbrainz.release_group rg
+				WHERE rg.id IN
+					(SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)
+			ORDER BY rg.id
+			OFFSET ? LIMIT ?
+			""", (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit);
 		return Collections.unmodifiableList(mbids);
 	}
 }

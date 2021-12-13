@@ -22,16 +22,18 @@ public class GenreRepository {
 
 	@NotNull
 	public Set<String> findGenreNames() {
-		List<String> genreNames = jdbcTemplate.query("SELECT g.name FROM musicbrainz.genre g ORDER BY g.name",
-			(rs, rowNum) -> rs.getString("name"));
+		List<String> genreNames = jdbcTemplate.query("""
+			SELECT g.name FROM musicbrainz.genre g
+			ORDER BY g.name
+			""", (rs, rowNum) -> rs.getString("name"));
 		return Set.copyOf(genreNames);
 	}
 
 	public Optional<String> findGenreNameByMbid(@NotNull UUID mbid) {
-		return Optional.ofNullable(jdbcTemplate.queryForObject(
-			"SELECT g.name FROM musicbrainz.genre g WHERE g.gid::TEXT LIKE ?",
-			String.class,
-			mbid.toString()));
+		return Optional.ofNullable(jdbcTemplate.queryForObject("""
+			SELECT g.name FROM musicbrainz.genre g
+				WHERE g.gid::TEXT LIKE ?
+			""", String.class, mbid.toString()));
 	}
 
 }
