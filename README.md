@@ -1,10 +1,10 @@
-# musicbrainz-enricher
+# MusicBrainz Enricher
 
-> Bot to enrich musicbrainz data from linked sources.
+> A Java application to enrich MusicBrainz data from linked sources.
 
 ## About
 
-Queries musicbrainz' API and fetches data from linked sources like Discogs or Spotify.
+Queries [MusicBrainz'](https://musicbrainz.org/) API and fetches data from linked sources like Discogs or Spotify.
 
 ### Supported Relationship Sources
 
@@ -49,7 +49,7 @@ Auto-query mode:
 Single mode:
 `java -jar musicbrainz-enricher*.jar 'release' 'MBID'`.
 
-### Local History DB
+### History Storage
 
 This application will remember entities checked already and will only re-check them after duration `n` days, where `n`
 defaults to 90 days. In order to reset this, truncate the table `history_entry` in the schema `musicbrainz_enricher`.
