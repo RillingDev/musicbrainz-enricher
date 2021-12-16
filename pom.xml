@@ -12,7 +12,8 @@
 	<groupId>org.felixrilling</groupId>
 	<artifactId>musicbrainz-enricher</artifactId>
 	<version>0.7.0-SNAPSHOT</version>
-	<name>musicbrainz-enricher</name>
+	<name>MusicbrainzEnricher</name> <!-- Should not contain spaces or special characters as it used as User Agent -->
+	<url>https://github.com/FelixRilling/musicbrainz-enricher</url>
 
 	<properties>
 		<java.version>17</java.version>

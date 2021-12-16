@@ -76,17 +76,23 @@ public class DiscogsQueryService {
 										 @NotNull String applicationVersion,
 										 @NotNull String applicationContact,
 										 String token) {
-		// See https://www.discogs.com/developers/
-		String userAgent = String.format("%s/%s +%s", applicationName, applicationVersion, applicationContact);
+		String userAgent = getUserAgent(applicationName, applicationVersion, applicationContact);
 
 		RestTemplateBuilder builder = restTemplateBuilder.rootUri("https://api.discogs.com")
 			.defaultHeader(HttpHeaders.USER_AGENT, userAgent)
 			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
 		if (!StringUtils.isEmpty(token)) {
 			// https://www.discogs.com/developers/#page:authentication
-			builder = builder.defaultHeader(HttpHeaders.AUTHORIZATION, String.format("Discogs token=%s", token));
+			builder = builder.defaultHeader(HttpHeaders.AUTHORIZATION, "Discogs token=%s".formatted(token));
 		}
 		return builder.build();
+	}
+
+	private @NotNull String getUserAgent(@NotNull String applicationName,
+										 @NotNull String applicationVersion,
+										 @NotNull String applicationContact) {
+		// See https://www.discogs.com/developers/
+		return "%s/%s +%s".formatted(applicationName, applicationVersion, applicationContact);
 	}
 
 }

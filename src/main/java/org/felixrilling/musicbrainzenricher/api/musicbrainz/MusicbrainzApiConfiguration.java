@@ -8,9 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import java.util.regex.Pattern;
+
 @Configuration
 @ThreadSafe
 class MusicbrainzApiConfiguration {
+
+	private static final Pattern UNSUPPORTED_VERSION_CHARACTER_PATTERN = Pattern.compile("-");
 
 	@Bean("musicbrainzWebService")
 	@NotNull WebService createWebService(Environment environment) {
@@ -24,12 +28,19 @@ class MusicbrainzApiConfiguration {
 		HttpClientWebServiceWs2 webService = new HttpClientWebServiceWs2(applicationName,
 			applicationVersion,
 			applicationContact);
-		// See org.musicbrainz.webservice.DefaultWebServiceWs2.client
-		webService.setClient(String.format("%s-%s", applicationName, applicationVersion));
+		String client = getClient(applicationName, applicationVersion);
+		webService.setClient(client);
 		webService.setUsername(username);
 		webService.setPassword(password);
 		webService.setHost(host);
 		return webService;
+	}
+
+	private @NotNull String getClient(@NotNull String applicationName, @NotNull String applicationVersion) {
+		// See https://musicbrainz.org/doc/MusicBrainz_API
+		String adaptedApplicationVersion = UNSUPPORTED_VERSION_CHARACTER_PATTERN.matcher(applicationVersion)
+			.replaceAll("_");
+		return "%s-%s".formatted(applicationName, adaptedApplicationVersion);
 	}
 
 }
