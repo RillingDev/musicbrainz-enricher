@@ -32,8 +32,8 @@ public class GenreRepository {
 	public Optional<String> findGenreNameByMbid(@NotNull UUID mbid) {
 		return Optional.ofNullable(jdbcTemplate.queryForObject("""
 			SELECT g.name FROM musicbrainz.genre g
-				WHERE g.gid::TEXT LIKE ?
-			""", String.class, mbid.toString()));
+				WHERE g.gid = ?
+			""", String.class, mbid));
 	}
 
 }
