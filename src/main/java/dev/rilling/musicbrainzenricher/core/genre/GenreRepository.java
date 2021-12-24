@@ -1,4 +1,4 @@
-package dev.rilling.musicbrainzenricher.core;
+package dev.rilling.musicbrainzenricher.core.genre;
 
 import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;

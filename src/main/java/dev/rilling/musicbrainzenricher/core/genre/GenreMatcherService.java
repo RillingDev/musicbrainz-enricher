@@ -1,6 +1,5 @@
 package dev.rilling.musicbrainzenricher.core.genre;
 
-import dev.rilling.musicbrainzenricher.core.GenreRepository;
 import dev.rilling.musicbrainzenricher.util.CanonicalStringMatcher;
 import dev.rilling.musicbrainzenricher.util.StringVariantChecker;
 import org.jetbrains.annotations.NotNull;

@@ -2,7 +2,7 @@ package dev.rilling.musicbrainzenricher.enrichment.releasegroup;
 
 import dev.rilling.musicbrainzenricher.api.wikidata.WikidataService;
 import dev.rilling.musicbrainzenricher.core.DataType;
-import dev.rilling.musicbrainzenricher.core.GenreRepository;
+import dev.rilling.musicbrainzenricher.core.genre.GenreRepository;
 import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import dev.rilling.musicbrainzenricher.util.RegexUtils;
 import net.jcip.annotations.ThreadSafe;

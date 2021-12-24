@@ -1,6 +1,5 @@
 package dev.rilling.musicbrainzenricher.core.genre;
 
-import dev.rilling.musicbrainzenricher.core.GenreRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
