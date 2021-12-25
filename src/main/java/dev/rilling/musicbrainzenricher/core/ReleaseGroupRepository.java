@@ -12,6 +12,7 @@ import java.util.UUID;
 
 @Repository
 @ThreadSafe
+// TODO: Rewrite queries to perform better
 public class ReleaseGroupRepository {
 
 	private final JdbcTemplate jdbcTemplate;
