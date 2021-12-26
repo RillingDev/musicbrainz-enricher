@@ -2,6 +2,7 @@ package dev.rilling.musicbrainzenricher.core.genre;
 
 import dev.rilling.musicbrainzenricher.util.CanonicalStringMatcher;
 import dev.rilling.musicbrainzenricher.util.StringVariantChecker;
+import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@ThreadSafe
 public class GenreMatcherService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenreMatcherService.class);
@@ -21,9 +23,10 @@ public class GenreMatcherService {
 	private static final StringVariantChecker STRING_VARIANT_CHECKER;
 
 	static {
+		Set<String> delimiters = Set.of("-", " ", " and ", " & ");
 		Collator collator = Collator.getInstance(Locale.ROOT);
 		collator.setStrength(Collator.PRIMARY);
-		STRING_VARIANT_CHECKER = new StringVariantChecker(Set.of("-", " ", " and ", " & "), collator);
+		STRING_VARIANT_CHECKER = new StringVariantChecker(delimiters, collator);
 	}
 
 	private final GenreRepository genreRepository;
@@ -53,12 +56,10 @@ public class GenreMatcherService {
 	}
 
 	@NotNull
-	private CanonicalStringMatcher getCanonicalStringMatcher() {
-		// Lazy-load to load genres after initial construction.
-		// Not atomic, but running this twice does not really matter.
+	private synchronized CanonicalStringMatcher getCanonicalStringMatcher() {
 		if (canonicalStringMatcher == null) {
-			canonicalStringMatcher = new CanonicalStringMatcher(genreRepository.findGenreNames(),
-				STRING_VARIANT_CHECKER);
+			Set<String> canonicalGenres = genreRepository.findGenreNames();
+			canonicalStringMatcher = new CanonicalStringMatcher(canonicalGenres, STRING_VARIANT_CHECKER);
 		}
 		return canonicalStringMatcher;
 	}
