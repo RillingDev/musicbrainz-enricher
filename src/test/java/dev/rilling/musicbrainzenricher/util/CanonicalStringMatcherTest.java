@@ -13,15 +13,27 @@ class CanonicalStringMatcherTest {
 
 	@Test
 	@DisplayName("canonicalizes")
-	void canonicalizes() {
-		Set<String> canonicalValues = Set.of("hardcore", "bardcore", "hip-hop");
-		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-"),
+	void canonicalizeMatch() {
+		Set<String> canonicalValues = Set.of("rock", "hip-hop");
+		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),
 			Collator.getInstance(Locale.ROOT));
 		CanonicalStringMatcher canonicalStringMatcher = new CanonicalStringMatcher(canonicalValues,
 			stringVariantChecker);
 
-		assertThat(canonicalStringMatcher.canonicalize("bardcore")).contains("bardcore");
-		assertThat(canonicalStringMatcher.canonicalize("hard-core")).contains("hardcore");
-		assertThat(canonicalStringMatcher.canonicalize("foo")).isEmpty();
+		assertThat(canonicalStringMatcher.canonicalize("rock")).contains("rock");
+		assertThat(canonicalStringMatcher.canonicalize("hiphop")).contains("hip-hop");
+	}
+
+	@Test
+	@DisplayName("returns empty for no match")
+	void canonicalizeEmptyForNoMatch() {
+		Set<String> canonicalValues = Set.of("rock", "hip-hop");
+		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),
+			Collator.getInstance(Locale.ROOT));
+		CanonicalStringMatcher canonicalStringMatcher = new CanonicalStringMatcher(canonicalValues,
+			stringVariantChecker);
+
+		assertThat(canonicalStringMatcher.canonicalize("jazz")).isEmpty();
+		assertThat(canonicalStringMatcher.canonicalize("hipXhop")).isEmpty();
 	}
 }
