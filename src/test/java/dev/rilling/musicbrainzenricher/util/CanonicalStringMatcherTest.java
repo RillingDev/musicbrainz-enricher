@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class CanonicalStringMatcherTest {
 
 	@Test
-	@DisplayName("canonicalizes")
+	@DisplayName("canonicalizes.")
 	void canonicalizeMatch() {
 		Set<String> canonicalValues = Set.of("rock", "hip-hop");
 		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),
@@ -25,7 +25,7 @@ class CanonicalStringMatcherTest {
 	}
 
 	@Test
-	@DisplayName("returns empty for no match")
+	@DisplayName("returns empty for no match.")
 	void canonicalizeEmptyForNoMatch() {
 		Set<String> canonicalValues = Set.of("rock", "hip-hop");
 		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),

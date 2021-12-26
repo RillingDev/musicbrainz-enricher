@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class MergeUtilsTest {
 
 	@Test
-	@DisplayName("Returns empty set for no sets provided.")
+	@DisplayName("returns empty set for no sets provided.")
 	void getMostCommonEmptyForEmptyCollection() {
 		Set<String> actual = MergeUtils.getMostCommon(Set.of(), 0.5);
 
@@ -18,7 +18,7 @@ class MergeUtilsTest {
 	}
 
 	@Test
-	@DisplayName("Returns empty set for no set items provided.")
+	@DisplayName("returns empty set for no set items provided.")
 	void getMostCommonEmptyForNoItems() {
 		Set<String> set1 = Set.of();
 
@@ -28,7 +28,7 @@ class MergeUtilsTest {
 	}
 
 	@Test
-	@DisplayName("Returns input if only one set is provided.")
+	@DisplayName("returns input if only one set is provided.")
 	void getMostCommonReturnsItemsAsIsForSingleSet() {
 		Set<String> set1 = Set.of("foo", "bar");
 
@@ -38,7 +38,7 @@ class MergeUtilsTest {
 	}
 
 	@Test
-	@DisplayName("Cuts of items with low count.")
+	@DisplayName("cuts of items with low count.")
 	void getMostCommonCutsLowCount() {
 		Set<String> set1 = Set.of("foo", "bar");
 		Set<String> set2 = Set.of("foo");
@@ -49,7 +49,7 @@ class MergeUtilsTest {
 	}
 
 	@Test
-	@DisplayName("Returns union if all items have same count.")
+	@DisplayName("returns union if all items have same count.")
 	void getMostCommonUnion() {
 		Set<String> set1 = Set.of("foo", "bar");
 		Set<String> set2 = Set.of("fizz");
@@ -60,7 +60,7 @@ class MergeUtilsTest {
 	}
 
 	@Test
-	@DisplayName("Returns higher count items.")
+	@DisplayName("returns higher count items.")
 	void getMostCommonHigherCount() {
 		Set<String> set1 = Set.of("foo", "bar");
 		Set<String> set2 = Set.of("foo", "bar", "fizz");

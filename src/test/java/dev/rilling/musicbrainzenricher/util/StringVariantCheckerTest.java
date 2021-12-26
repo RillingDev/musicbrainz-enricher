@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StringVariantCheckerTest {
 
 	@Test
-	@DisplayName("returns true when comparing against self")
+	@DisplayName("returns true when comparing against self.")
 	void isVariantTrueForSelf() {
 		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),
 			Collator.getInstance(Locale.ROOT));
@@ -21,7 +21,7 @@ class StringVariantCheckerTest {
 	}
 
 	@Test
-	@DisplayName("detects variants")
+	@DisplayName("detects variants.")
 	void isVariantDetectsVariants() {
 		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),
 			Collator.getInstance(Locale.ROOT));
@@ -35,8 +35,8 @@ class StringVariantCheckerTest {
 	}
 
 	@Test
-	@DisplayName("only uses specified delimiters")
-	void isVariantUsesspecifiedDelimiters() {
+	@DisplayName("only uses specified delimiters.")
+	void isVariantUsesSpecifiedDelimiters() {
 		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),
 			Collator.getInstance(Locale.ROOT));
 
@@ -45,7 +45,7 @@ class StringVariantCheckerTest {
 	}
 
 	@Test
-	@DisplayName("detects variants of mixed delimiters")
+	@DisplayName("detects variants of mixed delimiters.")
 	void isVariantDetectsVariantsMixed() {
 		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of("-", " "),
 			Collator.getInstance(Locale.ROOT));
@@ -55,7 +55,7 @@ class StringVariantCheckerTest {
 	}
 
 	@Test
-	@DisplayName("detects variants with delimiters containing each other")
+	@DisplayName("detects variants with delimiters containing each other.")
 	void isVariantDetectsVariantsContained() {
 		StringVariantChecker stringVariantChecker = new StringVariantChecker(Set.of(" and ", " & ", " "),
 			Collator.getInstance(Locale.ROOT));
@@ -66,7 +66,7 @@ class StringVariantCheckerTest {
 	}
 
 	@Test
-	@DisplayName("respects collator")
+	@DisplayName("respects collator.")
 	void isVariantRespectsCollator() {
 		Collator spanishCollator = Collator.getInstance(Locale.forLanguageTag("es"));
 		spanishCollator.setStrength(Collator.PRIMARY);

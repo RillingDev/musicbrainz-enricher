@@ -22,7 +22,7 @@ class GenreMatcherServiceTest {
 	private GenreMatcherService genreMatcherService;
 
 	@Test
-	@DisplayName("Corrected name is returned.")
+	@DisplayName("corrected name is returned.")
 	void matchReturnsCorrected() {
 		Set<String> genres = Set.of("hip-hop", "drum and bass", "electronic");
 		when(genreRepository.findGenreNames()).thenReturn(genres);
@@ -34,12 +34,12 @@ class GenreMatcherServiceTest {
 	}
 
 	@Test
-	@DisplayName("Not matching items are skipped.")
+	@DisplayName("not matching items are skipped.")
 	void matchSkipsNotMatching() {
-		Set<String> genres = Set.of("edm", "hardcore");
+		Set<String> genres = Set.of("edm", "electronic");
 		when(genreRepository.findGenreNames()).thenReturn(genres);
 
-		assertThat(genreMatcherService.match(Set.of("ebm"))).isEmpty();
-		assertThat(genreMatcherService.match(Set.of("bardcore"))).isEmpty();
+		assertThat(genreMatcherService.match(Set.of("jazz"))).isEmpty();
+		assertThat(genreMatcherService.match(Set.of("edm", "jazz"))).containsExactly("edm");
 	}
 }
