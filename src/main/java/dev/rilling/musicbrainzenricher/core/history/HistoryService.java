@@ -4,11 +4,12 @@ import dev.rilling.musicbrainzenricher.core.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Duration;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
@@ -16,15 +17,18 @@ import java.util.UUID;
 public class HistoryService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(HistoryService.class);
 
-	private static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
-	private static final ZoneOffset ZONE = ZoneOffset.UTC;
+	static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
 
 	private final boolean dryRun;
 
 	private final HistoryEntryRepository historyEntryRepository;
+	private final Clock utcClock;
 
-	HistoryService(Environment environment, HistoryEntryRepository historyEntryRepository) {
+	HistoryService(Environment environment,
+				   HistoryEntryRepository historyEntryRepository,
+				   @Qualifier("utcClock") Clock utcClock) {
 		this.historyEntryRepository = historyEntryRepository;
+		this.utcClock = utcClock;
 
 		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
@@ -47,6 +51,6 @@ public class HistoryService {
 
 	@NotNull
 	private ZonedDateTime getNow() {
-		return ZonedDateTime.now(ZONE);
+		return ZonedDateTime.now(utcClock);
 	}
 }
