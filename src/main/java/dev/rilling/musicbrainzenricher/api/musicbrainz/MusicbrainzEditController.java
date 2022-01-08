@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -38,7 +37,8 @@ public class MusicbrainzEditController {
 
 	private final Object tagSubmissionLock = new Object();
 
-	public MusicbrainzEditController(MusicbrainzEditService musicbrainzEditService, @Qualifier("submissionExecutor") ExecutorService executorService) {
+	public MusicbrainzEditController(MusicbrainzEditService musicbrainzEditService,
+									 @Qualifier("submissionExecutor") ExecutorService executorService) {
 		this.musicbrainzEditService = musicbrainzEditService;
 		this.executorService = executorService;
 	}
@@ -52,12 +52,14 @@ public class MusicbrainzEditController {
 	 * @return Future for completion.
 	 * @throws MusicbrainzException If API access fails.
 	 */
-	public @NotNull Future<?> submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull Set<String> tags) throws MusicbrainzException {
+	public @NotNull Future<?> submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup,
+														 @NotNull Set<String> tags) throws MusicbrainzException {
 		addTags(releaseGroup, tags);
 		tagSubmissionQueue.add(releaseGroup);
 
+		// Check-then-act is not synchronized as #flushUserTagSubmission handles multiple concurrent invocations.
 		if (tagSubmissionQueue.size() >= TAG_SUBMISSION_SIZE) {
-			LOGGER.debug("{} items exceeded, flushing.", TAG_SUBMISSION_SIZE);
+			LOGGER.debug("{} user tag submissions exceeded, flushing.", TAG_SUBMISSION_SIZE);
 			return flushUserTagSubmission();
 		}
 
@@ -79,20 +81,22 @@ public class MusicbrainzEditController {
 		Set<EntityWs2> submission;
 		synchronized (tagSubmissionLock) {
 			if (tagSubmissionQueue.isEmpty()) {
-				LOGGER.debug("Queue is empty, no tags to submit.");
+				LOGGER.info("Queue is empty, no user tags to submit.");
 				return CompletableFuture.completedFuture(null);
 			}
 
-			LOGGER.debug("Scheduling {} items for tag submission.", tagSubmissionQueue.size());
-			submission = new HashSet<>(tagSubmissionQueue);
-			tagSubmissionQueue.clear();
+			// Note that queue may be larger than #TAG_SUBMISSION_SIZE at this point as the queue can still be modified.
+			LOGGER.debug("Scheduling {} items for user tag submission.", tagSubmissionQueue.size());
+			submission = Set.copyOf(tagSubmissionQueue);
+			// Used over #clear as queue itself may have been modified since we copied its values
+			tagSubmissionQueue.removeAll(submission);
 		}
 
 		return executorService.submit(() -> {
 			try {
-				LOGGER.debug("Submitting tags for '{}'.", submission);
+				LOGGER.info("Submitting user tags for '{}'.", submission);
 				musicbrainzEditService.submitUserTags(submission);
-				LOGGER.debug("Successfully submitted tags for '{}'.", submission);
+				LOGGER.info("Successfully submitted user tags for '{}'.", submission);
 			} catch (MusicbrainzException e) {
 				LOGGER.error("Could not submit user tags.", e);
 			}
