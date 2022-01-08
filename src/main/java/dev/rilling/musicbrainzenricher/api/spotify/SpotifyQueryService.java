@@ -1,6 +1,7 @@
 package dev.rilling.musicbrainzenricher.api.spotify;
 
 import dev.rilling.musicbrainzenricher.api.BucketService;
+import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.core5.http.ParseException;
@@ -35,6 +36,7 @@ public class SpotifyQueryService {
 	// Note that getAuthorizedApiClient() should be used for access.
 	private final SpotifyApi apiClient;
 
+	@GuardedBy("reAuthLock")
 	private Instant tokenExpiration;
 
 	private final Object reAuthLock = new Object();
