@@ -57,10 +57,11 @@ public class MusicbrainzEditController {
 		addTags(releaseGroup, tags);
 		tagSubmissionQueue.add(releaseGroup);
 
-		// Check-then-act is not synchronized as #flushUserTagSubmission handles multiple concurrent invocations.
-		if (tagSubmissionQueue.size() >= TAG_SUBMISSION_SIZE) {
-			LOGGER.debug("{} user tag submissions exceeded, flushing.", TAG_SUBMISSION_SIZE);
-			return flushUserTagSubmission();
+		synchronized (tagSubmissionLock) {
+			if (tagSubmissionQueue.size() >= TAG_SUBMISSION_SIZE) {
+				LOGGER.debug("{} user tag submissions exceeded, flushing.", TAG_SUBMISSION_SIZE);
+				return flushUserTagSubmission();
+			}
 		}
 
 		return CompletableFuture.completedFuture(null);
@@ -81,6 +82,7 @@ public class MusicbrainzEditController {
 		Set<EntityWs2> submission;
 		synchronized (tagSubmissionLock) {
 			if (tagSubmissionQueue.isEmpty()) {
+				// Can happen e.g. when manually calling #flush
 				LOGGER.info("Queue is empty, no user tags to submit.");
 				return CompletableFuture.completedFuture(null);
 			}
