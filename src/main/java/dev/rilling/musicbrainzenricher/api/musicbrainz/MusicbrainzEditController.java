@@ -30,7 +30,7 @@ import java.util.concurrent.Future;
 public class MusicbrainzEditController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEditController.class);
 
-	private static final int TAG_SUBMISSION_SIZE = 50;
+	static final int TAG_SUBMISSION_SIZE = 50;
 
 	private final MusicbrainzEditService musicbrainzEditService;
 	private final ExecutorService executorService;
