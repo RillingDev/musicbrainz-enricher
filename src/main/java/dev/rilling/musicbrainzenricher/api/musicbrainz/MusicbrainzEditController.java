@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +26,7 @@ import java.util.concurrent.Future;
  */
 @Service
 @ThreadSafe
+// TODO: Isolate queue chunking into standalone class
 public class MusicbrainzEditController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEditController.class);
 
@@ -57,14 +59,7 @@ public class MusicbrainzEditController {
 		addTags(releaseGroup, tags);
 		tagSubmissionQueue.add(releaseGroup);
 
-		synchronized (tagSubmissionLock) {
-			if (tagSubmissionQueue.size() >= TAG_SUBMISSION_SIZE) {
-				LOGGER.debug("{} user tag submissions exceeded, flushing.", TAG_SUBMISSION_SIZE);
-				return flushUserTagSubmission();
-			}
-		}
-
-		return CompletableFuture.completedFuture(null);
+		return flushUserTagSubmissions(false);
 	}
 
 	/**
@@ -73,27 +68,38 @@ public class MusicbrainzEditController {
 	 * @return Future for completion.
 	 */
 	public @NotNull Future<?> flush() {
-		return flushUserTagSubmission();
+		return flushUserTagSubmissions(true);
 	}
 
-	private @NotNull Future<?> flushUserTagSubmission() {
-		LOGGER.info("Flushing tag submission.");
-
+	private @NotNull Future<?> flushUserTagSubmissions(boolean force) {
 		Set<EntityWs2> submission;
 		synchronized (tagSubmissionLock) {
-			if (tagSubmissionQueue.isEmpty()) {
-				// Can happen e.g. when manually calling #flush
-				LOGGER.info("Queue is empty, no user tags to submit.");
-				return CompletableFuture.completedFuture(null);
+			if (force) {
+				if (tagSubmissionQueue.isEmpty()) {
+					LOGGER.debug("No user tags to submit, skipping submission.");
+					return CompletableFuture.completedFuture(null);
+				}
+			} else {
+				if (tagSubmissionQueue.size() < TAG_SUBMISSION_SIZE) {
+					LOGGER.debug("Not enough user tags to submit, skipping submission.");
+					return CompletableFuture.completedFuture(null);
+				}
 			}
 
-			// Note that queue may be larger than #TAG_SUBMISSION_SIZE at this point as the queue can still be modified.
-			LOGGER.debug("Scheduling {} items for user tag submission.", tagSubmissionQueue.size());
-			submission = Set.copyOf(tagSubmissionQueue);
-			// Used over #clear as queue itself may have been modified since we copied its values
-			tagSubmissionQueue.removeAll(submission);
+			submission = new HashSet<>(TAG_SUBMISSION_SIZE);
+			// Note that queue may be larger than TAG_SUBMISSION_SIZE at this point as the queue can still be modified.
+			// Due to that, we only take TAG_SUBMISSION_SIZE items.
+			while (tagSubmissionQueue.peek() != null && submission.size() < TAG_SUBMISSION_SIZE) {
+				submission.add(tagSubmissionQueue.poll());
+			}
 		}
 
+		LOGGER.debug("Scheduling for user tag submission: {}.", submission);
+		return doSubmitUserTags(submission);
+	}
+
+	@NotNull
+	private Future<?> doSubmitUserTags(Set<EntityWs2> submission) {
 		return executorService.submit(() -> {
 			try {
 				LOGGER.info("Submitting user tags for '{}'.", submission);
