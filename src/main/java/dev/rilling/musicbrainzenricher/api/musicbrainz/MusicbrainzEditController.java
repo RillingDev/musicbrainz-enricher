@@ -70,7 +70,7 @@ public class MusicbrainzEditController {
 	}
 
 	@NotNull
-	private Future<?> doSubmitUserTags(Set<EntityWs2> submission) {
+	private Future<?> doSubmitUserTags(@NotNull Set<EntityWs2> submission) {
 		final Set<EntityWs2> submissionCopy = Set.copyOf(submission);
 		LOGGER.debug("Scheduling user tags for submission: '{}'.", submissionCopy);
 		return executorService.submit(() -> {
