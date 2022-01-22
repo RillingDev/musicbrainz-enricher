@@ -10,13 +10,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.function.Function;
 
 /**
  * Manages edits against the musicbrainz API.
@@ -26,7 +25,6 @@ import java.util.concurrent.Future;
  */
 @Service
 @ThreadSafe
-// TODO: Isolate queue chunking into standalone class
 public class MusicbrainzEditController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEditController.class);
 
@@ -35,7 +33,7 @@ public class MusicbrainzEditController {
 	private final MusicbrainzEditService musicbrainzEditService;
 	private final ExecutorService executorService;
 
-	private final Queue<EntityWs2> tagSubmissionQueue = new ConcurrentLinkedQueue<>();
+	private final ChunkedWorker<EntityWs2, Future<?>> tagSubmissionWorker;
 
 	private final Object tagSubmissionLock = new Object();
 
@@ -43,6 +41,8 @@ public class MusicbrainzEditController {
 									 @Qualifier("submissionExecutor") ExecutorService executorService) {
 		this.musicbrainzEditService = musicbrainzEditService;
 		this.executorService = executorService;
+
+		tagSubmissionWorker = new ChunkedWorker<>(TAG_SUBMISSION_SIZE, this::doSubmitUserTags);
 	}
 
 	/**
@@ -57,9 +57,7 @@ public class MusicbrainzEditController {
 	public @NotNull Future<?> submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup,
 														 @NotNull Set<String> tags) throws MusicbrainzException {
 		addTags(releaseGroup, tags);
-		tagSubmissionQueue.add(releaseGroup);
-
-		return flushUserTagSubmissions(false);
+		return tagSubmissionWorker.add(releaseGroup).orElse(CompletableFuture.completedFuture(null));
 	}
 
 	/**
@@ -68,43 +66,18 @@ public class MusicbrainzEditController {
 	 * @return Future for completion.
 	 */
 	public @NotNull Future<?> flush() {
-		return flushUserTagSubmissions(true);
-	}
-
-	private @NotNull Future<?> flushUserTagSubmissions(boolean force) {
-		Set<EntityWs2> submission;
-		synchronized (tagSubmissionLock) {
-			if (force) {
-				if (tagSubmissionQueue.isEmpty()) {
-					LOGGER.debug("No user tags to submit, skipping submission.");
-					return CompletableFuture.completedFuture(null);
-				}
-			} else {
-				if (tagSubmissionQueue.size() < TAG_SUBMISSION_SIZE) {
-					LOGGER.debug("Not enough user tags to submit, skipping submission.");
-					return CompletableFuture.completedFuture(null);
-				}
-			}
-
-			submission = new HashSet<>(TAG_SUBMISSION_SIZE);
-			// Note that queue may be larger than TAG_SUBMISSION_SIZE at this point as the queue can still be modified.
-			// Due to that, we only take TAG_SUBMISSION_SIZE items.
-			while (tagSubmissionQueue.peek() != null && submission.size() < TAG_SUBMISSION_SIZE) {
-				submission.add(tagSubmissionQueue.poll());
-			}
-		}
-
-		LOGGER.debug("Scheduling for user tag submission: {}.", submission);
-		return doSubmitUserTags(submission);
+		return tagSubmissionWorker.flush().orElse(CompletableFuture.completedFuture(null));
 	}
 
 	@NotNull
 	private Future<?> doSubmitUserTags(Set<EntityWs2> submission) {
+		final Set<EntityWs2> submissionCopy = Set.copyOf(submission);
+		LOGGER.debug("Scheduling user tags for submission: '{}'.", submissionCopy);
 		return executorService.submit(() -> {
 			try {
-				LOGGER.info("Submitting user tags for '{}'.", submission);
-				musicbrainzEditService.submitUserTags(submission);
-				LOGGER.info("Successfully submitted user tags for '{}'.", submission);
+				LOGGER.info("Submitting user tags for '{}'.", submissionCopy);
+				musicbrainzEditService.submitUserTags(submissionCopy);
+				LOGGER.info("Successfully submitted user tags for '{}'.", submissionCopy);
 			} catch (MusicbrainzException e) {
 				LOGGER.error("Could not submit user tags.", e);
 			}
@@ -120,6 +93,80 @@ public class MusicbrainzEditController {
 			TagWs2 userTag = new TagWs2();
 			userTag.setName(tag);
 			releaseGroup.addUserTag(userTag);
+		}
+	}
+
+	/**
+	 * Worker processing chunks of up to N items.
+	 * If after addition at least N items are present, they are immediately processed as a chunk of N
+	 * Chunks may have less than N items (but at least 1) if processing was forced using {@link #flush()}.
+	 *
+	 * @param <TItem>   Item type.
+	 * @param <UResult> Result type.
+	 */
+	@ThreadSafe
+	private static class ChunkedWorker<TItem, UResult> {
+		private final int chunkSize;
+
+		private final Queue<TItem> queue = new ConcurrentLinkedQueue<>();
+
+		private final Object workChunkingLock = new Object();
+
+		private final Function<Set<TItem>, UResult> workProcessor;
+
+		ChunkedWorker(int chunkSize, @NotNull Function<Set<TItem>, UResult> workProcessor) {
+			if (chunkSize < 1) {
+				throw new IllegalArgumentException("Chunk size must be at least 1.");
+			}
+			this.chunkSize = chunkSize;
+			this.workProcessor = workProcessor;
+		}
+
+		/**
+		 * Adds an item. If chunk size is reached, this may lead to an invocation of {@link #workProcessor}.
+		 *
+		 * @param input Item to add.
+		 * @return {@link #workProcessor} result, or empty not enough items exist yet for processing.
+		 */
+		public @NotNull Optional<UResult> add(TItem input) {
+			queue.add(input);
+			return flush(false);
+		}
+
+		/**
+		 * Flushes incomplete chunks. If any number of items are present, this may lead to an invocation of
+		 * {@link #workProcessor}.
+		 *
+		 * @return {@link #workProcessor} result, or empty no items exist for processing.
+		 */
+		public @NotNull Optional<UResult> flush() {
+			return flush(true);
+		}
+
+		private @NotNull Optional<UResult> flush(boolean force) {
+			Set<TItem> chunk;
+			synchronized (workChunkingLock) {
+				if (force) {
+					if (queue.isEmpty()) {
+						return Optional.empty();
+					}
+				} else {
+					if (queue.size() < chunkSize) {
+						return Optional.empty();
+					}
+				}
+
+				final Set<TItem> items = new HashSet<>(chunkSize);
+				// Note that queue may be larger than chunkSize at this point as the queue can still be modified.
+				// Due to that, we only take chunkSize items.
+				while (queue.peek() != null && items.size() < chunkSize) {
+					items.add(queue.poll());
+				}
+
+				chunk = Collections.unmodifiableSet(items);
+			}
+
+			return Optional.of(workProcessor.apply(chunk));
 		}
 	}
 }
