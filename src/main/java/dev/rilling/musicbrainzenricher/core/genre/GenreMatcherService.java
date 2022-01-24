@@ -48,6 +48,10 @@ public class GenreMatcherService {
 	 */
 	@NotNull
 	public Set<String> match(@NotNull Set<String> unmatchedGenres) {
+		if (unmatchedGenres.isEmpty()) {
+			return Set.of();
+		}
+
 		Set<String> matches = unmatchedGenres.stream()
 			.map(getCanonicalStringMatcher()::canonicalize)
 			.flatMap(Optional::stream)
