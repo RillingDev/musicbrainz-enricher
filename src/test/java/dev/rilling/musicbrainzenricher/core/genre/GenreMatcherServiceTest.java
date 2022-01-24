@@ -39,7 +39,7 @@ class GenreMatcherServiceTest {
 		Set<String> genres = Set.of("edm", "electronic");
 		when(genreRepository.findGenreNames()).thenReturn(genres);
 
-		assertThat(genreMatcherService.match(Set.of("jazz"))).isEmpty();
-		assertThat(genreMatcherService.match(Set.of("edm", "jazz"))).containsExactly("edm");
+		assertThat(genreMatcherService.match(Set.of("foobar"))).isEmpty();
+		assertThat(genreMatcherService.match(Set.of("edm", "foobar"))).containsExactly("edm");
 	}
 }
