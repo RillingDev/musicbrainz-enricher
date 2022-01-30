@@ -16,8 +16,8 @@ import java.time.Duration;
 @ThreadSafe
 class SpotifyBucketProvider implements BucketProvider {
 
-	// https://developer.spotify.com/documentation/web-api/
-	// Note: Spotify itself does not disclose an exact rate, this is only a guess to avoid running into it.
+	// https://developer.spotify.com/documentation/web-api/guides/rate-limits/
+	// Spotify itself does not disclose an exact rate, this is only a guess to avoid running into it.
 	private static final Bandwidth BANDWIDTH = Bandwidth.simple(10, Duration.ofMinutes(1));
 
 	private final Bucket bucket = Bucket.builder()

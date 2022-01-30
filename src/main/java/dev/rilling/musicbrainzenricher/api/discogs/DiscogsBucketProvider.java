@@ -21,10 +21,10 @@ class DiscogsBucketProvider implements BucketProvider {
 	private final Bucket bucket;
 
 	DiscogsBucketProvider(Environment environment) {
-		//https://www.discogs.com/developers/#page:home,header:home-rate-limiting
-		// Capacity increased if authenticated.
-		String token = environment.getProperty("musicbrainz-enricher.discogs.token");
-		int capacity = StringUtils.isEmpty(token) ? 25 : 60;
+		boolean authenticated = !StringUtils.isEmpty(environment.getProperty("musicbrainz-enricher.discogs.token"));
+
+		// https://www.discogs.com/developers/#page:home,header:home-rate-limiting
+		int capacity = authenticated ? 60 : 25;
 		Bandwidth bandwidth = Bandwidth.simple(capacity, Duration.ofMinutes(1));
 
 		bucket = Bucket.builder()
