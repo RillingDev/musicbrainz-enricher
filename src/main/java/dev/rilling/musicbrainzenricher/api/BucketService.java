@@ -18,7 +18,7 @@ public class BucketService {
 	public void consumeSingleBlocking(@NotNull Bucket bucket) {
 		try {
 			LOGGER.trace("Attempting to consume token from bucket '{}'.", bucket);
-			bucket.asScheduler().consume(1);
+			bucket.asBlocking().consume(1);
 			LOGGER.trace("Consumed token from bucket '{}'.", bucket);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
