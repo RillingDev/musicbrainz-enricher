@@ -3,7 +3,6 @@ package dev.rilling.musicbrainzenricher.api.discogs;
 import dev.rilling.musicbrainzenricher.api.BucketProvider;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.local.SynchronizationStrategy;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.lang3.StringUtils;
@@ -28,7 +27,7 @@ class DiscogsBucketProvider implements BucketProvider {
 		int capacity = StringUtils.isEmpty(token) ? 25 : 60;
 		Bandwidth bandwidth = Bandwidth.simple(capacity, Duration.ofMinutes(1));
 
-		bucket = Bucket4j.builder()
+		bucket = Bucket.builder()
 			.addLimit(bandwidth)
 			.withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE)
 			.build();

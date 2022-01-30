@@ -3,7 +3,6 @@ package dev.rilling.musicbrainzenricher.api.spotify;
 import dev.rilling.musicbrainzenricher.api.BucketProvider;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.local.SynchronizationStrategy;
 import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +20,7 @@ class SpotifyBucketProvider implements BucketProvider {
 	// Note: Spotify itself does not disclose an exact rate, this is only a guess to avoid running into it.
 	private static final Bandwidth BANDWIDTH = Bandwidth.simple(10, Duration.ofMinutes(1));
 
-	private final Bucket bucket = Bucket4j.builder()
+	private final Bucket bucket = Bucket.builder()
 		.addLimit(BANDWIDTH)
 		.withSynchronizationStrategy(SynchronizationStrategy.LOCK_FREE)
 		.build();
