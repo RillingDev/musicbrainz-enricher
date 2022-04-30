@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
  *     <li>Return the names found in the musicbrainz database</li>
  * </ol>
  * <p>
- * Also see https://www.mediawiki.org/wiki/Wikidata_Toolkit
+ * Also see <a href="https://www.mediawiki.org/wiki/Wikidata_Toolkit">https://www.mediawiki.org/wiki/Wikidata_Toolkit</a>
  */
 // https://musicbrainz.org/release-group/a63e5fa6-d6ad-47bd-986d-4a27b0c9de70
 // https://www.wikidata.org/wiki/Q53020187

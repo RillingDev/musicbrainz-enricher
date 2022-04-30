@@ -52,10 +52,9 @@ public class MusicbrainzEditController {
 	 *                     object may not be changed by the caller afterwards anymore.
 	 * @param tags         Tags to add.
 	 * @return Future for completion.
-	 * @throws MusicbrainzException If API access fails.
 	 */
 	public @NotNull Future<?> submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup,
-														 @NotNull Set<String> tags) throws MusicbrainzException {
+														 @NotNull Set<String> tags) {
 		addTags(releaseGroup, tags);
 		return tagSubmissionWorker.add(releaseGroup).orElse(CompletableFuture.completedFuture(null));
 	}
