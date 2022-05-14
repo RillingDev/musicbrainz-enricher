@@ -16,8 +16,9 @@ import java.time.Duration;
 @ThreadSafe
 class MusicbrainzBucketProvider implements BucketProvider {
 
-	// See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
-	private static final Bandwidth BANDWIDTH = Bandwidth.simple(1, Duration.ofSeconds(1));
+	// See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting,
+	// further slowed down in order to adapt for network fluctuations.
+	private static final Bandwidth BANDWIDTH = Bandwidth.simple(1, Duration.ofMillis(2500));
 
 	private final Bucket bucket = Bucket.builder()
 		.addLimit(BANDWIDTH)
