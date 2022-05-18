@@ -35,7 +35,6 @@ public class MusicbrainzAutoQueryService {
 		while (offset < count) {
 			LOGGER.info("Loading {} releases with offset {} with at least one relationship...", LIMIT, offset);
 			releaseRepository.findReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
-			LOGGER.info("Loaded {} releases with offset {} with at least one relationship...", LIMIT, offset);
 			offset += LIMIT;
 		}
 	}
