@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.0</version>
+		<version>2.7.1</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dev.rilling</groupId>
@@ -17,7 +17,7 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<testcontainers.version>1.17.2</testcontainers.version>
+		<testcontainers.version>1.17.3</testcontainers.version>
 	</properties>
 
 	<dependencies>
@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>org.wikidata.wdtk</groupId>
 			<artifactId>wdtk-wikibaseapi</artifactId>
-			<version>0.13.3</version>
+			<version>0.13.5</version>
 		</dependency>
 
 		<!-- Utility -->
@@ -139,12 +139,12 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp-urlconnection</artifactId>
-				<version>5.0.0-alpha.7</version>
+				<version>4.2.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>5.0.0-alpha.7</version>
+				<version>4.2.2</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
