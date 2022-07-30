@@ -13,6 +13,7 @@ import java.util.UUID;
 @Repository
 @ThreadSafe
 // TODO: Rewrite queries to perform better
+// TODO: include comparison against history items?
 public class ReleaseGroupRepository {
 
 	private final JdbcTemplate jdbcTemplate;
