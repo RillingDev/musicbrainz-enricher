@@ -70,13 +70,12 @@ public class MusicbrainzEditController {
 
 	@NotNull
 	private Future<?> doSubmitUserTags(@NotNull Set<EntityWs2> submission) {
-		final Set<EntityWs2> submissionCopy = Set.copyOf(submission);
-		LOGGER.debug("Scheduling user tags for submission: '{}'.", submissionCopy);
+		LOGGER.debug("Scheduling user tags for submission: '{}'.", submission);
 		return executorService.submit(() -> {
 			try {
-				LOGGER.info("Submitting user tags for '{}'.", submissionCopy);
-				musicbrainzEditService.submitUserTags(submissionCopy);
-				LOGGER.info("Successfully submitted user tags for '{}'.", submissionCopy);
+				LOGGER.info("Submitting user tags for '{}'.", submission);
+				musicbrainzEditService.submitUserTags(submission);
+				LOGGER.info("Successfully submitted user tags for '{}'.", submission);
 			} catch (MusicbrainzException e) {
 				LOGGER.error("Could not submit user tags.", e);
 			}
@@ -113,6 +112,11 @@ public class MusicbrainzEditController {
 
 		private final Function<Set<TItem>, UResult> workProcessor;
 
+		/**
+		 * @param chunkSize     Size of a chunk. Once reached, automatic flushing is done.
+		 * @param workProcessor Function processing a chunk of items. The chunk of items will not be modified by this
+		 *                      worker after calling the processor.
+		 */
 		ChunkedWorker(int chunkSize, @NotNull Function<Set<TItem>, UResult> workProcessor) {
 			if (chunkSize < 1) {
 				throw new IllegalArgumentException("Chunk size must be at least 1.");
