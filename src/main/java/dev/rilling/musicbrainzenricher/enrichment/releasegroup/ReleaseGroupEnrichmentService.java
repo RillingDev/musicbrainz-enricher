@@ -65,13 +65,13 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 
 	@Override
 	@NotNull
-	protected Collection<RelationWs2> extractRelations(@NotNull ReleaseGroupWs2 releaseGroupWs2) {
-		return releaseGroupWs2.getRelationList().getRelations();
+	protected Collection<RelationWs2> extractRelations(@NotNull ReleaseGroupWs2 entity) {
+		return entity.getRelationList().getRelations();
 	}
 
 	@Override
 	@NotNull
-	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult enrich(@NotNull ReleaseGroupWs2 releaseGroup,
+	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult enrich(@NotNull ReleaseGroupWs2 entity,
 																				@NotNull RelationWs2 relation,
 																				@NotNull Enricher enricher) {
 		LOGGER.debug("Starting enricher '{}' for '{}'.", enricher, relation);
@@ -81,7 +81,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 			LOGGER.debug("Enricher '{}' found genres '{}' for release group '{}'.",
 				genreEnricher.getClass().getSimpleName(),
 				genres,
-				releaseGroup.getId());
+				entity.getId());
 
 			newGenres.addAll(genres);
 		}
@@ -101,10 +101,10 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	}
 
 	@Override
-	protected void updateEntity(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull ReleaseGroupEnrichmentResult result) {
+	protected void updateEntity(@NotNull ReleaseGroupWs2 entity, @NotNull ReleaseGroupEnrichmentResult result) {
 		if (!result.genres().isEmpty()) {
-			LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.genres(), releaseGroup.getId());
-			musicbrainzEditController.submitReleaseGroupUserTags(releaseGroup, result.genres());
+			LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.genres(), entity.getId());
+			musicbrainzEditController.submitReleaseGroupUserTags(entity, result.genres());
 		}
 	}
 
