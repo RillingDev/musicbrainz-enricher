@@ -35,10 +35,10 @@ public class MusicbrainzEnricherService {
 				dataType,
 				mbid,
 				findFittingEnrichmentService(dataType)));
-			case RELEASE_GROUP -> musicbrainzAutoQueryService.autoQueryReleaseGroupsWithRelationships(mbid -> executeEnrichment(
-				dataType,
-				mbid,
-				findFittingEnrichmentService(dataType)));
+			case RELEASE_GROUP ->
+				musicbrainzAutoQueryService.autoQueryReleaseGroupsWithRelationships(mbid -> executeEnrichment(dataType,
+					mbid,
+					findFittingEnrichmentService(dataType)));
 		}
 	}
 
@@ -49,10 +49,6 @@ public class MusicbrainzEnricherService {
 	private void executeEnrichment(@NotNull DataType dataType,
 								   @NotNull UUID mbid,
 								   AbstractEnrichmentService<?, ?> enrichmentService) {
-		if (!historyService.checkIsDue(dataType, mbid)) {
-			LOGGER.debug("Check is not due for '{}' ({}), skipping.", mbid, dataType);
-			return;
-		}
 		LOGGER.info("Starting enrichment for '{}' ({}).", mbid, dataType);
 		try {
 			enrichmentService.executeEnrichment(mbid);

@@ -79,9 +79,9 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 		if (enricher instanceof GenreEnricher genreEnricher) {
 			Set<String> genres = genreEnricher.fetchGenres(relation);
 			LOGGER.debug("Enricher '{}' found genres '{}' for release group '{}'.",
-				genreEnricher.getClass().getSimpleName(),
-				genres,
-				entity.getId());
+					genreEnricher.getClass().getSimpleName(),
+					genres,
+					entity.getId());
 
 			newGenres.addAll(genres);
 		}
@@ -94,8 +94,8 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	@NotNull
 	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult mergeResults(@NotNull Collection<ReleaseGroupEnrichmentResult> results) {
 		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
-			.map(ReleaseGroupEnrichmentResult::genres)
-			.collect(Collectors.toSet()), MIN_GENRE_USAGE);
+				.map(ReleaseGroupEnrichmentResult::genres)
+				.collect(Collectors.toSet()), MIN_GENRE_USAGE);
 
 		return new ReleaseGroupEnrichmentResult(newGenres);
 	}

@@ -12,8 +12,6 @@ import java.util.UUID;
 
 @Repository
 @ThreadSafe
-// TODO: Rewrite queries to perform better
-// TODO: include comparison against history items?
 public class ReleaseGroupRepository {
 
 	private final JdbcTemplate jdbcTemplate;
@@ -22,20 +20,25 @@ public class ReleaseGroupRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	public long countReleaseGroupsWhereRelationshipsExist() {
+	public long countNewReleaseGroupsWhereRelationshipsExist() {
 		return Objects.requireNonNull(jdbcTemplate.queryForObject("""
 			SELECT COUNT(*)	FROM musicbrainz.release_group rg
 				WHERE rg.id IN
 					(SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)
+				AND rg.gid NOT IN
+				  (SELECT he.mbid FROM musicbrainz_enricher.history_entry he WHERE he.data_type = 1)
 			""", Long.class));
 	}
 
 	@NotNull
-	public List<UUID> findReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) {
+	public List<UUID> findNewReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) {
 		List<UUID> mbids = jdbcTemplate.query("""
-			SELECT rg.gid FROM musicbrainz.release_group rg
+			SELECT rg.gid
+			FROM musicbrainz.release_group rg
 				WHERE rg.id IN
-					(SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)
+					  (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url	lrgu)
+				AND rg.gid NOT IN
+					  (SELECT he.mbid FROM musicbrainz_enricher.history_entry he WHERE he.data_type = 1)
 			ORDER BY rg.id
 			OFFSET ? LIMIT ?
 			""", (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit);
