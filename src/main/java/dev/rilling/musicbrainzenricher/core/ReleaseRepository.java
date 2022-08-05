@@ -12,7 +12,6 @@ import java.util.UUID;
 
 @Repository
 @ThreadSafe
-// TODO: Rewrite queries to perform better
 public class ReleaseRepository {
 	private final JdbcTemplate jdbcTemplate;
 
@@ -26,7 +25,7 @@ public class ReleaseRepository {
 				WHERE r.id IN
 					(SELECT lru.entity0 FROM musicbrainz.l_release_url lru)
 				AND r.gid NOT IN
-				  (SELECT he.mbid FROM musicbrainz_enricher.history_entry he WHERE he.data_type = 0)
+				  (SELECT rhe.release_gid FROM musicbrainz_enricher.release_history_entry rhe)
 			""", Long.class));
 	}
 
@@ -37,7 +36,7 @@ public class ReleaseRepository {
 				WHERE r.id IN
 					(SELECT lru.entity0 FROM musicbrainz.l_release_url lru)
 				AND r.gid NOT IN
-				  (SELECT he.mbid FROM musicbrainz_enricher.history_entry he WHERE he.data_type = 0)
+				  (SELECT rhe.release_gid FROM musicbrainz_enricher.release_history_entry rhe)
 			ORDER BY r.id
 			OFFSET ? LIMIT ?
 			""", (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit);

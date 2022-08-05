@@ -1,13 +1,9 @@
 package dev.rilling.musicbrainzenricher.core.history;
 
-import dev.rilling.musicbrainzenricher.core.DataType;
 import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
 
 @Repository
 @ThreadSafe
@@ -20,18 +16,16 @@ class HistoryEntryRepository {
 	}
 
 	void persist(@NotNull HistoryEntry historyEntry) {
-		jdbcTemplate.update("""
-			INSERT INTO musicbrainz_enricher.history_entry (data_type, mbid) VALUES (?, ?)
-			ON CONFLICT (data_type, mbid) DO NOTHING
-			""", serializeDataType(historyEntry.dataType()), historyEntry.mbid());
-	}
-
-	@NotNull
-	private OffsetDateTime serializeZonedDateTime(@NotNull ZonedDateTime before) {
-		return before.toOffsetDateTime();
-	}
-
-	private int serializeDataType(@NotNull DataType dataType) {
-		return dataType.ordinal();
+		switch (historyEntry.dataType()) {
+			case RELEASE -> jdbcTemplate.update("""
+				INSERT INTO musicbrainz_enricher.release_history_entry (release_gid) VALUES (?)
+				ON CONFLICT (release_gid) DO NOTHING
+				""", historyEntry.mbid());
+			case RELEASE_GROUP -> jdbcTemplate.update("""
+				INSERT INTO musicbrainz_enricher.release_group_history_entry (release_group_gid) VALUES (?)
+				ON CONFLICT (release_group_gid) DO NOTHING
+				""", historyEntry.mbid());
+			default -> throw new IllegalArgumentException("Invalid entry: '%s'.".formatted(historyEntry));
+		}
 	}
 }

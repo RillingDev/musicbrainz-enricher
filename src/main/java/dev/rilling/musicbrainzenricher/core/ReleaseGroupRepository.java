@@ -26,7 +26,7 @@ public class ReleaseGroupRepository {
 				WHERE rg.id IN
 					(SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)
 				AND rg.gid NOT IN
-				  (SELECT he.mbid FROM musicbrainz_enricher.history_entry he WHERE he.data_type = 1)
+				  (SELECT rghe.release_group_gid FROM musicbrainz_enricher.release_group_history_entry rghe)
 			""", Long.class));
 	}
 
@@ -38,7 +38,7 @@ public class ReleaseGroupRepository {
 				WHERE rg.id IN
 					  (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url	lrgu)
 				AND rg.gid NOT IN
-					  (SELECT he.mbid FROM musicbrainz_enricher.history_entry he WHERE he.data_type = 1)
+					(SELECT rghe.release_group_gid FROM musicbrainz_enricher.release_group_history_entry rghe)
 			ORDER BY rg.id
 			OFFSET ? LIMIT ?
 			""", (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit);
