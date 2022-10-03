@@ -4,7 +4,7 @@
 
 ## About
 
-Queries [MusicBrainz'](https://musicbrainz.org/) API and fetches data from linked sources like Discogs or Spotify.
+Queries the [MusicBrainz](https://musicbrainz.org/) API and fetches data from linked sources like Discogs or Spotify.
 
 ### Supported Relationship Sources
 

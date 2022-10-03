@@ -35,8 +35,6 @@ public class MusicbrainzEditController {
 
 	private final ChunkedWorker<EntityWs2, Future<?>> tagSubmissionWorker;
 
-	private final Object tagSubmissionLock = new Object();
-
 	public MusicbrainzEditController(MusicbrainzEditService musicbrainzEditService,
 									 @Qualifier("submissionExecutor") ExecutorService executorService) {
 		this.musicbrainzEditService = musicbrainzEditService;

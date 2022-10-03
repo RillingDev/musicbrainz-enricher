@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -17,8 +16,6 @@ import java.util.function.Consumer;
 public class MusicbrainzAutoQueryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzAutoQueryService.class);
-
-	private static final Duration RECHECK_TIMESPAN = Duration.ofDays(90);
 
 	private static final int LIMIT = 1000;
 

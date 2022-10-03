@@ -51,8 +51,8 @@ class MusicbrainzEditControllerTest {
 		for (int i = 0; i < submissionCountThatDoesNotTriggerSubmit; i++) {
 			musicbrainzEditController.submitReleaseGroupUserTags(createReleaseGroup(), Set.of("foo"));
 		}
-		// After TAG_SUBMISSION_SIZE - 1 items, the submission size has not been reached, so no submitp should
-		// have happened.
+		// After TAG_SUBMISSION_SIZE - 1 items, the submission size has not been reached,
+		// so no submit should have happened.
 		verify(musicbrainzEditService, never()).submitUserTags(anySet());
 
 		musicbrainzEditController.submitReleaseGroupUserTags(createReleaseGroup(), Set.of("foo"));
