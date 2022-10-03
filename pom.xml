@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>dev.rilling</groupId>
 	<artifactId>musicbrainz-enricher</artifactId>
-	<version>0.9.0</version>
+	<version>1.0.0-SNAPSHOT</version>
 	<name>MusicbrainzEnricher</name> <!-- Should not contain spaces or special characters as it used as User Agent -->
 	<url>https://github.com/FelixRilling/musicbrainz-enricher</url>
 
