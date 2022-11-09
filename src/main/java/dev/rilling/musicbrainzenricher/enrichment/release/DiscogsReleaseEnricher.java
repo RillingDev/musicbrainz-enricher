@@ -51,9 +51,9 @@ class DiscogsReleaseEnricher implements GenreEnricher {
 
 	@NotNull
 	private Set<String> extractGenres(@NotNull DiscogsRelease release) {
-		Set<String> genres = new HashSet<>(release.getGenres());
-		if (release.getStyles() != null) {
-			genres.addAll(release.getStyles());
+		Set<String> genres = new HashSet<>(release.genres());
+		if (release.styles() != null) {
+			genres.addAll(release.styles());
 		}
 		return genres;
 	}

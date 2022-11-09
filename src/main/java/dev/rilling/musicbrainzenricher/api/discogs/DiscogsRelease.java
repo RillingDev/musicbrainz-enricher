@@ -11,22 +11,11 @@ import java.util.Set;
  * (Incomplete) Discogs release.
  */
 // See e.g. https://api.discogs.com/releases/249504
-public class DiscogsRelease {
-	private final @NotNull Set<String> genres;
-	private final Set<String> styles;
-
+public record DiscogsRelease(@NotNull Set<String> genres, Set<String> styles) {
 	@JsonCreator
 	public DiscogsRelease(@JsonProperty(value = "genres", required = true) Set<String> genres,
 						  @JsonProperty(value = "styles") Set<String> styles) {
 		this.genres = Set.copyOf(genres);
 		this.styles = styles != null ? Set.copyOf(styles) : null;
-	}
-
-	public @NotNull Set<String> getGenres() {
-		return genres;
-	}
-
-	public Set<String> getStyles() {
-		return styles;
 	}
 }
