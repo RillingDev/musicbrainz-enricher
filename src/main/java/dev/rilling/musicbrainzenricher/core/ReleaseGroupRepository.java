@@ -20,28 +20,13 @@ public class ReleaseGroupRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	public long countNewReleaseGroupsWhereRelationshipsExist() {
-		return Objects.requireNonNull(jdbcTemplate.queryForObject("""
-			SELECT COUNT(*)	FROM musicbrainz.release_group rg
-				WHERE rg.id IN
-					(SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu)
-				AND rg.gid NOT IN
-				  (SELECT rghe.release_group_gid FROM musicbrainz_enricher.release_group_history_entry rghe)
-			""", Long.class));
+	public long countFromWorkQueue() {
+		return Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM musicbrainz_enricher.release_group_work_queue", Long.class));
 	}
 
 	@NotNull
-	public List<UUID> findNewReleaseGroupsMbidWhereRelationshipsExist(long offset, int limit) {
-		List<UUID> mbids = jdbcTemplate.query("""
-			SELECT rg.gid
-			FROM musicbrainz.release_group rg
-				WHERE rg.id IN
-					  (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url	lrgu)
-				AND rg.gid NOT IN
-					(SELECT rghe.release_group_gid FROM musicbrainz_enricher.release_group_history_entry rghe)
-			ORDER BY rg.id
-			OFFSET ? LIMIT ?
-			""", (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit);
+	public List<UUID> findFromWorkQueue(long offset) {
+		List<UUID> mbids = jdbcTemplate.query("SELECT rg.gid FROM musicbrainz_enricher.release_group_work_queue rg LIMIT ?", (rs, rowNum) -> rs.getObject("gid", UUID.class), offset);
 		return Collections.unmodifiableList(mbids);
 	}
 }

@@ -28,27 +28,21 @@ public class MusicbrainzAutoQueryService {
 		this.releaseGroupRepository = releaseGroupRepository;
 	}
 
-	public void autoQueryReleasesWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
-		long count = releaseRepository.countNewReleasesWhereRelationshipsExist();
-		LOGGER.info("Found a total of {} new auto query releases.", count);
-
-		long offset = 0;
-		while (offset < count) {
-			LOGGER.info("Loading {} releases with offset {}...", LIMIT, offset);
-			releaseRepository.findNewReleaseMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
-			offset += LIMIT;
+	public void autoQueryReleases(@NotNull Consumer<UUID> mbidConsumer) {
+		long count = releaseRepository.countFromWorkQueue();
+		while (count > 0) {
+			LOGGER.info("{} auto query releases remaining.", count);
+			releaseRepository.findFromWorkQueue(LIMIT).forEach(mbidConsumer);
+			count = releaseRepository.countFromWorkQueue();
 		}
 	}
 
-	public void autoQueryReleaseGroupsWithRelationships(@NotNull Consumer<UUID> mbidConsumer) {
-		long count = releaseGroupRepository.countNewReleaseGroupsWhereRelationshipsExist();
-		LOGGER.info("Found a total of {} new auto query release groups.", count);
-
-		long offset = 0;
-		while (offset < count) {
-			LOGGER.info("Loading {} release groups with offset {}...", LIMIT, offset);
-			releaseGroupRepository.findNewReleaseGroupsMbidWhereRelationshipsExist(offset, LIMIT).forEach(mbidConsumer);
-			offset += LIMIT;
+	public void autoQueryReleaseGroups(@NotNull Consumer<UUID> mbidConsumer) {
+		long count = releaseGroupRepository.countFromWorkQueue();
+		while (count > 0) {
+			LOGGER.info("{} auto query release groups remaining.", count);
+			releaseGroupRepository.findFromWorkQueue(LIMIT).forEach(mbidConsumer);
+			count = releaseGroupRepository.countFromWorkQueue();
 		}
 	}
 

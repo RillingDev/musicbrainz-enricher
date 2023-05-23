@@ -19,27 +19,13 @@ public class ReleaseRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	public long countNewReleasesWhereRelationshipsExist() {
-		return Objects.requireNonNull(jdbcTemplate.queryForObject("""
-			SELECT COUNT(*) FROM musicbrainz.release r
-				WHERE r.id IN
-					(SELECT lru.entity0 FROM musicbrainz.l_release_url lru)
-				AND r.gid NOT IN
-				  (SELECT rhe.release_gid FROM musicbrainz_enricher.release_history_entry rhe)
-			""", Long.class));
+	public long countFromWorkQueue() {
+		return Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM musicbrainz_enricher.release_work_queue", Long.class));
 	}
 
 	@NotNull
-	public List<UUID> findNewReleaseMbidWhereRelationshipsExist(long offset, int limit) {
-		List<UUID> mbids = jdbcTemplate.query("""
-			SELECT r.gid FROM musicbrainz.release r
-				WHERE r.id IN
-					(SELECT lru.entity0 FROM musicbrainz.l_release_url lru)
-				AND r.gid NOT IN
-				  (SELECT rhe.release_gid FROM musicbrainz_enricher.release_history_entry rhe)
-			ORDER BY r.id
-			OFFSET ? LIMIT ?
-			""", (rs, rowNum) -> rs.getObject("gid", UUID.class), offset, limit);
+	public List<UUID> findFromWorkQueue(int limit) {
+		List<UUID> mbids = jdbcTemplate.query("SELECT r.gid FROM musicbrainz_enricher.release_work_queue r LIMIT ?", (rs, rowNum) -> rs.getObject("gid", UUID.class), limit);
 		return Collections.unmodifiableList(mbids);
 	}
 }
