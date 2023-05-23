@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.0.4</version>
+		<version>3.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dev.rilling</groupId>
@@ -17,7 +17,7 @@
 
 	<properties>
 		<java.version>17</java.version>
-		<testcontainers.version>1.17.6</testcontainers.version>
+		<testcontainers.version>1.18.1</testcontainers.version>
 	</properties>
 
 	<dependencies>
@@ -72,7 +72,7 @@
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.15.4</version>
+			<version>1.16.1</version>
 		</dependency>
 		<dependency>
 			<groupId>se.michaelthelin.spotify</groupId>
@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>org.wikidata.wdtk</groupId>
 			<artifactId>wdtk-wikibaseapi</artifactId>
-			<version>0.14.4</version>
+			<version>0.14.5</version>
 		</dependency>
 
 		<!-- Utility -->
@@ -139,12 +139,12 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp-urlconnection</artifactId>
-				<version>4.10.0</version>
+				<version>4.11.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>4.10.0</version>
+				<version>4.11.0</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
