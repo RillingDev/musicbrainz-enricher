@@ -47,10 +47,10 @@ This tool can run in auto-query or single mode. Auto-query mode will enrich ever
 Single mode takes a MusicBrainz MBID and will enrich the matching entity.
 
 Auto-query mode:
-`java -jar musicbrainz-enricher*.jar 'release'`.
+`java -jar musicbrainz-enricher*.jar release`.
 
 Single mode:
-`java -jar musicbrainz-enricher*.jar 'release' 'MBID'`.
+`java -jar musicbrainz-enricher*.jar release 'MBID'`.
 
 ### History Storage
 
