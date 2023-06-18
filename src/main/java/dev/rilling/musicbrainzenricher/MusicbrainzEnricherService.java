@@ -54,6 +54,7 @@ public class MusicbrainzEnricherService {
 			LOGGER.error("Could not enrich {} '{}'.", dataType, mbid, e);
 			return;
 		}
+		// TODO: should not persist if submission was not flushed yet.
 		LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
 		historyService.markAsChecked(dataType, mbid);
 	}

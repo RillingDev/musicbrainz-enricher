@@ -16,8 +16,6 @@ import org.musicbrainz.utils.MbUtils;
 
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
 import static dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditController.TAG_SUBMISSION_SIZE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,20 +30,12 @@ class MusicbrainzEditControllerTest {
 	@Mock
 	MusicbrainzEditService musicbrainzEditService;
 
-	@Mock(name = "submissionExecutor")
-	ExecutorService executorService;
-
 	@Captor
 	ArgumentCaptor<Set<EntityWs2>> submissionCaptor;
 
 	@Test
 	@DisplayName("submission takes place only after TAG_SUBMISSION_SIZE items.")
 	void submissionAfterItemCount() throws MusicbrainzException {
-		when(executorService.submit(any(Runnable.class))).thenAnswer(inv -> {
-			Runnable runnable = inv.getArgument(0);
-			runnable.run();
-			return CompletableFuture.completedFuture(null);
-		});
 
 		int submissionCountThatDoesNotTriggerSubmit = TAG_SUBMISSION_SIZE - 1;
 		for (int i = 0; i < submissionCountThatDoesNotTriggerSubmit; i++) {
@@ -65,11 +55,6 @@ class MusicbrainzEditControllerTest {
 	@Test
 	@DisplayName("submission may take place early if flush() is called.")
 	void submissionAfterFlush() throws MusicbrainzException {
-		when(executorService.submit(any(Runnable.class))).thenAnswer(inv -> {
-			Runnable runnable = inv.getArgument(0);
-			runnable.run();
-			return CompletableFuture.completedFuture(null);
-		});
 
 		int submissionCountThatDoesNotTriggerSubmit = TAG_SUBMISSION_SIZE - 1;
 		for (int i = 0; i < submissionCountThatDoesNotTriggerSubmit; i++) {
