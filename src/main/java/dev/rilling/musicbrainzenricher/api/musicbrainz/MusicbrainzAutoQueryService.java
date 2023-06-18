@@ -17,7 +17,7 @@ public class MusicbrainzAutoQueryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzAutoQueryService.class);
 
-	private static final int LIMIT = 1000;
+	private static final int LIMIT = 100;
 
 	private final ReleaseRepository releaseRepository;
 	private final ReleaseGroupRepository releaseGroupRepository;

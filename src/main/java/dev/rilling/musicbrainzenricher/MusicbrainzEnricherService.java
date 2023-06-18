@@ -48,14 +48,14 @@ public class MusicbrainzEnricherService {
 	private void executeEnrichment(@NotNull DataType dataType,
 								   @NotNull UUID mbid,
 								   AbstractEnrichmentService<?, ?> enrichmentService) {
-		LOGGER.info("Starting enrichment for '{}' ({}).", mbid, dataType);
+		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
 		try {
 			enrichmentService.executeEnrichment(mbid);
 		} catch (RuntimeException e) {
-			LOGGER.error("Could not enrich {}' ({}).", mbid, dataType, e);
+			LOGGER.error("Could not enrich {} '{}'.", dataType, mbid, e);
 			return;
 		}
-		LOGGER.info("Completed enrichment for '{}' ({}).", mbid, dataType);
+		LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
 		historyService.markAsChecked(dataType, mbid);
 	}
 

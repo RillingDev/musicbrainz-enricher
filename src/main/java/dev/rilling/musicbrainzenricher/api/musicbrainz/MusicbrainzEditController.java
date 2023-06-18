@@ -68,12 +68,12 @@ public class MusicbrainzEditController {
 
 	@NotNull
 	private Future<?> doSubmitUserTags(@NotNull Set<EntityWs2> submission) {
-		LOGGER.debug("Scheduling user tags for submission: '{}'.", submission);
+		LOGGER.debug("Scheduling user tags for submission.");
 		return executorService.submit(() -> {
 			try {
-				LOGGER.info("Submitting user tags for '{}'.", submission);
+				LOGGER.info("Submitting user tags for {} entities.", submission.size());
 				musicbrainzEditService.submitUserTags(submission);
-				LOGGER.info("Successfully submitted user tags for '{}'.", submission);
+				LOGGER.info("Successfully submitted user tags for {} entities.", submission.size());
 			} catch (MusicbrainzException e) {
 				LOGGER.error("Could not submit user tags.", e);
 			}

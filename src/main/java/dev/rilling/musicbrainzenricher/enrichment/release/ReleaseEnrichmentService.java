@@ -76,18 +76,18 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 	protected ReleaseEnrichmentResult enrich(@NotNull ReleaseWs2 entity,
 											 @NotNull RelationWs2 relation,
 											 @NotNull Enricher enricher) {
-		LOGGER.debug("Starting enricher '{}' for '{}'.", enricher, relation);
+		LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 		Set<String> newGenres = new HashSet<>(5);
 		if (enricher instanceof GenreEnricher genreEnricher) {
 			Set<String> genres = genreEnricher.fetchGenres(relation);
-			LOGGER.debug("Enricher '{}' found genres '{}' for release '{}'.",
+			LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
 				genreEnricher.getClass().getSimpleName(),
 				genres,
-				entity.getId());
+				relation);
 
 			newGenres.addAll(genres);
 		}
-		LOGGER.debug("Completed enricher '{}' for '{}'.", enricher, relation);
+		LOGGER.debug("Completed enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 		return new ReleaseEnrichmentResult(newGenres);
 	}
 

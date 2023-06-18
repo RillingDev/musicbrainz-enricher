@@ -51,10 +51,10 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 		DataType dataType = parseDataType(args[0]);
 		if (args.length == 2) {
 			UUID mbid = UUID.fromString(args[1]);
-			LOGGER.info("Running in single mode for type {} with MBID '{}'.", dataType, mbid);
+			LOGGER.info("Running in single mode for data type {} with MBID '{}'.", dataType, mbid);
 			musicbrainzEnricherService.runInSingleMode(dataType, mbid);
 		} else {
-			LOGGER.info("Running in auto-query mode for type {}.", dataType);
+			LOGGER.info("Running in auto-query mode for data type {}.", dataType);
 			musicbrainzEnricherService.runInAutoQueryMode(dataType);
 		}
 
@@ -66,10 +66,11 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 	}
 
 	private void shutdown() throws InterruptedException {
-		LOGGER.debug("Shutting down");
+		LOGGER.debug("Shutting down.");
 
 		try {
 			musicbrainzEditController.flush().get();
+			LOGGER.debug("Flushed pending edits.");
 		} catch (ExecutionException e) {
 			LOGGER.error("Failed to flush edits.", e);
 		}

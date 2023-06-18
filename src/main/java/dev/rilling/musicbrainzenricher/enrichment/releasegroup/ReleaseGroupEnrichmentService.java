@@ -74,18 +74,18 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult enrich(@NotNull ReleaseGroupWs2 entity,
 																				@NotNull RelationWs2 relation,
 																				@NotNull Enricher enricher) {
-		LOGGER.debug("Starting enricher '{}' for '{}'.", enricher, relation);
+		LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 		Set<String> newGenres = new HashSet<>(5);
 		if (enricher instanceof GenreEnricher genreEnricher) {
 			Set<String> genres = genreEnricher.fetchGenres(relation);
-			LOGGER.debug("Enricher '{}' found genres '{}' for release group '{}'.",
-					genreEnricher.getClass().getSimpleName(),
-					genres,
-					entity.getId());
+			LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
+				genreEnricher.getClass().getSimpleName(),
+				genres,
+				relation);
 
 			newGenres.addAll(genres);
 		}
-		LOGGER.debug("Completed enricher '{}' for '{}'.", enricher, relation);
+		LOGGER.debug("Completed enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 
 		return new ReleaseGroupEnrichmentResult(newGenres);
 	}
@@ -94,8 +94,8 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	@NotNull
 	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult mergeResults(@NotNull Collection<ReleaseGroupEnrichmentResult> results) {
 		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
-				.map(ReleaseGroupEnrichmentResult::genres)
-				.collect(Collectors.toSet()), MIN_GENRE_USAGE);
+			.map(ReleaseGroupEnrichmentResult::genres)
+			.collect(Collectors.toSet()), MIN_GENRE_USAGE);
 
 		return new ReleaseGroupEnrichmentResult(newGenres);
 	}
