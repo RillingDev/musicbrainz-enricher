@@ -21,23 +21,19 @@ public class MusicbrainzEnricherService {
 	private final MusicbrainzAutoQueryService musicbrainzAutoQueryService;
 	private final HistoryService historyService;
 
-	MusicbrainzEnricherService(ApplicationContext applicationContext,
-							   MusicbrainzAutoQueryService musicbrainzAutoQueryService,
-							   HistoryService historyService) {
+	MusicbrainzEnricherService(ApplicationContext applicationContext, MusicbrainzAutoQueryService musicbrainzAutoQueryService, HistoryService historyService) {
 		this.applicationContext = applicationContext;
 		this.musicbrainzAutoQueryService = musicbrainzAutoQueryService;
 		this.historyService = historyService;
 	}
 
 	public void runInAutoQueryMode(@NotNull DataType dataType) {
+		final AbstractEnrichmentService<?, ?> enrichmentService = findFittingEnrichmentService(dataType);
 		switch (dataType) {
-			case RELEASE -> musicbrainzAutoQueryService.autoQueryReleases(mbid -> executeEnrichment(
-				dataType,
-				mbid,
-				findFittingEnrichmentService(dataType)));
-			case RELEASE_GROUP -> musicbrainzAutoQueryService.autoQueryReleaseGroups(mbid -> executeEnrichment(dataType,
-				mbid,
-				findFittingEnrichmentService(dataType)));
+			case RELEASE ->
+				musicbrainzAutoQueryService.autoQueryReleases(mbid -> executeEnrichment(dataType, mbid, enrichmentService));
+			case RELEASE_GROUP ->
+				musicbrainzAutoQueryService.autoQueryReleaseGroups(mbid -> executeEnrichment(dataType, mbid, enrichmentService));
 		}
 	}
 
@@ -45,9 +41,7 @@ public class MusicbrainzEnricherService {
 		executeEnrichment(dataType, mbid, findFittingEnrichmentService(dataType));
 	}
 
-	private void executeEnrichment(@NotNull DataType dataType,
-								   @NotNull UUID mbid,
-								   AbstractEnrichmentService<?, ?> enrichmentService) {
+	private void executeEnrichment(@NotNull DataType dataType, @NotNull UUID mbid, AbstractEnrichmentService<?, ?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
 		try {
 			enrichmentService.executeEnrichment(mbid);
@@ -61,12 +55,6 @@ public class MusicbrainzEnricherService {
 
 	@NotNull
 	private AbstractEnrichmentService<?, ?> findFittingEnrichmentService(@NotNull DataType dataType) {
-		return applicationContext.getBeansOfType(AbstractEnrichmentService.class)
-			.values()
-			.stream()
-			.filter(enrichmentService -> enrichmentService.getDataType() == dataType)
-			.findFirst()
-			.orElseThrow(() -> new IllegalArgumentException("No enrichment service exists for data type '%s'.".formatted(
-				dataType)));
+		return applicationContext.getBeansOfType(AbstractEnrichmentService.class).values().stream().filter(enrichmentService -> enrichmentService.getDataType() == dataType).findFirst().orElseThrow(() -> new IllegalArgumentException("No enrichment service exists for data type '%s'.".formatted(dataType)));
 	}
 }
