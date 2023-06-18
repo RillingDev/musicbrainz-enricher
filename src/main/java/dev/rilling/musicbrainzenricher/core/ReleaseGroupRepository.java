@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 @ThreadSafe
-public class ReleaseGroupRepository {
+public class ReleaseGroupRepository implements WorkQueueRepository {
 
 	private final JdbcTemplate jdbcTemplate;
 
@@ -20,13 +20,19 @@ public class ReleaseGroupRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	@Override
 	public long countFromWorkQueue() {
 		return Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM musicbrainz_enricher.release_group_work_queue", Long.class));
 	}
 
-	@NotNull
-	public List<UUID> findFromWorkQueue(long offset) {
-		List<UUID> mbids = jdbcTemplate.query("SELECT rg.gid FROM musicbrainz_enricher.release_group_work_queue rg LIMIT ?", (rs, rowNum) -> rs.getObject("gid", UUID.class), offset);
+	@Override
+	public @NotNull List<UUID> findFromWorkQueue(int limit) {
+		List<UUID> mbids = jdbcTemplate.query("SELECT rg.gid FROM musicbrainz_enricher.release_group_work_queue rg LIMIT ?", (rs, rowNum) -> rs.getObject("gid", UUID.class), limit);
 		return Collections.unmodifiableList(mbids);
+	}
+
+	@Override
+	public @NotNull DataType getDataType() {
+		return DataType.RELEASE_GROUP;
 	}
 }
