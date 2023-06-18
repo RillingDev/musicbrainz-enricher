@@ -1,5 +1,6 @@
 package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
+import jakarta.annotation.PreDestroy;
 import net.jcip.annotations.ThreadSafe;
 import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.TagWs2;
@@ -52,6 +53,7 @@ public class MusicbrainzEditController {
 	/**
 	 * Flushes any pending changes.
 	 */
+	@PreDestroy
 	public void flush() {
 		LOGGER.debug("Flushing tag submission worker.");
 		tagSubmissionWorker.flush();

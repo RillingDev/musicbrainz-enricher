@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 public class MusicbrainzEnricherApplication implements CommandLineRunner {
@@ -54,22 +53,13 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 			musicbrainzEnricherService.runInAutoQueryMode(dataType);
 		}
 
-		try {
-			shutdown();
-		} catch (InterruptedException e) {
-			// Can be ignored during application shutdown
-		}
+		shutdown();
 	}
 
-	private void shutdown() throws InterruptedException {
+	private void shutdown() {
 		LOGGER.debug("Shutting down.");
-
+		// All pending tasks should be completed anyways, so a simple shutdown is enough.
 		enrichmentExecutor.shutdown();
-		if (!enrichmentExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
-			LOGGER.warn("Exceeded timeout for enrichment executor termination.");
-		}
-
-		musicbrainzEditController.flush();
 	}
 
 	@NotNull
