@@ -1,7 +1,8 @@
 package dev.rilling.musicbrainzenricher;
 
-import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzAutoQueryService;
 import dev.rilling.musicbrainzenricher.core.DataType;
+import dev.rilling.musicbrainzenricher.core.DataTypeAware;
+import dev.rilling.musicbrainzenricher.core.WorkQueueRepository;
 import dev.rilling.musicbrainzenricher.core.history.HistoryService;
 import dev.rilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
 import org.jetbrains.annotations.NotNull;
@@ -17,28 +18,32 @@ public class MusicbrainzEnricherService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherService.class);
 
+	private static final int AUTO_QUERY_CHUNK_SIZE = 100;
+
 	private final ApplicationContext applicationContext;
-	private final MusicbrainzAutoQueryService musicbrainzAutoQueryService;
 	private final HistoryService historyService;
 
-	MusicbrainzEnricherService(ApplicationContext applicationContext, MusicbrainzAutoQueryService musicbrainzAutoQueryService, HistoryService historyService) {
+	MusicbrainzEnricherService(ApplicationContext applicationContext, HistoryService historyService) {
 		this.applicationContext = applicationContext;
-		this.musicbrainzAutoQueryService = musicbrainzAutoQueryService;
 		this.historyService = historyService;
 	}
 
 	public void runInAutoQueryMode(@NotNull DataType dataType) {
-		final AbstractEnrichmentService<?, ?> enrichmentService = findFittingEnrichmentService(dataType);
-		switch (dataType) {
-			case RELEASE ->
-				musicbrainzAutoQueryService.autoQueryReleases(mbid -> executeEnrichment(dataType, mbid, enrichmentService));
-			case RELEASE_GROUP ->
-				musicbrainzAutoQueryService.autoQueryReleaseGroups(mbid -> executeEnrichment(dataType, mbid, enrichmentService));
+		final WorkQueueRepository workQueueRepository = findBeanForDataType(dataType, WorkQueueRepository.class);
+		final AbstractEnrichmentService<?, ?> enrichmentService = findBeanForDataType(dataType, AbstractEnrichmentService.class);
+
+		long count = workQueueRepository.countFromWorkQueue();
+		while (count > 0) {
+			LOGGER.info("{} auto-query entities remaining.", count);
+			for (UUID mbid : workQueueRepository.findFromWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
+				executeEnrichment(dataType, mbid, enrichmentService);
+			}
+			count = workQueueRepository.countFromWorkQueue();
 		}
 	}
 
 	public void runInSingleMode(@NotNull DataType dataType, @NotNull UUID mbid) {
-		executeEnrichment(dataType, mbid, findFittingEnrichmentService(dataType));
+		executeEnrichment(dataType, mbid, findBeanForDataType(dataType, AbstractEnrichmentService.class));
 	}
 
 	private void executeEnrichment(@NotNull DataType dataType, @NotNull UUID mbid, AbstractEnrichmentService<?, ?> enrichmentService) {
@@ -54,7 +59,7 @@ public class MusicbrainzEnricherService {
 	}
 
 	@NotNull
-	private AbstractEnrichmentService<?, ?> findFittingEnrichmentService(@NotNull DataType dataType) {
-		return applicationContext.getBeansOfType(AbstractEnrichmentService.class).values().stream().filter(enrichmentService -> enrichmentService.getDataType() == dataType).findFirst().orElseThrow(() -> new IllegalArgumentException("No enrichment service exists for data type '%s'.".formatted(dataType)));
+	private <T extends DataTypeAware> T findBeanForDataType(@NotNull DataType dataType, Class<T> clazz) {
+		return applicationContext.getBeansOfType(clazz).values().stream().filter(bean -> bean.getDataType() == dataType).findFirst().orElseThrow(() -> new IllegalArgumentException("No bean of type %s exists for data type %s.".formatted(clazz, dataType)));
 	}
 }

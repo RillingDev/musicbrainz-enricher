@@ -24,6 +24,7 @@ import java.util.function.Consumer;
  * {@link #flush()} should be called to ensure all remaining data is submitted.
  */
 @Service
+@ThreadSafe
 public class MusicbrainzEditController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEditController.class);
 
