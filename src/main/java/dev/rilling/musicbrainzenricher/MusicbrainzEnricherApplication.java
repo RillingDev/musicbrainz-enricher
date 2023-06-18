@@ -1,6 +1,5 @@
 package dev.rilling.musicbrainzenricher;
 
-import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditController;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -19,14 +18,10 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherApplication.class);
 
 	private final MusicbrainzEnricherService musicbrainzEnricherService;
-	private final MusicbrainzEditController musicbrainzEditController;
 	private final ExecutorService enrichmentExecutor;
 
-	MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService,
-								   MusicbrainzEditController musicbrainzEditController,
-								   @Qualifier("enrichmentExecutor") ExecutorService enrichmentExecutor) {
+	MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService, @Qualifier("enrichmentExecutor") ExecutorService enrichmentExecutor) {
 		this.musicbrainzEnricherService = musicbrainzEnricherService;
-		this.musicbrainzEditController = musicbrainzEditController;
 		this.enrichmentExecutor = enrichmentExecutor;
 	}
 

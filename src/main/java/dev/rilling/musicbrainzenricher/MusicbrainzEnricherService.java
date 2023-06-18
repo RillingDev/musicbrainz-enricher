@@ -48,13 +48,7 @@ public class MusicbrainzEnricherService {
 
 	private void executeEnrichment(@NotNull DataType dataType, @NotNull UUID mbid, AbstractEnrichmentService<?, ?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
-		try {
-			enrichmentService.executeEnrichment(mbid);
-		} catch (RuntimeException e) {
-			LOGGER.error("Could not enrich {} '{}'.", dataType, mbid, e);
-			return;
-		}
-		// TODO: should not persist if submission was not flushed yet.
+		enrichmentService.executeEnrichment(mbid);
 		LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
 		historyService.markAsChecked(dataType, mbid);
 	}
