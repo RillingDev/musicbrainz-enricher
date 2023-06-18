@@ -20,13 +20,13 @@ public class ReleaseRepository implements WorkQueueRepository {
 	}
 
 	@Override
-	public long countFromWorkQueue() {
+	public long countWorkQueue() {
 		return Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM musicbrainz_enricher.release_work_queue", Long.class));
 	}
 
 
 	@Override
-	public @NotNull List<UUID> findFromWorkQueue(int limit) {
+	public @NotNull List<UUID> queryWorkQueue(int limit) {
 		List<UUID> mbids = jdbcTemplate.query("SELECT r.gid FROM musicbrainz_enricher.release_work_queue r LIMIT ?", (rs, rowNum) -> rs.getObject("gid", UUID.class), limit);
 		return Collections.unmodifiableList(mbids);
 	}

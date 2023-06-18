@@ -32,13 +32,13 @@ public class MusicbrainzEnricherService {
 		final WorkQueueRepository workQueueRepository = findBeanForDataType(dataType, WorkQueueRepository.class);
 		final AbstractEnrichmentService<?, ?> enrichmentService = findBeanForDataType(dataType, AbstractEnrichmentService.class);
 
-		long count = workQueueRepository.countFromWorkQueue();
+		long count = workQueueRepository.countWorkQueue();
 		while (count > 0) {
 			LOGGER.info("{} auto-query entities remaining.", count);
-			for (UUID mbid : workQueueRepository.findFromWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
+			for (UUID mbid : workQueueRepository.queryWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
 				executeEnrichment(dataType, mbid, enrichmentService);
 			}
-			count = workQueueRepository.countFromWorkQueue();
+			count = workQueueRepository.countWorkQueue();
 		}
 	}
 
