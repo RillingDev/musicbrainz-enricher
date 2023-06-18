@@ -11,7 +11,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -23,16 +22,13 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 	private final MusicbrainzEnricherService musicbrainzEnricherService;
 	private final MusicbrainzEditController musicbrainzEditController;
 	private final ExecutorService enrichmentExecutor;
-	private final ExecutorService submissionExecutor;
 
 	MusicbrainzEnricherApplication(MusicbrainzEnricherService musicbrainzEnricherService,
 								   MusicbrainzEditController musicbrainzEditController,
-								   @Qualifier("enrichmentExecutor") ExecutorService enrichmentExecutor,
-								   @Qualifier("submissionExecutor") ExecutorService submissionExecutor) {
+								   @Qualifier("enrichmentExecutor") ExecutorService enrichmentExecutor) {
 		this.musicbrainzEnricherService = musicbrainzEnricherService;
 		this.musicbrainzEditController = musicbrainzEditController;
 		this.enrichmentExecutor = enrichmentExecutor;
-		this.submissionExecutor = submissionExecutor;
 	}
 
 	public static void main(String[] args) {
@@ -68,22 +64,12 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 	private void shutdown() throws InterruptedException {
 		LOGGER.debug("Shutting down.");
 
-		try {
-			musicbrainzEditController.flush().get();
-			LOGGER.debug("Flushed pending edits.");
-		} catch (ExecutionException e) {
-			LOGGER.error("Failed to flush edits.", e);
-		}
-
 		enrichmentExecutor.shutdown();
-		submissionExecutor.shutdown();
-
 		if (!enrichmentExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
 			LOGGER.warn("Exceeded timeout for enrichment executor termination.");
 		}
-		if (!submissionExecutor.awaitTermination(10, TimeUnit.SECONDS)) {
-			LOGGER.warn("Exceeded timeout for submission executor termination.");
-		}
+
+		musicbrainzEditController.flush();
 	}
 
 	@NotNull

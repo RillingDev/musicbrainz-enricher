@@ -18,11 +18,4 @@ public class ApplicationConfiguration {
 			Integer.class);
 		return Executors.newFixedThreadPool(threadPoolSize);
 	}
-
-	@Bean("submissionExecutor")
-	@Scope("singleton")
-	public ExecutorService submissionExecutor() {
-		return Executors.newSingleThreadExecutor();
-	}
-
 }
