@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * Manages edits against the musicbrainz API.
  * <p>
  * This controller also attempts to reduce requests by grouping data submissions. During application shutdown,
- * {@link #flush()} should be called to ensure all remaining data is submitted.
+ * {@link #flush()} is called to ensure all remaining data is submitted.
  */
 @Service
 @ThreadSafe
