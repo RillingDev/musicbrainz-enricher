@@ -69,7 +69,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 
 		Matcher matcher = META_REGEX.matcher(metaText);
 		if (!matcher.matches()) {
-			LOGGER.warn("Could not match meta text. This might be because we were redirected.");
+			LOGGER.warn("Could not match meta text. This may be because we were redirected.");
 			return Set.of();
 		}
 		return Set.of(matcher.group("genre"));
@@ -78,7 +78,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	private boolean hasLocaleLanguage(@NotNull Document document, @NotNull Locale locale) {
 		String parsedLocale = document.getElementsByTag("html").attr("lang");
 
-		// We manually extract just the language in order to not have to deal with different locale representations
+		// We manually extract just the language to not have to deal with different locale representations
 		// (es-mx in HTML vs es_MX in Java).
 		String parsedLanguage;
 		if (parsedLocale.contains("-")) {

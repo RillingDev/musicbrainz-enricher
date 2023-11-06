@@ -24,7 +24,7 @@ class DiscogsBucketProvider implements BucketProvider {
 		boolean authenticated = !StringUtils.isEmpty(environment.getProperty("musicbrainz-enricher.discogs.token"));
 
 		// See https://www.discogs.com/developers/#page:home,header:home-rate-limiting,
-		// further slowed down in order to adapt for network fluctuations.
+		// further slowed down to adapt for network fluctuations.
 		int capacity = authenticated ? 60 : 25;
 		Bandwidth bandwidth = Bandwidth.simple(capacity, Duration.ofSeconds(90));
 

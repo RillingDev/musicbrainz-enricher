@@ -42,7 +42,7 @@ class MusicbrainzEditControllerTest {
 			musicbrainzEditController.submitReleaseGroupUserTags(createReleaseGroup(), Set.of("foo"));
 		}
 		// After TAG_SUBMISSION_SIZE - 1 items, the submission size has not been reached,
-		// so no submit should have happened.
+		// so no submission should have happened.
 		verify(musicbrainzEditService, never()).submitUserTags(anySet());
 
 		musicbrainzEditController.submitReleaseGroupUserTags(createReleaseGroup(), Set.of("foo"));

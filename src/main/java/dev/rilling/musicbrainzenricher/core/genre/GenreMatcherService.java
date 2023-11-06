@@ -41,7 +41,7 @@ public class GenreMatcherService {
 
 	/**
 	 * Finds the associated canonical genre names for the provided genres.
-	 * If no good match is found, it is dropped from the final result.
+	 * If no good match is found, it is dropped from the result.
 	 *
 	 * @param unmatchedGenres Unmatched genres to look up canonical genre names for.
 	 * @return Matching canonical genre names.

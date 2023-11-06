@@ -32,7 +32,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 		if (args.length < 1) {
-			throw new IllegalArgumentException("Expected at least 1 arguments but found none.");
+			throw new IllegalArgumentException("Expected at least 1 argument but found none.");
 		}
 		if (args.length > 2) {
 			throw new IllegalArgumentException("Expected at most 2 parameters but found %d.".formatted(args.length));
@@ -41,10 +41,10 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 		DataType dataType = parseDataType(args[0]);
 		if (args.length == 2) {
 			UUID mbid = UUID.fromString(args[1]);
-			LOGGER.info("Running in single mode for data type {} with MBID '{}'.", dataType, mbid);
+			LOGGER.info("Running in single mode for the data type {} with MBID '{}'.", dataType, mbid);
 			musicbrainzEnricherService.runInSingleMode(dataType, mbid);
 		} else {
-			LOGGER.info("Running in auto-query mode for data type {}.", dataType);
+			LOGGER.info("Running in auto-query mode for the data type {}.", dataType);
 			musicbrainzEnricherService.runInAutoQueryMode(dataType);
 		}
 
@@ -53,7 +53,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
 	private void shutdown() {
 		LOGGER.debug("Shutting down.");
-		// All pending tasks should be completed anyways, so a simple shutdown is enough.
+		// All pending tasks should be completed anyway, so a simple shutdown is enough.
 		enrichmentExecutor.shutdown();
 	}
 
@@ -62,7 +62,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 		return switch (modeString) {
 			case "release" -> DataType.RELEASE;
 			case "release-group" -> DataType.RELEASE_GROUP;
-			default -> throw new IllegalArgumentException("Could not process mode '%s'.".formatted(modeString));
+			default -> throw new IllegalArgumentException("Could not process the mode '%s'.".formatted(modeString));
 		};
 	}
 

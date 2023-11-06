@@ -21,7 +21,7 @@ Queries the [MusicBrainz](https://musicbrainz.org/) API and fetches data from li
 
 ## Configuration
 
-This application uses Spring Boot which allows for easy handling of configurations.
+This application uses Spring Boot, which allows for easy handling of configurations.
 See [the Spring Boot documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto.properties-and-configuration.external-properties-location)
 for details.
 
@@ -54,5 +54,5 @@ Single mode:
 
 ### History Storage
 
-The application will remember entities checked already and will not re-check them. In order to reset this, truncate the
+The application will remember entities checked already and will not re-check them. To reset this, truncate the
 `*_history_entry` tables in the schema `musicbrainz_enricher`.

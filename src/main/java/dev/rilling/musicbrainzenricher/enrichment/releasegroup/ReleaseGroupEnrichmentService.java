@@ -58,7 +58,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 		try {
 			return musicbrainzLookupService.lookUpReleaseGroup(mbid, includes);
 		} catch (MusicbrainzException e) {
-			LOGGER.error("Could not query release-group '{}'.", mbid, e);
+			LOGGER.error("Could not query the release-group '{}'.", mbid, e);
 			return Optional.empty();
 		}
 	}
@@ -103,7 +103,7 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	@Override
 	protected void updateEntity(@NotNull ReleaseGroupWs2 entity, @NotNull ReleaseGroupEnrichmentResult result) {
 		if (!result.genres().isEmpty()) {
-			LOGGER.info("Submitting new tags '{}' for release group '{}'.", result.genres(), entity.getId());
+			LOGGER.info("Submitting new tags '{}' for the release group '{}'.", result.genres(), entity.getId());
 			musicbrainzEditController.submitReleaseGroupUserTags(entity, result.genres());
 		}
 	}

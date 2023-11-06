@@ -74,7 +74,7 @@ public class SpotifyQueryService {
 	@NotNull
 	private SpotifyApi getAuthorizedApiClient() throws IOException, SpotifyWebApiException, ParseException {
 		if (apiClient == null) {
-			throw new IllegalStateException("Cannot authorize client if none is set.");
+			throw new IllegalStateException("Cannot authorize the client if none is set.");
 		}
 
 		Instant now = Instant.now();
@@ -91,7 +91,7 @@ public class SpotifyQueryService {
 	@Nullable
 	private SpotifyApi createApiClient(String clientId, String clientSecret) {
 		if (StringUtils.isBlank(clientId) || StringUtils.isBlank(clientSecret)) {
-			LOGGER.warn("No credentials set, skipping API client creation.");
+			LOGGER.warn("No credentials are set, skipping API client creation.");
 			return null;
 		}
 		return new SpotifyApi.Builder().setClientId(clientId).setClientSecret(clientSecret).build();

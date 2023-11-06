@@ -43,7 +43,7 @@ public class MusicbrainzEditController {
 	 * Submits the given tags as tags for the entity.
 	 *
 	 * @param releaseGroup Entity to add tags to. Note that this is mutated to contain the new tags. Note that this
-	 *                     object may not be changed by the caller afterwards anymore.
+	 *                     object may not be changed by the caller afterward.
 	 * @param tags         Tags to add.
 	 */
 	public void submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull Set<String> tags) {
@@ -86,7 +86,7 @@ public class MusicbrainzEditController {
 	/**
 	 * Worker processing chunks of up to N items.
 	 * If after addition at least N items are present, they are immediately processed as a chunk of N
-	 * Chunks may have less than N items (but at least 1) if processing was forced using {@link #flush()}.
+	 * Chunks may have fewer than N items (but at least 1) if processing was forced using {@link #flush()}.
 	 *
 	 * @param <TItem> Item type.
 	 */
@@ -124,7 +124,7 @@ public class MusicbrainzEditController {
 		}
 
 		/**
-		 * Flushes incomplete chunks. If any number of items are present, this may lead to an invocation of
+		 * Flushes incomplete chunks. If any items are present, this may lead to an invocation of
 		 * {@link #workProcessor}.
 		 */
 		public void flush() {
@@ -145,7 +145,7 @@ public class MusicbrainzEditController {
 				}
 
 				final Set<TItem> items = new HashSet<>(chunkSize);
-				// Note that queue may be larger than chunkSize at this point as the queue can still be modified.
+				// Note that the queue may be larger than chunkSize at this point as the queue can still be modified.
 				// Due to that, we only take chunkSize items.
 				while (queue.peek() != null && items.size() < chunkSize) {
 					items.add(queue.poll());

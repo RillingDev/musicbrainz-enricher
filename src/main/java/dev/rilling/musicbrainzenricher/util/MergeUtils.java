@@ -14,7 +14,7 @@ public final class MergeUtils {
 	/**
 	 * Gets the most common items in the sets.
 	 * The more of the sets an item exists in, the higher its count will be.
-	 * The higher `minUsagePercentage`, the higher an items count has to be to be included in the result.
+	 * The higher `minUsagePercentage`, the higher an items count has to be included in the result.
 	 *
 	 * @param sets               Collection of sets to analyze the contents of.
 	 * @param minUsagePercentage Percentage from 0 to 1.

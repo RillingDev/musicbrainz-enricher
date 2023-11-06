@@ -26,7 +26,7 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 	public void executeEnrichment(@NotNull UUID mbid) {
 		Optional<TEntity> entityOptional = fetchEntity(mbid);
 		if (entityOptional.isEmpty()) {
-			LOGGER.warn("Could not find '{}' for data-type '{}'.", mbid, getDataType());
+			LOGGER.warn("Could not find '{}' for the data type '{}'.", mbid, getDataType());
 			return;
 		}
 		TEntity entity = entityOptional.get();
