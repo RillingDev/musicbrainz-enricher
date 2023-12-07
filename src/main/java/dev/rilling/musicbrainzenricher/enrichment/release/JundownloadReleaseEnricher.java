@@ -14,8 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -60,10 +60,10 @@ class JundownloadReleaseEnricher implements GenreEnricher {
 		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
 			return false;
 		}
-		URL url;
+		URI url;
 		try {
-			url = new URL(relation.getTargetId());
-		} catch (MalformedURLException e) {
+			url = new URI(relation.getTargetId());
+		} catch (URISyntaxException e) {
 			LOGGER.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
 			return false;
 		}
