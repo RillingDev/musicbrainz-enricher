@@ -6,6 +6,11 @@
 
 Queries the [MusicBrainz](https://musicbrainz.org/) API and fetches data from linked sources like Discogs or Spotify.
 
+### Requirements
+
+- Java Runtime Environment 21
+- Docker
+
 ### Supported Relationship Sources
 
 - Releases (mode = `release`)
