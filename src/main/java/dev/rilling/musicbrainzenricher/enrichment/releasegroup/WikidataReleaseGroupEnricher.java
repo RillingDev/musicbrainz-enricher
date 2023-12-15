@@ -90,7 +90,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 			LOGGER.warn("No musicbrainz link found for genre: '{}'.", genreId);
 			return Optional.empty();
 		}
-		Value value = musicbrainzLinkStatements.get().get(0).getValue();
+		Value value = musicbrainzLinkStatements.get().getFirst().getValue();
 		if (!(value instanceof StringValue)) {
 			LOGGER.warn("Unexpected musicbrainz link type: '{}'.", value);
 			return Optional.empty();
