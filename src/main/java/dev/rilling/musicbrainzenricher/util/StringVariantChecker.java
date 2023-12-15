@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.util;
 
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.Collator;
 import java.util.Comparator;
@@ -33,7 +32,7 @@ public class StringVariantChecker {
 	 * @param delimiters Delimiters to use when checking for variants. E.g. {@code "-"} or {@code " and "}.
 	 * @param collator   Collator to use for comparing variants.
 	 */
-	public StringVariantChecker(@NotNull Set<String> delimiters, @NotNull Collator collator) {
+	public StringVariantChecker( Set<String> delimiters,  Collator collator) {
 		if (delimiters.contains("")) {
 			throw new IllegalArgumentException("Empty string is not allowed in delimiters.");
 		}
@@ -52,11 +51,11 @@ public class StringVariantChecker {
 	 * @param b Value b.
 	 * @return if a and b are variants of each other.
 	 */
-	public boolean isVariant(@NotNull String a, @NotNull String b) {
+	public boolean isVariant( String a,  String b) {
 		return collator.equals(normalize(a), normalize(b));
 	}
 
-	private @NotNull String normalize(@NotNull String string) {
+	private  String normalize( String string) {
 		return delimiterPattern.matcher(string).replaceAll("");
 	}
 }

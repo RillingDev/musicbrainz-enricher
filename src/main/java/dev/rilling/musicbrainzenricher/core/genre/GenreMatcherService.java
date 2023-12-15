@@ -3,7 +3,6 @@ package dev.rilling.musicbrainzenricher.core.genre;
 import dev.rilling.musicbrainzenricher.util.CanonicalStringMatcher;
 import dev.rilling.musicbrainzenricher.util.StringVariantChecker;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -46,8 +45,8 @@ public class GenreMatcherService {
 	 * @param unmatchedGenres Unmatched genres to look up canonical genre names for.
 	 * @return Matching canonical genre names.
 	 */
-	@NotNull
-	public Set<String> match(@NotNull Set<String> unmatchedGenres) {
+
+	public Set<String> match( Set<String> unmatchedGenres) {
 		if (unmatchedGenres.isEmpty()) {
 			return Set.of();
 		}
@@ -62,7 +61,7 @@ public class GenreMatcherService {
 		return matches;
 	}
 
-	@NotNull
+
 	private CanonicalStringMatcher getCanonicalStringMatcher() {
 		/*
 		 * It is possible for two threads to concurrently try to initialize the string matcher.

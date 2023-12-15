@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.enrichment;
 
 import dev.rilling.musicbrainzenricher.core.DataTypeAware;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +19,6 @@ public interface Enricher extends DataTypeAware {
 	 * @param relation Relation to check.
 	 * @return if the relation is supported.
 	 */
-	boolean isRelationSupported(@NotNull RelationWs2 relation);
+	boolean isRelationSupported( RelationWs2 relation);
 
 }

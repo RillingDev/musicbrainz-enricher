@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.util;
 
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,8 +22,8 @@ public final class MergeUtils {
 	 * @param <T>                Set item value.
 	 * @return Set containing items of the original sets with a high count.
 	 */
-	@NotNull
-	public static <T> Set<T> getMostCommon(@NotNull Collection<Set<T>> sets, double minUsagePercentage) {
+
+	public static <T> Set<T> getMostCommon( Collection<Set<T>> sets, double minUsagePercentage) {
 		if (minUsagePercentage < 0 || minUsagePercentage > 1) {
 			throw new IllegalArgumentException("minUsagePercentage must be from 0 to 1.");
 		}
@@ -40,7 +39,7 @@ public final class MergeUtils {
 		return getMostCommon(all, minUsagePercentage);
 	}
 
-	@NotNull
+
 	private static <T> Set<T> getMostCommon(List<T> all, double minUsagePercentage) {
 		if (all.isEmpty()) {
 			return Set.of();
@@ -57,8 +56,8 @@ public final class MergeUtils {
 		}).map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
 	}
 
-	@NotNull
-	private static <T> Map<T, Integer> count(@NotNull Collection<T> all) {
+
+	private static <T> Map<T, Integer> count( Collection<T> all) {
 		Map<T, Integer> counted = new HashMap<>(all.size());
 		for (T t : all) {
 			counted.compute(t, (ignored, count) -> count == null ? 1 : count + 1);
@@ -66,8 +65,8 @@ public final class MergeUtils {
 		return counted;
 	}
 
-	@NotNull
-	private static <T> List<T> mergeIntoList(@NotNull Collection<? extends Collection<T>> sets) {
+
+	private static <T> List<T> mergeIntoList( Collection<? extends Collection<T>> sets) {
 		List<T> all = new ArrayList<>(sets.size() * 5);
 		sets.forEach(all::addAll);
 		return all;

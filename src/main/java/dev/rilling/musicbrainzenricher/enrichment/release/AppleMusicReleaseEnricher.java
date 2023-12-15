@@ -5,7 +5,6 @@ import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
 import org.jsoup.select.QueryParser;
@@ -47,8 +46,8 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	@NotNull
-	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+
+	public Set<String> fetchGenres( RelationWs2 relation) {
 		Optional<Document> document = scrapingService.load(relation.getTargetId());
 		if (document.isEmpty()) {
 			return Set.of();
@@ -63,8 +62,8 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 		return genreMatcherService.match(extractTags(document.get()));
 	}
 
-	@NotNull
-	private Set<String> extractTags(@NotNull Document document) {
+
+	private Set<String> extractTags( Document document) {
 		String metaText = document.select(TAG_QUERY).text();
 
 		Matcher matcher = META_REGEX.matcher(metaText);
@@ -75,7 +74,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 		return Set.of(matcher.group("genre"));
 	}
 
-	private boolean hasLocaleLanguage(@NotNull Document document, @NotNull Locale locale) {
+	private boolean hasLocaleLanguage( Document document,  Locale locale) {
 		String parsedLocale = document.getElementsByTag("html").attr("lang");
 
 		// We manually extract just the language to not have to deal with different locale representations
@@ -91,7 +90,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+	public boolean isRelationSupported( RelationWs2 relation) {
 		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
 			return false;
 		}
@@ -107,7 +106,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 
 
 	@Override
-	@NotNull
+
 	public DataType getDataType() {
 		return DataType.RELEASE;
 	}

@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher;
 
 import dev.rilling.musicbrainzenricher.core.DataType;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -57,7 +56,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 		enrichmentExecutor.shutdown();
 	}
 
-	@NotNull
+
 	private DataType parseDataType(String modeString) {
 		return switch (modeString) {
 			case "release" -> DataType.RELEASE;

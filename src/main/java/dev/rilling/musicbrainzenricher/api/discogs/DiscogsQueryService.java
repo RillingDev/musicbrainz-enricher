@@ -2,7 +2,6 @@ package dev.rilling.musicbrainzenricher.api.discogs;
 
 import dev.rilling.musicbrainzenricher.api.BucketService;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -35,8 +34,8 @@ public class DiscogsQueryService {
 		restClient = createRestClient(environment);
 	}
 
-	@NotNull
-	public Optional<DiscogsRelease> lookUpRelease(@NotNull final String id) {
+
+	public Optional<DiscogsRelease> lookUpRelease( final String id) {
 		bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
 
 		try {
@@ -47,8 +46,8 @@ public class DiscogsQueryService {
 		}
 	}
 
-	@NotNull
-	public Optional<DiscogsMaster> lookUpMaster(@NotNull final String id) {
+
+	public Optional<DiscogsMaster> lookUpMaster( final String id) {
 		bucketService.consumeSingleBlocking(discogsBucketProvider.getBucket());
 
 		try {
@@ -59,7 +58,7 @@ public class DiscogsQueryService {
 		}
 	}
 
-	@NotNull
+
 	private RestClient createRestClient(Environment environment) {
 		String applicationName = environment.getRequiredProperty("musicbrainz-enricher.name");
 		String applicationVersion = environment.getRequiredProperty("musicbrainz-enricher.version");

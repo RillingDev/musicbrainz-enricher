@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.core.history;
 
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -15,7 +14,7 @@ class HistoryEntryRepository {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	void persist(@NotNull HistoryEntry historyEntry) {
+	void persist( HistoryEntry historyEntry) {
 		switch (historyEntry.dataType()) {
 			case RELEASE -> jdbcTemplate.update("""
 				INSERT INTO musicbrainz_enricher.release_history_entry (release_gid) VALUES (?)

@@ -2,7 +2,6 @@ package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
 import dev.rilling.musicbrainzenricher.api.BucketService;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.model.entity.EntityWs2;
 import org.musicbrainz.query.submission.UserTagSubmissionWs2;
@@ -41,7 +40,7 @@ public class MusicbrainzEditService {
 	 * @param entities Entities with tags set.
 	 * @throws MusicbrainzException If API access fails.
 	 */
-	public void submitUserTags(@NotNull Set<EntityWs2> entities) throws MusicbrainzException {
+	public void submitUserTags( Set<EntityWs2> entities) throws MusicbrainzException {
 		if (dryRun) {
 			return;
 		}

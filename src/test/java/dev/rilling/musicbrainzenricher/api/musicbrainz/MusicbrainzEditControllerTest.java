@@ -77,7 +77,7 @@ class MusicbrainzEditControllerTest {
 		verify(musicbrainzEditService, never()).submitUserTags(anySet());
 	}
 
-	@NotNull
+
 	private ReleaseGroupWs2 createReleaseGroup() {
 		ReleaseGroupWs2 releaseGroupWs2 = new ReleaseGroupWs2();
 		UUID mbid = UUID.randomUUID();

@@ -5,7 +5,6 @@ import dev.rilling.musicbrainzenricher.core.DataTypeAware;
 import dev.rilling.musicbrainzenricher.core.WorkQueueRepository;
 import dev.rilling.musicbrainzenricher.core.history.HistoryService;
 import dev.rilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -28,7 +27,7 @@ public class MusicbrainzEnricherService {
 		this.historyService = historyService;
 	}
 
-	public void runInAutoQueryMode(@NotNull DataType dataType) {
+	public void runInAutoQueryMode( DataType dataType) {
 		final WorkQueueRepository workQueueRepository = findBeanForDataType(dataType, WorkQueueRepository.class);
 		final AbstractEnrichmentService<?, ?> enrichmentService = findBeanForDataType(dataType, AbstractEnrichmentService.class);
 
@@ -42,19 +41,19 @@ public class MusicbrainzEnricherService {
 		}
 	}
 
-	public void runInSingleMode(@NotNull DataType dataType, @NotNull UUID mbid) {
+	public void runInSingleMode( DataType dataType,  UUID mbid) {
 		executeEnrichment(dataType, mbid, findBeanForDataType(dataType, AbstractEnrichmentService.class));
 	}
 
-	private void executeEnrichment(@NotNull DataType dataType, @NotNull UUID mbid, AbstractEnrichmentService<?, ?> enrichmentService) {
+	private void executeEnrichment( DataType dataType,  UUID mbid, AbstractEnrichmentService<?, ?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
 		enrichmentService.executeEnrichment(mbid);
 		LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
 		historyService.markAsChecked(dataType, mbid);
 	}
 
-	@NotNull
-	private <T extends DataTypeAware> T findBeanForDataType(@NotNull DataType dataType, Class<T> clazz) {
+
+	private <T extends DataTypeAware> T findBeanForDataType( DataType dataType, Class<T> clazz) {
 		return applicationContext.getBeansOfType(clazz).values().stream().filter(bean -> bean.getDataType() == dataType).findFirst().orElseThrow(() -> new IllegalArgumentException("No bean of type %s exists for data type %s.".formatted(clazz, dataType)));
 	}
 }

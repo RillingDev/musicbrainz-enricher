@@ -5,7 +5,6 @@ import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
 import org.jsoup.select.QueryParser;
@@ -42,21 +41,21 @@ class JundownloadReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	@NotNull
-	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+
+	public Set<String> fetchGenres( RelationWs2 relation) {
 		return scrapingService.load(relation.getTargetId())
 			.map(this::extractTags)
 			.map(genreMatcherService::match)
 			.orElse(Set.of());
 	}
 
-	@NotNull
-	private Set<String> extractTags(@NotNull Document document) {
+
+	private Set<String> extractTags( Document document) {
 		return Set.of(document.select(TAG_QUERY).attr("content"));
 	}
 
 	@Override
-	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+	public boolean isRelationSupported( RelationWs2 relation) {
 		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
 			return false;
 		}
@@ -71,7 +70,7 @@ class JundownloadReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	@NotNull
+
 	public DataType getDataType() {
 		return DataType.RELEASE;
 	}

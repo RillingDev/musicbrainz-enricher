@@ -5,7 +5,6 @@ import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.local.SynchronizationStrategy;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +25,7 @@ class SpotifyBucketProvider implements BucketProvider {
 		.build();
 
 	@Override
-	@NotNull
+
 	public Bucket getBucket() {
 		return bucket;
 	}

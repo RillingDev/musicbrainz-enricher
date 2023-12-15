@@ -2,7 +2,6 @@ package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
 import dev.rilling.musicbrainzenricher.api.BucketService;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.Release;
 import org.musicbrainz.controller.ReleaseGroup;
@@ -34,8 +33,8 @@ public class MusicbrainzLookupService {
 		this.bucketService = bucketService;
 	}
 
-	@NotNull
-	public Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes)
+
+	public Optional<ReleaseWs2> lookUpRelease( UUID mbid,  ReleaseIncludesWs2 includes)
 		throws MusicbrainzException {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 
@@ -53,8 +52,8 @@ public class MusicbrainzLookupService {
 		}
 	}
 
-	@NotNull
-	public Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid, @NotNull ReleaseGroupIncludesWs2 includes)
+
+	public Optional<ReleaseGroupWs2> lookUpReleaseGroup( UUID mbid,  ReleaseGroupIncludesWs2 includes)
 		throws MusicbrainzException {
 		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
 

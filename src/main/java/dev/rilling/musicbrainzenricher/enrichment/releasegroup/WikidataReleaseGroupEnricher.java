@@ -6,7 +6,6 @@ import dev.rilling.musicbrainzenricher.core.genre.GenreRepository;
 import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import dev.rilling.musicbrainzenricher.util.RegexUtils;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +55,8 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 	}
 
 	@Override
-	@NotNull
-	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+
+	public Set<String> fetchGenres( RelationWs2 relation) {
 		Optional<String> id = RegexUtils.maybeGroup(ID_REGEX.matcher(relation.getTargetId()), "id");
 		if (id.isEmpty()) {
 			LOGGER.warn("Could not find ID in '{}'.", relation.getTargetId());
@@ -69,8 +68,8 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 			.orElse(Set.of());
 	}
 
-	@NotNull
-	private Set<String> extractGenreNames(@NotNull List<Statement> genreStatements) {
+
+	private Set<String> extractGenreNames( List<Statement> genreStatements) {
 		Set<String> genres = new HashSet<>(genreStatements.size());
 		for (Statement genreStatement : genreStatements) {
 			if (!(genreStatement.getValue() instanceof EntityIdValue)) {
@@ -82,8 +81,8 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 		return genres;
 	}
 
-	@NotNull
-	private Optional<String> findGenreName(@NotNull String genreId) {
+
+	private Optional<String> findGenreName( String genreId) {
 		Optional<List<Statement>> musicbrainzLinkStatements = wikidataService.findEntityPropertyValues(genreId,
 			MUSICBRAINZ_LINK_PROPERTY_ID);
 		if (musicbrainzLinkStatements.map(List::isEmpty).orElse(true)) {
@@ -100,13 +99,13 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+	public boolean isRelationSupported( RelationWs2 relation) {
 		return "http://musicbrainz.org/ns/rel-2.0#wikidata".equals(relation.getType()) &&
 			"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
 	}
 
 	@Override
-	@NotNull
+
 	public DataType getDataType() {
 		return DataType.RELEASE_GROUP;
 	}

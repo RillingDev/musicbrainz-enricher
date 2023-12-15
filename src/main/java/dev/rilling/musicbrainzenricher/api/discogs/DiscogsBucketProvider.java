@@ -6,7 +6,6 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.local.SynchronizationStrategy;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,7 @@ class DiscogsBucketProvider implements BucketProvider {
 	}
 
 	@Override
-	@NotNull
+
 	public Bucket getBucket() {
 		return bucket;
 	}

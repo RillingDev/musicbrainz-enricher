@@ -1,7 +1,5 @@
 package dev.rilling.musicbrainzenricher.core;
 
-import org.jetbrains.annotations.NotNull;
-
 /**
  * Base for a class supporting a {@link DataType}.
  */
@@ -11,5 +9,5 @@ public interface DataTypeAware {
 	 *
 	 * @return The data type that is supported.
 	 */
-	@NotNull DataType getDataType();
+	 DataType getDataType();
 }

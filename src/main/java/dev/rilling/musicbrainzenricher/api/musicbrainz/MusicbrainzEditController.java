@@ -2,7 +2,6 @@ package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
 import jakarta.annotation.PreDestroy;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.TagWs2;
 import org.musicbrainz.model.entity.EntityWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
@@ -46,7 +45,7 @@ public class MusicbrainzEditController {
 	 *                     object may not be changed by the caller afterward.
 	 * @param tags         Tags to add.
 	 */
-	public void submitReleaseGroupUserTags(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull Set<String> tags) {
+	public void submitReleaseGroupUserTags( ReleaseGroupWs2 releaseGroup,  Set<String> tags) {
 		addTags(releaseGroup, tags);
 		tagSubmissionWorker.add(releaseGroup);
 	}
@@ -61,7 +60,7 @@ public class MusicbrainzEditController {
 		LOGGER.debug("Flushed pending edits.");
 	}
 
-	private void doSubmitUserTags(@NotNull Set<EntityWs2> submission) {
+	private void doSubmitUserTags( Set<EntityWs2> submission) {
 		try {
 			LOGGER.info("Submitting user tags for {} entities.", submission.size());
 			musicbrainzEditService.submitUserTags(submission);
@@ -71,7 +70,7 @@ public class MusicbrainzEditController {
 		}
 	}
 
-	private void addTags(@NotNull ReleaseGroupWs2 releaseGroup, @NotNull Set<String> tags) {
+	private void addTags( ReleaseGroupWs2 releaseGroup,  Set<String> tags) {
 		/*
 		 * This is a modified version of Controller#AddTags, adapted to avoid re-querying entities we already have.
 		 */
@@ -98,14 +97,14 @@ public class MusicbrainzEditController {
 
 		private final Object workChunkingLock = new Object();
 
-		private final @NotNull Consumer<Set<TItem>> workProcessor;
+		private final  Consumer<Set<TItem>> workProcessor;
 
 		/**
 		 * @param chunkSize     Size of a chunk. Once reached, automatic flushing is done.
 		 * @param workProcessor Function processing a chunk of items. The chunk of items will not be modified by this
 		 *                      worker after calling the processor.
 		 */
-		ChunkedWorker(int chunkSize, @NotNull Consumer<Set<TItem>> workProcessor) {
+		ChunkedWorker(int chunkSize,  Consumer<Set<TItem>> workProcessor) {
 			if (chunkSize < 1) {
 				throw new IllegalArgumentException("Chunk size must be at least 1.");
 			}

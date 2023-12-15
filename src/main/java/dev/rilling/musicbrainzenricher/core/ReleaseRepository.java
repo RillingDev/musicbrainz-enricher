@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.core;
 
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -26,13 +25,13 @@ public class ReleaseRepository implements WorkQueueRepository {
 
 
 	@Override
-	public @NotNull List<UUID> queryWorkQueue(int limit) {
+	public  List<UUID> queryWorkQueue(int limit) {
 		List<UUID> mbids = jdbcTemplate.query("SELECT r.gid FROM musicbrainz_enricher.release_work_queue r LIMIT ?", (rs, rowNum) -> rs.getObject("gid", UUID.class), limit);
 		return Collections.unmodifiableList(mbids);
 	}
 
 	@Override
-	public @NotNull DataType getDataType() {
+	public  DataType getDataType() {
 		return DataType.RELEASE;
 	}
 }

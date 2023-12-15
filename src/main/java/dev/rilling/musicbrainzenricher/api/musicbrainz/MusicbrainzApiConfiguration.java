@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.webservice.WebService;
 import org.musicbrainz.webservice.impl.HttpClientWebServiceWs2;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +16,7 @@ class MusicbrainzApiConfiguration {
 	private static final Pattern UNSUPPORTED_VERSION_CHARACTER_PATTERN = Pattern.compile("-");
 
 	@Bean("musicbrainzWebService")
-	@NotNull WebService createWebService(Environment environment) {
+	 WebService createWebService(Environment environment) {
 		String host = environment.getRequiredProperty("musicbrainz-enricher.host");
 		String applicationName = environment.getRequiredProperty("musicbrainz-enricher.name");
 		String applicationVersion = environment.getRequiredProperty("musicbrainz-enricher.version");
@@ -36,7 +35,7 @@ class MusicbrainzApiConfiguration {
 		return webService;
 	}
 
-	private @NotNull String getClient(@NotNull String applicationName, @NotNull String applicationVersion) {
+	private  String getClient( String applicationName,  String applicationVersion) {
 		// See https://musicbrainz.org/doc/MusicBrainz_API
 		String adaptedApplicationVersion = UNSUPPORTED_VERSION_CHARACTER_PATTERN.matcher(applicationVersion)
 			.replaceAll("_");
