@@ -11,7 +11,6 @@ import java.text.Collator;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,22 +19,11 @@ public class GenreMatcherService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenreMatcherService.class);
 
-	private static final StringVariantChecker STRING_VARIANT_CHECKER;
-
-	static {
-		Set<String> delimiters = Set.of("-", " ", " and ", " & ");
-		Collator collator = Collator.getInstance(Locale.ROOT);
-		collator.setStrength(Collator.PRIMARY);
-		STRING_VARIANT_CHECKER = new StringVariantChecker(delimiters, collator);
-	}
-
-	private final AtomicReference<CanonicalStringMatcher> canonicalStringMatcherRef = new AtomicReference<>(null);
-
-	private final GenreRepository genreRepository;
+	private final CanonicalStringMatcher canonicalStringMatcher;
 
 
 	GenreMatcherService(GenreRepository genreRepository) {
-		this.genreRepository = genreRepository;
+		canonicalStringMatcher = createCanonicalStringMatcher(genreRepository.findGenreNames());
 	}
 
 	/**
@@ -52,7 +40,7 @@ public class GenreMatcherService {
 		}
 
 		Set<String> matches = unmatchedGenres.stream()
-			.map(getCanonicalStringMatcher()::canonicalize)
+			.map(canonicalStringMatcher::canonicalize)
 			.flatMap(Optional::stream)
 			.collect(Collectors.toUnmodifiableSet());
 
@@ -62,17 +50,12 @@ public class GenreMatcherService {
 	}
 
 
-	private CanonicalStringMatcher getCanonicalStringMatcher() {
-		/*
-		 * It is possible for two threads to concurrently try to initialize the string matcher.
-		 * If that happens, the first one wins, with any further initialization still starting but never being applied.
-		 */
-		if (canonicalStringMatcherRef.get() == null) {
-			Set<String> canonicalGenres = genreRepository.findGenreNames();
-			CanonicalStringMatcher canonicalStringMatcher = new CanonicalStringMatcher(canonicalGenres,
-				STRING_VARIANT_CHECKER);
-			canonicalStringMatcherRef.compareAndSet(null, canonicalStringMatcher);
-		}
-		return canonicalStringMatcherRef.get();
+	private static CanonicalStringMatcher createCanonicalStringMatcher(Set<String> canonicalGenreNames) {
+		Set<String> delimiters = Set.of("-", " ", " and ", " & ");
+		Collator collator = Collator.getInstance(Locale.ROOT);
+		collator.setStrength(Collator.PRIMARY);
+		StringVariantChecker stringVariantChecker = new StringVariantChecker(delimiters, collator);
+
+		return new CanonicalStringMatcher(canonicalGenreNames, stringVariantChecker);
 	}
 }
