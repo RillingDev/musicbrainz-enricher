@@ -1,6 +1,6 @@
 package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
-import dev.rilling.musicbrainzenricher.api.BucketService;
+import io.github.bucket4j.Bucket;
 import net.jcip.annotations.ThreadSafe;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.Release;
@@ -22,21 +22,18 @@ import java.util.UUID;
 public class MusicbrainzLookupService {
 
 	private final WebService webService;
-	private final MusicbrainzBucketProvider musicbrainzBucketProvider;
-	private final BucketService bucketService;
+	private final Bucket bucket;
 
 	MusicbrainzLookupService(@Qualifier("musicbrainzWebService") WebService webService,
-							 MusicbrainzBucketProvider musicbrainzBucketProvider,
-							 BucketService bucketService) {
+							 @Qualifier("musicbrainzBucket") Bucket bucket) {
 		this.webService = webService;
-		this.musicbrainzBucketProvider = musicbrainzBucketProvider;
-		this.bucketService = bucketService;
+		this.bucket = bucket;
 	}
 
 
-	public Optional<ReleaseWs2> lookUpRelease( UUID mbid,  ReleaseIncludesWs2 includes)
+	public Optional<ReleaseWs2> lookUpRelease(UUID mbid, ReleaseIncludesWs2 includes)
 		throws MusicbrainzException {
-		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+		bucket.asBlocking().consumeUninterruptibly(1);
 
 		Release release = new Release();
 		release.setQueryWs(webService);
@@ -53,9 +50,9 @@ public class MusicbrainzLookupService {
 	}
 
 
-	public Optional<ReleaseGroupWs2> lookUpReleaseGroup( UUID mbid,  ReleaseGroupIncludesWs2 includes)
+	public Optional<ReleaseGroupWs2> lookUpReleaseGroup(UUID mbid, ReleaseGroupIncludesWs2 includes)
 		throws MusicbrainzException {
-		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+		bucket.asBlocking().consumeUninterruptibly(1);
 
 		ReleaseGroup releaseGroup = new ReleaseGroup();
 		releaseGroup.setQueryWs(webService);
