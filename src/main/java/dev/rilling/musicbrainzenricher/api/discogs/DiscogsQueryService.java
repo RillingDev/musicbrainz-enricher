@@ -59,7 +59,7 @@ public class DiscogsQueryService {
 	}
 
 
-	private RestClient createRestClient(Environment environment) {
+	private static RestClient createRestClient(Environment environment) {
 		String applicationName = environment.getRequiredProperty("musicbrainz-enricher.name");
 		String applicationVersion = environment.getRequiredProperty("musicbrainz-enricher.version");
 		String applicationContact = environment.getRequiredProperty("musicbrainz-enricher.contact");

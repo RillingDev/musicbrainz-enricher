@@ -87,7 +87,7 @@ public class SpotifyQueryService {
 	}
 
 	@Nullable
-	private SpotifyApi createApiClient(Environment environment) {
+	private static SpotifyApi createApiClient(Environment environment) {
 		if (!environment.containsProperty("musicbrainz-enricher.spotify.client-id")
 			|| !environment.containsProperty("musicbrainz-enricher.spotify.client-secret")) {
 			LOGGER.warn("No credentials are set, skipping API client creation.");
