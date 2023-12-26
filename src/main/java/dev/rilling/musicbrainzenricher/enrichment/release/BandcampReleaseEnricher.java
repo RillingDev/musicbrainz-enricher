@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -31,7 +30,7 @@ class BandcampReleaseEnricher implements GenreEnricher {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
 
 	private static final Pattern HOST_REGEX = Pattern.compile(".+\\.bandcamp\\.com");
-	private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > a");
+	private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > .tag");
 
 	private final GenreMatcherService genreMatcherService;
 	private final ScrapingService scrapingService;
@@ -52,7 +51,7 @@ class BandcampReleaseEnricher implements GenreEnricher {
 
 
 	private Set<String> extractTags(Document document) {
-		return new HashSet<>(document.select(TAG_QUERY).eachText());
+		return Set.copyOf(document.select(TAG_QUERY).eachText());
 	}
 
 	@Override

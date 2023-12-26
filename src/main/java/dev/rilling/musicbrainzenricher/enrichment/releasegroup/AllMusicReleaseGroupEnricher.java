@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * AllMusic does not seem to have an API, so scraping it is.
+ * AllMusic does not seem to have an API, so we scrape it.
  */
 // https://musicbrainz.org/release-group/a63e5fa6-d6ad-47bd-986d-4a27b0c9de70
 // https://www.allmusic.com/album/mw0003185404
@@ -57,7 +57,6 @@ class AllMusicReleaseGroupEnricher implements GenreEnricher {
 	}
 
 	@Override
-
 	public DataType getDataType() {
 		return DataType.RELEASE_GROUP;
 	}

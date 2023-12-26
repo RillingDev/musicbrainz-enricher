@@ -8,9 +8,9 @@ import net.jcip.annotations.ThreadSafe;
 import org.musicbrainz.model.RelationWs2;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
+import se.michaelthelin.spotify.model_objects.specification.Album;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,10 +35,11 @@ class SpotifyReleaseEnricher implements GenreEnricher {
 	@Override
 
 	public Set<String> fetchGenres(RelationWs2 relation) {
-		return spotifyQueryService.lookUpRelease(findReleaseId(relation.getTargetId())).map(release -> {
-			Set<String> genres = new HashSet<>(Arrays.asList(release.getGenres()));
-			return genreMatcherService.match(genres);
-		}).orElse(Set.of());
+		return spotifyQueryService
+			.lookUpRelease(findReleaseId(relation.getTargetId()))
+			.map(this::extractGenres)
+			.map(genreMatcherService::match)
+			.orElse(Set.of());
 	}
 
 
@@ -47,6 +48,10 @@ class SpotifyReleaseEnricher implements GenreEnricher {
 		//noinspection ResultOfMethodCallIgnored We know we matched in #relationFits
 		matcher.matches();
 		return matcher.group("id");
+	}
+
+	private Set<String> extractGenres(Album album) {
+		return Set.copyOf(Arrays.asList(album.getGenres()));
 	}
 
 	@Override

@@ -44,7 +44,8 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
 			return Set.of();
 		}
 		return discogsQueryService.lookUpMaster(discogsId.get())
-			.map(release -> genreMatcherService.match(extractGenres(release)))
+			.map(this::extractGenres)
+			.map(genreMatcherService::match)
 			.orElse(Set.of());
 	}
 

@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,20 +45,19 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-
 	public Set<String> fetchGenres(RelationWs2 relation) {
-		Optional<Document> document = scrapingService.load(relation.getTargetId());
-		if (document.isEmpty()) {
-			return Set.of();
-		}
-
-		// We can only process genres if they are in english.
-		if (!hasLocaleLanguage(document.get(), Locale.ENGLISH)) {
-			LOGGER.debug("Skipping '{}' because the locale is not supported.", relation.getTargetId());
-			return Set.of();
-		}
-
-		return genreMatcherService.match(extractTags(document.get()));
+		return scrapingService.load(relation.getTargetId())
+			.filter(document -> {
+				// We can only process genres if they are in english.
+				if (!hasLocaleLanguage(document, Locale.ENGLISH)) {
+					LOGGER.debug("Skipping '{}' because the locale is not supported.", relation.getTargetId());
+					return false;
+				}
+				return true;
+			})
+			.map(this::extractTags)
+			.map(genreMatcherService::match)
+			.orElse(Set.of());
 	}
 
 
