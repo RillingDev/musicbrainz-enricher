@@ -1,12 +1,13 @@
 package dev.rilling.musicbrainzenricher.api.spotify;
 
-import dev.rilling.musicbrainzenricher.api.BucketService;
+import io.github.bucket4j.Bucket;
 import jakarta.annotation.Nullable;
 import net.jcip.annotations.GuardedBy;
 import net.jcip.annotations.ThreadSafe;
 import org.apache.hc.core5.http.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -27,8 +28,7 @@ public class SpotifyQueryService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SpotifyQueryService.class);
 
-	private final SpotifyBucketProvider spotifyBucketProvider;
-	private final BucketService bucketService;
+	private final Bucket bucket;
 
 	// May be null if no credentials exist.
 	// Note that getAuthorizedApiClient() should be used for access.
@@ -42,10 +42,8 @@ public class SpotifyQueryService {
 	private final Object reAuthLock = new Object();
 
 	SpotifyQueryService(Environment environment,
-						SpotifyBucketProvider spotifyBucketProvider,
-						BucketService bucketService) {
-		this.spotifyBucketProvider = spotifyBucketProvider;
-		this.bucketService = bucketService;
+						@Qualifier("spotifyBucket") Bucket bucket) {
+		this.bucket = bucket;
 
 		apiClient = createApiClient(environment);
 	}
@@ -57,7 +55,7 @@ public class SpotifyQueryService {
 			return Optional.empty();
 		}
 
-		bucketService.consumeSingleBlocking(spotifyBucketProvider.getBucket());
+		bucket.asBlocking().consumeUninterruptibly(1);
 
 		try {
 			GetAlbumRequest request = getAuthorizedApiClient().getAlbum(id).build();

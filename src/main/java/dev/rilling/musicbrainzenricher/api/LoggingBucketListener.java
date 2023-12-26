@@ -16,12 +16,12 @@ public class LoggingBucketListener implements BucketListener {
 
 	@Override
 	public void onConsumed(long tokens) {
-		LOGGER.trace("Consumed {} tokens from bucket '{}'.", tokens, bucketName);
+		LOGGER.trace("Consumed {} token(s) from bucket '{}'.", tokens, bucketName);
 	}
 
 	@Override
 	public void onRejected(long tokens) {
-		LOGGER.trace("Rejected consumption of {} tokens from bucket '{}'.", tokens, bucketName);
+		LOGGER.trace("Rejected consumption of {} token(s) from bucket '{}'.", tokens, bucketName);
 	}
 
 	@Override
