@@ -5,9 +5,6 @@ import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -25,11 +22,10 @@ public class DiscogsQueryService {
 	private final Bucket bucket;
 	private final RestClient restClient;
 
-	DiscogsQueryService(Environment environment,
+	DiscogsQueryService(@Qualifier("discogsRestClient") RestClient restClient,
 						@Qualifier("discogsBucket") Bucket bucket) {
 		this.bucket = bucket;
-
-		restClient = createRestClient(environment);
+		this.restClient = restClient;
 	}
 
 
@@ -54,27 +50,6 @@ public class DiscogsQueryService {
 			LOGGER.warn("Could not look up master '{}'.", id, e);
 			return Optional.empty();
 		}
-	}
-
-
-	private static RestClient createRestClient(Environment environment) {
-		String applicationName = environment.getRequiredProperty("musicbrainz-enricher.name");
-		String applicationVersion = environment.getRequiredProperty("musicbrainz-enricher.version");
-		String applicationContact = environment.getRequiredProperty("musicbrainz-enricher.contact");
-		// See https://www.discogs.com/developers/
-		String userAgent = "%s/%s +%s".formatted(applicationName, applicationVersion, applicationContact);
-
-		RestClient.Builder builder = RestClient.builder()
-			.baseUrl("https://api.discogs.com")
-			.defaultHeader(HttpHeaders.USER_AGENT, userAgent)
-			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-
-		if (environment.containsProperty("musicbrainz-enricher.discogs.token")) {
-			// https://www.discogs.com/developers/#page:authentication
-			builder = builder.defaultHeader(HttpHeaders.AUTHORIZATION, "Discogs token=%s".formatted(environment.getProperty("musicbrainz-enricher.discogs.token")));
-		}
-
-		return builder.build();
 	}
 
 }

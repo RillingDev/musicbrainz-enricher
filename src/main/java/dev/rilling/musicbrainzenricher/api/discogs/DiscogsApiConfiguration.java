@@ -7,6 +7,9 @@ import net.jcip.annotations.ThreadSafe;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClient;
 
 import java.time.Duration;
 
@@ -24,5 +27,26 @@ class DiscogsApiConfiguration {
 		Bandwidth bandwidth = Bandwidth.simple(capacity, Duration.ofSeconds(90));
 
 		return Bucket.builder().addLimit(bandwidth).build().toListenable(new LoggingBucketListener("discogs"));
+	}
+
+	@Bean("discogsRestClient")
+	RestClient discogsRestClient(Environment environment) {
+		String applicationName = environment.getRequiredProperty("musicbrainz-enricher.name");
+		String applicationVersion = environment.getRequiredProperty("musicbrainz-enricher.version");
+		String applicationContact = environment.getRequiredProperty("musicbrainz-enricher.contact");
+		// See https://www.discogs.com/developers/
+		String userAgent = "%s/%s +%s".formatted(applicationName, applicationVersion, applicationContact);
+
+		RestClient.Builder builder = RestClient.builder()
+			.baseUrl("https://api.discogs.com")
+			.defaultHeader(HttpHeaders.USER_AGENT, userAgent)
+			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+
+		if (environment.containsProperty("musicbrainz-enricher.discogs.token")) {
+			// https://www.discogs.com/developers/#page:authentication
+			builder = builder.defaultHeader(HttpHeaders.AUTHORIZATION, "Discogs token=%s".formatted(environment.getProperty("musicbrainz-enricher.discogs.token")));
+		}
+
+		return builder.build();
 	}
 }
