@@ -1,33 +1,30 @@
 package dev.rilling.musicbrainzenricher.core;
 
 import net.jcip.annotations.ThreadSafe;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @Repository
 @ThreadSafe
 public class ReleaseRepository implements WorkQueueRepository {
-	private final JdbcTemplate jdbcTemplate;
 
-	ReleaseRepository(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
+	private final JdbcClient jdbcClient;
+
+	public ReleaseRepository(JdbcClient jdbcClient) {
+		this.jdbcClient = jdbcClient;
 	}
 
 	@Override
 	public long countWorkQueue() {
-		return Objects.requireNonNull(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM musicbrainz_enricher.release_work_queue", Long.class));
+		return jdbcClient.sql("SELECT COUNT(*) FROM musicbrainz_enricher.release_work_queue").query(Long.class).single();
 	}
-
 
 	@Override
 	public  List<UUID> queryWorkQueue(int limit) {
-		List<UUID> mbids = jdbcTemplate.query("SELECT r.gid FROM musicbrainz_enricher.release_work_queue r LIMIT ?", (rs, rowNum) -> rs.getObject("gid", UUID.class), limit);
-		return Collections.unmodifiableList(mbids);
+		return jdbcClient.sql("SELECT gid FROM musicbrainz_enricher.release_work_queue LIMIT ?").param(limit).query(UUID.class).list();
 	}
 
 	@Override
