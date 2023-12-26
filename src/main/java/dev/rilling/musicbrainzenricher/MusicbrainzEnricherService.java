@@ -27,7 +27,7 @@ public class MusicbrainzEnricherService {
 		this.historyService = historyService;
 	}
 
-	public void runInAutoQueryMode( DataType dataType) {
+	public void runInAutoQueryMode(DataType dataType) {
 		final WorkQueueRepository workQueueRepository = findBeanForDataType(dataType, WorkQueueRepository.class);
 		final AbstractEnrichmentService<?, ?> enrichmentService = findBeanForDataType(dataType, AbstractEnrichmentService.class);
 
@@ -41,11 +41,11 @@ public class MusicbrainzEnricherService {
 		}
 	}
 
-	public void runInSingleMode( DataType dataType,  UUID mbid) {
+	public void runInSingleMode(DataType dataType, UUID mbid) {
 		executeEnrichment(dataType, mbid, findBeanForDataType(dataType, AbstractEnrichmentService.class));
 	}
 
-	private void executeEnrichment( DataType dataType,  UUID mbid, AbstractEnrichmentService<?, ?> enrichmentService) {
+	private void executeEnrichment(DataType dataType, UUID mbid, AbstractEnrichmentService<?, ?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
 		enrichmentService.executeEnrichment(mbid);
 		LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
@@ -53,7 +53,7 @@ public class MusicbrainzEnricherService {
 	}
 
 
-	private <T extends DataTypeAware> T findBeanForDataType( DataType dataType, Class<T> clazz) {
+	private <T extends DataTypeAware> T findBeanForDataType(DataType dataType, Class<T> clazz) {
 		return applicationContext.getBeansOfType(clazz).values().stream().filter(bean -> bean.getDataType() == dataType).findFirst().orElseThrow(() -> new IllegalArgumentException("No bean of type %s exists for data type %s.".formatted(clazz, dataType)));
 	}
 }

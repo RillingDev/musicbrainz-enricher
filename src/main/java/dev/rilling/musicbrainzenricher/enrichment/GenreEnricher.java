@@ -20,5 +20,5 @@ public interface GenreEnricher extends Enricher {
 	 * @param relation Relation.
 	 * @return a set of genres.
 	 */
-	 Set<String> fetchGenres( RelationWs2 relation);
+	Set<String> fetchGenres(RelationWs2 relation);
 }

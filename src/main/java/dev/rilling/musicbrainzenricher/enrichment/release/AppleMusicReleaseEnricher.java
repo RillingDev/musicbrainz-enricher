@@ -47,7 +47,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 
 	@Override
 
-	public Set<String> fetchGenres( RelationWs2 relation) {
+	public Set<String> fetchGenres(RelationWs2 relation) {
 		Optional<Document> document = scrapingService.load(relation.getTargetId());
 		if (document.isEmpty()) {
 			return Set.of();
@@ -63,7 +63,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	}
 
 
-	private Set<String> extractTags( Document document) {
+	private Set<String> extractTags(Document document) {
 		String metaText = document.select(TAG_QUERY).text();
 
 		Matcher matcher = META_REGEX.matcher(metaText);
@@ -74,7 +74,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 		return Set.of(matcher.group("genre"));
 	}
 
-	private boolean hasLocaleLanguage( Document document,  Locale locale) {
+	private boolean hasLocaleLanguage(Document document, Locale locale) {
 		String parsedLocale = document.getElementsByTag("html").attr("lang");
 
 		// We manually extract just the language to not have to deal with different locale representations
@@ -90,7 +90,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public boolean isRelationSupported( RelationWs2 relation) {
+	public boolean isRelationSupported(RelationWs2 relation) {
 		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
 			return false;
 		}

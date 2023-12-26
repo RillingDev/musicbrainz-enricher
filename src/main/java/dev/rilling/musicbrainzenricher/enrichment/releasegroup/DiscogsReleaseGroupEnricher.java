@@ -37,7 +37,7 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
 
 	@Override
 
-	public Set<String> fetchGenres( RelationWs2 relation) {
+	public Set<String> fetchGenres(RelationWs2 relation) {
 		Optional<String> discogsId = RegexUtils.maybeGroup(URL_REGEX.matcher(relation.getTargetId()), "id");
 		if (discogsId.isEmpty()) {
 			LOGGER.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
@@ -49,7 +49,7 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
 	}
 
 
-	private Set<String> extractGenres( DiscogsMaster master) {
+	private Set<String> extractGenres(DiscogsMaster master) {
 		Set<String> genres = new HashSet<>(master.genres());
 		if (master.styles() != null) {
 			genres.addAll(master.styles());
@@ -58,9 +58,9 @@ class DiscogsReleaseGroupEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public boolean isRelationSupported( RelationWs2 relation) {
+	public boolean isRelationSupported(RelationWs2 relation) {
 		return "http://musicbrainz.org/ns/rel-2.0#discogs".equals(relation.getType()) &&
-			"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
+			   "http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
 	}
 
 

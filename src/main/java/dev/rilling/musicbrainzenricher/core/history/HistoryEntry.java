@@ -4,5 +4,5 @@ import dev.rilling.musicbrainzenricher.core.DataType;
 
 import java.util.UUID;
 
-record HistoryEntry( DataType dataType,  UUID mbid) {
+record HistoryEntry(DataType dataType, UUID mbid) {
 }

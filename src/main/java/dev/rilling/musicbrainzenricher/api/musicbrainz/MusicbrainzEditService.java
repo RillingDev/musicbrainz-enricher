@@ -37,7 +37,7 @@ public class MusicbrainzEditService {
 	 * @param entities Entities with tags set.
 	 * @throws MusicbrainzException If API access fails.
 	 */
-	public void submitUserTags( Set<EntityWs2> entities) throws MusicbrainzException {
+	public void submitUserTags(Set<EntityWs2> entities) throws MusicbrainzException {
 		if (dryRun) {
 			return;
 		}

@@ -6,5 +6,5 @@ import java.util.UUID;
 public interface WorkQueueRepository extends DataTypeAware {
 	long countWorkQueue();
 
-	 List<UUID> queryWorkQueue(int limit);
+	List<UUID> queryWorkQueue(int limit);
 }

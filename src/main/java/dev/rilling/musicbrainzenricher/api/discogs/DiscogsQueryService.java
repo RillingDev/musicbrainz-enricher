@@ -33,7 +33,7 @@ public class DiscogsQueryService {
 	}
 
 
-	public Optional<DiscogsRelease> lookUpRelease( final String id) {
+	public Optional<DiscogsRelease> lookUpRelease(final String id) {
 		bucket.asBlocking().consumeUninterruptibly(1);
 
 		try {
@@ -45,7 +45,7 @@ public class DiscogsQueryService {
 	}
 
 
-	public Optional<DiscogsMaster> lookUpMaster( final String id) {
+	public Optional<DiscogsMaster> lookUpMaster(final String id) {
 		bucket.asBlocking().consumeUninterruptibly(1);
 
 		try {

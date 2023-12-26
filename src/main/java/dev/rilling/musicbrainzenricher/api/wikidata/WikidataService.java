@@ -23,7 +23,7 @@ public class WikidataService {
 	private final BasicApiConnection wikidataApiConnection = BasicApiConnection.getWikidataApiConnection();
 
 
-	public Optional<List<Statement>> findEntityPropertyValues( String entityId,  String propertyId) {
+	public Optional<List<Statement>> findEntityPropertyValues(String entityId, String propertyId) {
 		PropertyIdValue propertyIdValue = Datamodel.makeWikidataPropertyIdValue(propertyId);
 
 		WikibaseDataFetcher fetcher = new WikibaseDataFetcher(wikidataApiConnection, Datamodel.SITE_WIKIDATA);

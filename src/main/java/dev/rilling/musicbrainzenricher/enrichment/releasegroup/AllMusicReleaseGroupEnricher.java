@@ -36,7 +36,7 @@ class AllMusicReleaseGroupEnricher implements GenreEnricher {
 
 	@Override
 
-	public Set<String> fetchGenres( RelationWs2 relation) {
+	public Set<String> fetchGenres(RelationWs2 relation) {
 		return scrapingService.load(relation.getTargetId())
 			.map(this::extractTags)
 			.map(genreMatcherService::match)
@@ -44,16 +44,16 @@ class AllMusicReleaseGroupEnricher implements GenreEnricher {
 	}
 
 
-	private Set<String> extractTags( Document document) {
+	private Set<String> extractTags(Document document) {
 		Set<String> tags = new HashSet<>(document.select(GENRE_QUERY).eachText());
 		tags.addAll(document.select(STYLES_QUERY).eachText());
 		return tags;
 	}
 
 	@Override
-	public boolean isRelationSupported( RelationWs2 relation) {
+	public boolean isRelationSupported(RelationWs2 relation) {
 		return "http://musicbrainz.org/ns/rel-2.0#allmusic".equals(relation.getType()) &&
-			"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
+			   "http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
 	}
 
 	@Override

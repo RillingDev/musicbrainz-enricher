@@ -43,7 +43,7 @@ class BandcampReleaseEnricher implements GenreEnricher {
 
 	@Override
 
-	public Set<String> fetchGenres( RelationWs2 relation) {
+	public Set<String> fetchGenres(RelationWs2 relation) {
 		return scrapingService.load(relation.getTargetId())
 			.map(this::extractTags)
 			.map(genreMatcherService::match)
@@ -51,12 +51,12 @@ class BandcampReleaseEnricher implements GenreEnricher {
 	}
 
 
-	private Set<String> extractTags( Document document) {
+	private Set<String> extractTags(Document document) {
 		return new HashSet<>(document.select(TAG_QUERY).eachText());
 	}
 
 	@Override
-	public boolean isRelationSupported( RelationWs2 relation) {
+	public boolean isRelationSupported(RelationWs2 relation) {
 		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
 			return false;
 		}

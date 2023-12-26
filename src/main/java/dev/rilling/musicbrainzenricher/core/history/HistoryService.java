@@ -22,7 +22,7 @@ public class HistoryService {
 		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
 
-	public void markAsChecked( DataType dataType,  UUID mbid) {
+	public void markAsChecked(DataType dataType, UUID mbid) {
 		if (dryRun) {
 			return;
 		}

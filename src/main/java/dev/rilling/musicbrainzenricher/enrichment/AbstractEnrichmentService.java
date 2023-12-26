@@ -22,7 +22,8 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 		completionService = new ExecutorCompletionService<>(executorService);
 	}
 
-	public void executeEnrichment( UUID mbid) {
+	// TODO check if async handling can be replaced with spring tools
+	public void executeEnrichment(UUID mbid) {
 		Optional<TEntity> entityOptional = fetchEntity(mbid);
 		if (entityOptional.isEmpty()) {
 			LOGGER.warn("Could not find '{}' for the data type '{}'.", mbid, getDataType());
@@ -62,20 +63,20 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 	}
 
 
-	protected abstract Optional<TEntity> fetchEntity( UUID mbid);
+	protected abstract Optional<TEntity> fetchEntity(UUID mbid);
 
 
-	protected abstract Collection<RelationWs2> extractRelations( TEntity entity);
+	protected abstract Collection<RelationWs2> extractRelations(TEntity entity);
 
 
-	protected abstract UResult enrich( TEntity entity,
-									   RelationWs2 relation,
-									   Enricher enricher);
+	protected abstract UResult enrich(TEntity entity,
+									  RelationWs2 relation,
+									  Enricher enricher);
 
 
-	protected abstract UResult mergeResults( Collection<UResult> results);
+	protected abstract UResult mergeResults(Collection<UResult> results);
 
-	protected abstract void updateEntity( TEntity entity,  UResult result);
+	protected abstract void updateEntity(TEntity entity, UResult result);
 
 
 	private Set<Enricher> findFittingEnrichers() {

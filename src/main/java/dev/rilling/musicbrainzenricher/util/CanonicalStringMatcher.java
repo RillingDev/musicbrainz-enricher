@@ -32,8 +32,8 @@ public class CanonicalStringMatcher {
 	 * @param canonicalValues      Canonical values that should be matched towards.
 	 * @param stringVariantChecker {@link StringVariantChecker} to use for matching.
 	 */
-	public CanonicalStringMatcher( Set<String> canonicalValues,
-								   StringVariantChecker stringVariantChecker) {
+	public CanonicalStringMatcher(Set<String> canonicalValues,
+								  StringVariantChecker stringVariantChecker) {
 		this.stringVariantChecker = stringVariantChecker;
 		this.canonicalValues = Set.copyOf(canonicalValues);
 
@@ -48,7 +48,7 @@ public class CanonicalStringMatcher {
 	 * @return Canonical form, or empty if no canonical match was found.
 	 */
 
-	public Optional<String> canonicalize( String unmatchedValue) {
+	public Optional<String> canonicalize(String unmatchedValue) {
 		return cache.computeIfAbsent(unmatchedValue, value -> {
 			Optional<String> match = canonicalValues.stream()
 				.filter(canonicalValue -> stringVariantChecker.isVariant(value, canonicalValue))

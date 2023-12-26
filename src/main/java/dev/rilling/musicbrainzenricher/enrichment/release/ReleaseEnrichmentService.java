@@ -49,7 +49,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 
 	@Override
 
-	protected Optional<ReleaseWs2> fetchEntity( UUID mbid) {
+	protected Optional<ReleaseWs2> fetchEntity(UUID mbid) {
 		ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
 		includes.setUrlRelations(true);
 		includes.setTags(true);
@@ -66,15 +66,15 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 
 	@Override
 
-	protected Collection<RelationWs2> extractRelations( ReleaseWs2 entity) {
+	protected Collection<RelationWs2> extractRelations(ReleaseWs2 entity) {
 		return entity.getRelationList().getRelations();
 	}
 
 	@Override
 
-	protected ReleaseEnrichmentResult enrich( ReleaseWs2 entity,
-											  RelationWs2 relation,
-											  Enricher enricher) {
+	protected ReleaseEnrichmentResult enrich(ReleaseWs2 entity,
+											 RelationWs2 relation,
+											 Enricher enricher) {
 		LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 		Set<String> newGenres = new HashSet<>(5);
 		if (enricher instanceof GenreEnricher genreEnricher) {
@@ -92,7 +92,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 
 	@Override
 
-	protected ReleaseEnrichmentResult mergeResults( Collection<ReleaseEnrichmentResult> results) {
+	protected ReleaseEnrichmentResult mergeResults(Collection<ReleaseEnrichmentResult> results) {
 		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
 			.map(ReleaseEnrichmentResult::genres)
 			.collect(Collectors.toSet()), MIN_GENRE_USAGE);
@@ -101,7 +101,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 	}
 
 	@Override
-	protected void updateEntity( ReleaseWs2 entity,  ReleaseEnrichmentResult result) {
+	protected void updateEntity(ReleaseWs2 entity, ReleaseEnrichmentResult result) {
 		if (!result.genres().isEmpty()) {
 			ReleaseGroupWs2 releaseGroup = entity.getReleaseGroup();
 			LOGGER.info("Submitting new tags '{}' for the release group '{}'.", result.genres(), releaseGroup.getId());
@@ -109,7 +109,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 		}
 	}
 
-	protected record ReleaseEnrichmentResult( Set<String> genres) {
+	protected record ReleaseEnrichmentResult(Set<String> genres) {
 	}
 
 }

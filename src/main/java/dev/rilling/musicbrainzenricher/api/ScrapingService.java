@@ -17,7 +17,7 @@ public class ScrapingService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ScrapingService.class);
 
 
-	public Optional<Document> load( String url) {
+	public Optional<Document> load(String url) {
 		try {
 			Document document = Jsoup.connect(url).get();
 			return Optional.of(document);

@@ -56,7 +56,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 
 	@Override
 
-	public Set<String> fetchGenres( RelationWs2 relation) {
+	public Set<String> fetchGenres(RelationWs2 relation) {
 		Optional<String> id = RegexUtils.maybeGroup(ID_REGEX.matcher(relation.getTargetId()), "id");
 		if (id.isEmpty()) {
 			LOGGER.warn("Could not find ID in '{}'.", relation.getTargetId());
@@ -69,7 +69,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 	}
 
 
-	private Set<String> extractGenreNames( List<Statement> genreStatements) {
+	private Set<String> extractGenreNames(List<Statement> genreStatements) {
 		Set<String> genres = new HashSet<>(genreStatements.size());
 		for (Statement genreStatement : genreStatements) {
 			if (!(genreStatement.getValue() instanceof EntityIdValue)) {
@@ -82,7 +82,7 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 	}
 
 
-	private Optional<String> findGenreName( String genreId) {
+	private Optional<String> findGenreName(String genreId) {
 		Optional<List<Statement>> musicbrainzLinkStatements = wikidataService.findEntityPropertyValues(genreId,
 			MUSICBRAINZ_LINK_PROPERTY_ID);
 		if (musicbrainzLinkStatements.map(List::isEmpty).orElse(true)) {
@@ -99,9 +99,9 @@ class WikidataReleaseGroupEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public boolean isRelationSupported( RelationWs2 relation) {
+	public boolean isRelationSupported(RelationWs2 relation) {
 		return "http://musicbrainz.org/ns/rel-2.0#wikidata".equals(relation.getType()) &&
-			"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
+			   "http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
 	}
 
 	@Override

@@ -46,7 +46,7 @@ public class GenreMatcherService {
 	 * @return Matching canonical genre names.
 	 */
 
-	public Set<String> match( Set<String> unmatchedGenres) {
+	public Set<String> match(Set<String> unmatchedGenres) {
 		if (unmatchedGenres.isEmpty()) {
 			return Set.of();
 		}

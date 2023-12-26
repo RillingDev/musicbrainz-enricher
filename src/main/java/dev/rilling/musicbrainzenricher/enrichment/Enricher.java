@@ -19,6 +19,6 @@ public interface Enricher extends DataTypeAware {
 	 * @param relation Relation to check.
 	 * @return if the relation is supported.
 	 */
-	boolean isRelationSupported( RelationWs2 relation);
+	boolean isRelationSupported(RelationWs2 relation);
 
 }

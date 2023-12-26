@@ -12,7 +12,7 @@ public final class RegexUtils {
 	}
 
 
-	public static Optional<String> maybeGroup( Matcher matcher,  String groupName) {
+	public static Optional<String> maybeGroup(Matcher matcher, String groupName) {
 		return matcher.matches() ? Optional.ofNullable(matcher.group(groupName)) : Optional.empty();
 	}
 }

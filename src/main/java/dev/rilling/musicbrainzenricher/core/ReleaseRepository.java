@@ -23,12 +23,12 @@ public class ReleaseRepository implements WorkQueueRepository {
 	}
 
 	@Override
-	public  List<UUID> queryWorkQueue(int limit) {
+	public List<UUID> queryWorkQueue(int limit) {
 		return jdbcClient.sql("SELECT gid FROM musicbrainz_enricher.release_work_queue LIMIT ?").param(limit).query(UUID.class).list();
 	}
 
 	@Override
-	public  DataType getDataType() {
+	public DataType getDataType() {
 		return DataType.RELEASE;
 	}
 }

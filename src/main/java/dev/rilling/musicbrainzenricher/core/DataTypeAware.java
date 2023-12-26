@@ -9,5 +9,5 @@ public interface DataTypeAware {
 	 *
 	 * @return The data type that is supported.
 	 */
-	 DataType getDataType();
+	DataType getDataType();
 }

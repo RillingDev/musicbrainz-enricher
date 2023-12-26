@@ -1,6 +1,5 @@
 package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

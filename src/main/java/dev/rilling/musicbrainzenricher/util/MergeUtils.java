@@ -23,7 +23,7 @@ public final class MergeUtils {
 	 * @return Set containing items of the original sets with a high count.
 	 */
 
-	public static <T> Set<T> getMostCommon( Collection<Set<T>> sets, double minUsagePercentage) {
+	public static <T> Set<T> getMostCommon(Collection<Set<T>> sets, double minUsagePercentage) {
 		if (minUsagePercentage < 0 || minUsagePercentage > 1) {
 			throw new IllegalArgumentException("minUsagePercentage must be from 0 to 1.");
 		}
@@ -57,7 +57,7 @@ public final class MergeUtils {
 	}
 
 
-	private static <T> Map<T, Integer> count( Collection<T> all) {
+	private static <T> Map<T, Integer> count(Collection<T> all) {
 		Map<T, Integer> counted = new HashMap<>(all.size());
 		for (T t : all) {
 			counted.compute(t, (ignored, count) -> count == null ? 1 : count + 1);
@@ -66,7 +66,7 @@ public final class MergeUtils {
 	}
 
 
-	private static <T> List<T> mergeIntoList( Collection<? extends Collection<T>> sets) {
+	private static <T> List<T> mergeIntoList(Collection<? extends Collection<T>> sets) {
 		List<T> all = new ArrayList<>(sets.size() * 5);
 		sets.forEach(all::addAll);
 		return all;
