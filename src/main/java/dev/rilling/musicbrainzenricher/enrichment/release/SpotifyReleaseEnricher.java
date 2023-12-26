@@ -6,6 +6,7 @@ import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import net.jcip.annotations.ThreadSafe;
 import org.musicbrainz.model.RelationWs2;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
 // https://musicbrainz.org/release/5bcb2971-fdea-4543-baf2-dd41d8b9a3cd
 // https://open.spotify.com/album/0Q2o6ioxIOlKPvRdG1K5da
 @Service
+@ConditionalOnBean(SpotifyQueryService.class)
 @ThreadSafe
 class SpotifyReleaseEnricher implements GenreEnricher {
 
