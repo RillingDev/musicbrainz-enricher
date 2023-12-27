@@ -42,7 +42,10 @@ public class GenreMatcherService {
 			return Set.of();
 		}
 
-		Set<String> matches = unmatchedGenres.stream().map(getCanonicalStringMatcher()::canonicalize).flatMap(Optional::stream).collect(Collectors.toUnmodifiableSet());
+		Set<String> matches = unmatchedGenres.stream()
+			.map(getCanonicalStringMatcher()::canonicalize)
+			.flatMap(Optional::stream)
+			.collect(Collectors.toUnmodifiableSet());
 
 		LOGGER.debug("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
 
@@ -63,7 +66,7 @@ public class GenreMatcherService {
 
 			Set<String> canonicalGenres = genreRepository.findGenreNames();
 
-			CanonicalStringMatcher canonicalStringMatcher = new CanonicalStringMatcher(canonicalGenres, delimiters, collator);
+			CanonicalStringMatcher canonicalStringMatcher = new CanonicalStringMatcher(canonicalGenres, collator, delimiters);
 			canonicalStringMatcherRef.compareAndSet(null, canonicalStringMatcher);
 		}
 		return canonicalStringMatcherRef.get();

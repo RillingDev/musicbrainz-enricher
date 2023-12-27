@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.util;
 
 import net.jcip.annotations.ThreadSafe;
-import org.apache.commons.collections4.map.LRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,32 +11,44 @@ import java.util.stream.Collectors;
 
 /**
  * Allows matching a string to its canonical form.
- * A given value will be checked against the provided canonical values using a {@link StringVariantChecker}.
- *
- * @see StringVariantChecker
+ * <p>
+ * This is done by using a configurable {@link Collator} as well as a collection of substrings
+ * representing common string variant delimiters in the english language, such as "-" (e.g., "hip-hop" vs "hip hop"),
+ * and checking if two words are the same ignoring these delimiters.
+ * <p>
+ * Note that due to the complexity of language, this tool only covers basic cases.
  */
 @ThreadSafe
 public class CanonicalStringMatcher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CanonicalStringMatcher.class);
-	private static final int SIZE_FACTOR = 5;
 
-	private final StringVariantChecker stringVariantChecker;
-	private final Set<String> canonicalValues;
-	private final Map<String, Optional<String>> cache;
+	private final Pattern ignoredSubstringPattern;
+	private final Map<String, String> canonicalMap;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param canonicalValues      Canonical values that should be matched towards.
+	 * @param canonicalValues   Canonical values that should be matched towards.
+	 * @param collator          Collator to use when comparing values.
+	 * @param ignoredSubstrings Substrings that should be ignored while matching.
+	 *                          For example, this can be used to treat {@code " and "} the same as {@code " & "}.
+	 *                          Caution: these should be generic substrings that could be used interchangeably.
 	 */
 	public CanonicalStringMatcher(Set<String> canonicalValues,
-								  Set<String> delimiters, Collator collator) {
-		this.stringVariantChecker = new StringVariantChecker(delimiters, collator);
-		this.canonicalValues = Set.copyOf(canonicalValues);
+								  Collator collator, Set<String> ignoredSubstrings
+	) {
+		ignoredSubstringPattern = Pattern.compile(ignoredSubstrings.stream()
+			// Ensure long substrings are at the start so that for example " and " matches before " ".
+			.sorted(Comparator.comparing(String::length).reversed().thenComparing(Comparator.naturalOrder()))
+			.map(Pattern::quote)
+			.collect(Collectors.joining("|")));
 
-		// TODO: check if a bounded version of ConcurrentHashMap can be used instead
-		cache = Collections.synchronizedMap(new LRUMap<>(canonicalValues.size() * SIZE_FACTOR));
+		// Using a tree map with the collator and the adjusted canonical value as key makes for fast lookups.
+		canonicalMap = new TreeMap<>(collator);
+		for (String canonicalValue : canonicalValues) {
+			canonicalMap.put(removeIgnoredSubstrings(canonicalValue), canonicalValue);
+		}
 	}
 
 	/**
@@ -48,66 +59,10 @@ public class CanonicalStringMatcher {
 	 */
 
 	public Optional<String> canonicalize(String unmatchedValue) {
-		return cache.computeIfAbsent(unmatchedValue, value -> {
-			Optional<String> match = canonicalValues.stream()
-				.filter(canonicalValue -> stringVariantChecker.isVariant(value, canonicalValue))
-				.findFirst();
-			LOGGER.trace("Matched '{}' to '{}'.", value, match);
-			return match;
-		});
+		return Optional.ofNullable(canonicalMap.get(removeIgnoredSubstrings(unmatchedValue)));
 	}
 
-	/**
-	 * Tool allowing checking if two strings are variants of the same word.
-	 * This is done by using delimiters representing common string variant
-	 * delimiters in the english language, such as "-" (e.g. "hip-hop" vs "hip hop"),
-	 * and checking if two words are the same ignoring these delimiters.
-	 * <p>
-	 * Note that due to the complexity of language, this tool only covers basic cases.
-	 */
-	@ThreadSafe
-	static
-	class StringVariantChecker {
-
-		private static final Comparator<String> DESCENDING_LENGTH_COMPARATOR = Comparator.comparing(String::length)
-			.reversed()
-			.thenComparing(Comparator.naturalOrder());
-
-		private final Collator collator;
-		private final Pattern delimiterPattern;
-
-		/**
-		 * Constructor.
-		 *
-		 * @param delimiters Delimiters to use when checking for variants. E.g. {@code "-"} or {@code " and "}.
-		 * @param collator   Collator to use for comparing variants.
-		 */
-		public StringVariantChecker(Set<String> delimiters, Collator collator) {
-			if (delimiters.contains("")) {
-				throw new IllegalArgumentException("Empty string is not allowed in delimiters.");
-			}
-			delimiterPattern = Pattern.compile(delimiters.stream()
-				// Ensure long delimiters are at the start so that e.g " and " matches before " ".
-				.sorted(DESCENDING_LENGTH_COMPARATOR)
-				.map(Pattern::quote)
-				.collect(Collectors.joining("|")));
-			this.collator = collator;
-		}
-
-		/**
-		 * Checks if a and b are variants of each other.
-		 * Order of parameters does not affect the result.
-		 *
-		 * @param a Value a.
-		 * @param b Value b.
-		 * @return if a and b are variants of each other.
-		 */
-		public boolean isVariant(String a, String b) {
-			return collator.equals(normalize(a), normalize(b));
-		}
-
-		private String normalize(String string) {
-			return delimiterPattern.matcher(string).replaceAll("");
-		}
+	private String removeIgnoredSubstrings(String string) {
+		return ignoredSubstringPattern.matcher(string).replaceAll("");
 	}
 }
