@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.enrichment;
 
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.springframework.stereotype.Component;
 
@@ -21,5 +20,5 @@ public interface GenreEnricher extends Enricher {
 	 * @param relation Relation.
 	 * @return a set of genres.
 	 */
-	@NotNull Set<String> fetchGenres(@NotNull RelationWs2 relation);
+	Set<String> fetchGenres(RelationWs2 relation);
 }

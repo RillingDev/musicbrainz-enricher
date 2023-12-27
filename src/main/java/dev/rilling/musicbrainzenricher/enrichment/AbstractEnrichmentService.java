@@ -1,6 +1,6 @@
 package dev.rilling.musicbrainzenricher.enrichment;
 
-import org.jetbrains.annotations.NotNull;
+import dev.rilling.musicbrainzenricher.core.DataTypeAware;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,10 +22,11 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 		completionService = new ExecutorCompletionService<>(executorService);
 	}
 
-	public void executeEnrichment(@NotNull UUID mbid) {
+	// TODO check if async handling can be simplified
+	public void executeEnrichment(UUID mbid) {
 		Optional<TEntity> entityOptional = fetchEntity(mbid);
 		if (entityOptional.isEmpty()) {
-			LOGGER.warn("Could not find '{}' for data-type '{}'.", mbid, getDataType());
+			LOGGER.warn("Could not find '{}' for the data type '{}'.", mbid, getDataType());
 			return;
 		}
 		TEntity entity = entityOptional.get();
@@ -61,23 +62,23 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 		updateEntity(entity, mergeResults(results));
 	}
 
-	@NotNull
-	protected abstract Optional<TEntity> fetchEntity(@NotNull UUID mbid);
 
-	@NotNull
-	protected abstract Collection<RelationWs2> extractRelations(@NotNull TEntity entity);
+	protected abstract Optional<TEntity> fetchEntity(UUID mbid);
 
-	@NotNull
-	protected abstract UResult enrich(@NotNull TEntity entity,
-									  @NotNull RelationWs2 relation,
-									  @NotNull Enricher enricher);
 
-	@NotNull
-	protected abstract UResult mergeResults(@NotNull Collection<UResult> results);
+	protected abstract Collection<RelationWs2> extractRelations(TEntity entity);
 
-	protected abstract void updateEntity(@NotNull TEntity entity, @NotNull UResult result);
 
-	@NotNull
+	protected abstract UResult enrich(TEntity entity,
+									  RelationWs2 relation,
+									  Enricher enricher);
+
+
+	protected abstract UResult mergeResults(Collection<UResult> results);
+
+	protected abstract void updateEntity(TEntity entity, UResult result);
+
+
 	private Set<Enricher> findFittingEnrichers() {
 		return applicationContext.getBeansOfType(Enricher.class)
 			.values()

@@ -1,8 +1,7 @@
 package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
-import dev.rilling.musicbrainzenricher.api.BucketService;
+import io.github.bucket4j.Bucket;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.model.entity.EntityWs2;
 import org.musicbrainz.query.submission.UserTagSubmissionWs2;
@@ -20,16 +19,13 @@ public class MusicbrainzEditService {
 	private final boolean dryRun;
 
 	private final WebService webService;
-	private final MusicbrainzBucketProvider musicbrainzBucketProvider;
-	private final BucketService bucketService;
+	private final Bucket bucket;
 
 	MusicbrainzEditService(Environment environment,
 						   @Qualifier("musicbrainzWebService") WebService webService,
-						   MusicbrainzBucketProvider musicbrainzBucketProvider,
-						   BucketService bucketService) {
+						   @Qualifier("musicbrainzBucket") Bucket bucket) {
 		this.webService = webService;
-		this.musicbrainzBucketProvider = musicbrainzBucketProvider;
-		this.bucketService = bucketService;
+		this.bucket = bucket;
 
 		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
@@ -41,12 +37,12 @@ public class MusicbrainzEditService {
 	 * @param entities Entities with tags set.
 	 * @throws MusicbrainzException If API access fails.
 	 */
-	public void submitUserTags(@NotNull Set<EntityWs2> entities) throws MusicbrainzException {
+	public void submitUserTags(Set<EntityWs2> entities) throws MusicbrainzException {
 		if (dryRun) {
 			return;
 		}
 
-		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+		bucket.asBlocking().consumeUninterruptibly(1);
 
 		UserTagSubmissionWs2 query = new UserTagSubmissionWs2(webService);
 		try {

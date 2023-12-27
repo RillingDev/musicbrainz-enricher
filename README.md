@@ -6,6 +6,11 @@
 
 Queries the [MusicBrainz](https://musicbrainz.org/) API and fetches data from linked sources like Discogs or Spotify.
 
+### Requirements
+
+- Java Runtime Environment 21
+- Docker
+
 ### Supported Relationship Sources
 
 - Releases (mode = `release`)
@@ -21,35 +26,38 @@ Queries the [MusicBrainz](https://musicbrainz.org/) API and fetches data from li
 
 ## Configuration
 
-This application uses Spring Boot which allows for easy handling of configurations. The following can either be passed
-as command line arguments (e.g. `--musicbrainz-enricher.host=foo`), or in a file called `application.properties` in the
-current working directory (e.g. containing `musicbrainz-enricher.host=foo`).
+This application uses Spring Boot, which allows for easy handling of configurations.
+See [the Spring Boot documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/howto.html#howto.properties-and-configuration.external-properties-location)
+for details.
 
 - `musicbrainz-enricher.host` (Either "test.musicbrainz.org" or "musicbrainz.org")
 - Credentials
 	- Musicbrainz
 		- `musicbrainz-enricher.musicbrainz.username`
 		- `musicbrainz-enricher.musicbrainz.password`
-	- Discogs API (can be left empty to use (slower) unauthenticated discogs API access)
+	- [Discogs API](https://www.discogs.com/developers/)(can be left empty to use (slower) unauthenticated discogs API
+	  access)
 		- `musicbrainz-enricher.discogs.token`
-	- Spotify API (can be left empty to disable spotify API access)
+	- [Spotify API](https://developer.spotify.com/documentation/web-api) (can be left empty to disable spotify API
+	  access)
 		- `musicbrainz-enricher.spotify.client-id`
 		- `musicbrainz-enricher.spotify.client-secret`
 
 ## Usage
 
-Before starting, set up <https://github.com/metabrainz/musicbrainz-docker> locally with the database port open.
+Before starting, set up a copy of the MusicBrainz database using <https://github.com/metabrainz/musicbrainz-docker>
+locally with the database port open.
 
-This tool can run in auto-query or single mode. Auto-query mode will enrich every entity from the musicbrainz database.
-Single mode takes a musicbrainz MBID and will enrich the matching entity.
+This tool can run in auto-query or single mode. Auto-query mode will enrich every entity from the MusicBrainz database.
+Single mode takes a MusicBrainz MBID and will enrich the matching entity.
 
 Auto-query mode:
-`java -jar musicbrainz-enricher*.jar 'release'`.
+`java -jar musicbrainz-enricher*.jar release`.
 
 Single mode:
-`java -jar musicbrainz-enricher*.jar 'release' 'MBID'`.
+`java -jar musicbrainz-enricher*.jar release 'MBID'`.
 
 ### History Storage
 
-This application will remember entities checked already and will only re-check them after duration `n` days, where `n`
-defaults to 90 days. In order to reset this, truncate the table `history_entry` in the schema `musicbrainz_enricher`.
+The application will remember entities checked already and will not re-check them. To reset this, truncate the
+`*_history_entry` tables in the schema `musicbrainz_enricher`.

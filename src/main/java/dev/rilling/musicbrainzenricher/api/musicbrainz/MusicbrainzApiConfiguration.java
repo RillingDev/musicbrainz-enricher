@@ -1,13 +1,16 @@
 package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
+import dev.rilling.musicbrainzenricher.api.LoggingBucketListener;
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.webservice.WebService;
 import org.musicbrainz.webservice.impl.HttpClientWebServiceWs2;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 
+import java.time.Duration;
 import java.util.regex.Pattern;
 
 @Configuration
@@ -17,7 +20,7 @@ class MusicbrainzApiConfiguration {
 	private static final Pattern UNSUPPORTED_VERSION_CHARACTER_PATTERN = Pattern.compile("-");
 
 	@Bean("musicbrainzWebService")
-	@NotNull WebService createWebService(Environment environment) {
+	WebService createWebService(Environment environment) {
 		String host = environment.getRequiredProperty("musicbrainz-enricher.host");
 		String applicationName = environment.getRequiredProperty("musicbrainz-enricher.name");
 		String applicationVersion = environment.getRequiredProperty("musicbrainz-enricher.version");
@@ -36,11 +39,19 @@ class MusicbrainzApiConfiguration {
 		return webService;
 	}
 
-	private @NotNull String getClient(@NotNull String applicationName, @NotNull String applicationVersion) {
+	private static String getClient(String applicationName, String applicationVersion) {
 		// See https://musicbrainz.org/doc/MusicBrainz_API
 		String adaptedApplicationVersion = UNSUPPORTED_VERSION_CHARACTER_PATTERN.matcher(applicationVersion)
 			.replaceAll("_");
 		return "%s-%s".formatted(applicationName, adaptedApplicationVersion);
 	}
 
+	@Bean("musicbrainzBucket")
+	Bucket musicbrainzBucket() {
+		// See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting,
+		// further slowed down to adapt for network fluctuations.
+		Bandwidth bandwidth = Bandwidth.simple(1, Duration.ofMillis(1500));
+
+		return Bucket.builder().addLimit(bandwidth).build().toListenable(new LoggingBucketListener("musicbrainz"));
+	}
 }

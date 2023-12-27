@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.api.wikidata;
 
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -23,8 +22,8 @@ public class WikidataService {
 
 	private final BasicApiConnection wikidataApiConnection = BasicApiConnection.getWikidataApiConnection();
 
-	@NotNull
-	public Optional<List<Statement>> findEntityPropertyValues(@NotNull String entityId, @NotNull String propertyId) {
+
+	public Optional<List<Statement>> findEntityPropertyValues(String entityId, String propertyId) {
 		PropertyIdValue propertyIdValue = Datamodel.makeWikidataPropertyIdValue(propertyId);
 
 		WikibaseDataFetcher fetcher = new WikibaseDataFetcher(wikidataApiConnection, Datamodel.SITE_WIKIDATA);

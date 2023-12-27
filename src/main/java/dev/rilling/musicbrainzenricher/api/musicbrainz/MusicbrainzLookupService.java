@@ -1,8 +1,7 @@
 package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
-import dev.rilling.musicbrainzenricher.api.BucketService;
+import io.github.bucket4j.Bucket;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.MBWS2Exception;
 import org.musicbrainz.controller.Release;
 import org.musicbrainz.controller.ReleaseGroup;
@@ -23,21 +22,18 @@ import java.util.UUID;
 public class MusicbrainzLookupService {
 
 	private final WebService webService;
-	private final MusicbrainzBucketProvider musicbrainzBucketProvider;
-	private final BucketService bucketService;
+	private final Bucket bucket;
 
 	MusicbrainzLookupService(@Qualifier("musicbrainzWebService") WebService webService,
-							 MusicbrainzBucketProvider musicbrainzBucketProvider,
-							 BucketService bucketService) {
+							 @Qualifier("musicbrainzBucket") Bucket bucket) {
 		this.webService = webService;
-		this.musicbrainzBucketProvider = musicbrainzBucketProvider;
-		this.bucketService = bucketService;
+		this.bucket = bucket;
 	}
 
-	@NotNull
-	public Optional<ReleaseWs2> lookUpRelease(@NotNull UUID mbid, @NotNull ReleaseIncludesWs2 includes)
+
+	public Optional<ReleaseWs2> lookUpRelease(UUID mbid, ReleaseIncludesWs2 includes)
 		throws MusicbrainzException {
-		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+		bucket.asBlocking().consumeUninterruptibly(1);
 
 		Release release = new Release();
 		release.setQueryWs(webService);
@@ -49,14 +45,14 @@ public class MusicbrainzLookupService {
 		} catch (ResourceNotFoundException e) {
 			return Optional.empty();
 		} catch (MBWS2Exception e) {
-			throw new MusicbrainzException("Could not look up release '%s'.".formatted(mbid), e);
+			throw new MusicbrainzException("Could not look up the release '%s'.".formatted(mbid), e);
 		}
 	}
 
-	@NotNull
-	public Optional<ReleaseGroupWs2> lookUpReleaseGroup(@NotNull UUID mbid, @NotNull ReleaseGroupIncludesWs2 includes)
+
+	public Optional<ReleaseGroupWs2> lookUpReleaseGroup(UUID mbid, ReleaseGroupIncludesWs2 includes)
 		throws MusicbrainzException {
-		bucketService.consumeSingleBlocking(musicbrainzBucketProvider.getBucket());
+		bucket.asBlocking().consumeUninterruptibly(1);
 
 		ReleaseGroup releaseGroup = new ReleaseGroup();
 		releaseGroup.setQueryWs(webService);
@@ -68,7 +64,7 @@ public class MusicbrainzLookupService {
 		} catch (ResourceNotFoundException e) {
 			return Optional.empty();
 		} catch (MBWS2Exception e) {
-			throw new MusicbrainzException("Could not look up release group'%s'.".formatted(mbid), e);
+			throw new MusicbrainzException("Could not look up the release group '%s'.".formatted(mbid), e);
 		}
 	}
 

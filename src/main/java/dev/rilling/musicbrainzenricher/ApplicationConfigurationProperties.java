@@ -1,11 +1,10 @@
 package dev.rilling.musicbrainzenricher;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 
 @Configuration
 @ConfigurationProperties(prefix = "musicbrainz-enricher")
@@ -42,11 +41,6 @@ public class ApplicationConfigurationProperties {
 	 * If changes should just be logged and not applied.
 	 */
 	private boolean dryRun;
-
-	/**
-	 * Size of the thread pool to use for enrichment.
-	 */
-	private int enrichmentThreadPoolSize;
 
 	/**
 	 * Musicbrainz credentials.
@@ -109,14 +103,6 @@ public class ApplicationConfigurationProperties {
 		this.dryRun = dryRun;
 	}
 
-	public int getEnrichmentThreadPoolSize() {
-		return enrichmentThreadPoolSize;
-	}
-
-	public void setEnrichmentThreadPoolSize(int enrichmentThreadPoolSize) {
-		this.enrichmentThreadPoolSize = enrichmentThreadPoolSize;
-	}
-
 	public MusicbrainzCredentials getMusicbrainz() {
 		return musicbrainz;
 	}
@@ -141,13 +127,13 @@ public class ApplicationConfigurationProperties {
 		this.spotify = spotify;
 	}
 
-	private record MusicbrainzCredentials(@NotBlank String username, @NotBlank String password) {
+	public record MusicbrainzCredentials(@NotBlank String username, @NotBlank String password) {
 	}
 
 	// https://www.discogs.com/developers/#page:authentication
-	private record DiscogsCredentials(String token) {
+	public record DiscogsCredentials(String token) {
 	}
 
-	private record SpotifyCredentials(String clientId, String clientSecret) {
+	public record SpotifyCredentials(String clientId, String clientSecret) {
 	}
 }

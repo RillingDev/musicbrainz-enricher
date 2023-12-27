@@ -1,45 +1,63 @@
 package dev.rilling.musicbrainzenricher.util;
 
 import net.jcip.annotations.ThreadSafe;
-import org.apache.commons.collections4.map.LRUMap;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.text.Collator;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Allows matching a string to its canonical form.
- * A given value will be checked against the provided canonical values using a {@link StringVariantChecker}.
- *
- * @see StringVariantChecker
+ * <p>
+ * This is done by using a configurable {@link Collator} as well as a collection of substrings
+ * representing common string variant delimiters in the english language, such as "-" (e.g., "hip-hop" vs "hip hop"),
+ * and checking if two words are the same ignoring these delimiters.
+ * <p>
+ * Note that due to the complexity of language, this tool only covers basic cases.
  */
 @ThreadSafe
 public class CanonicalStringMatcher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CanonicalStringMatcher.class);
-	private static final int SIZE_FACTOR = 5;
 
-	private final StringVariantChecker stringVariantChecker;
-	private final Set<String> canonicalValues;
-	private final Map<String, Optional<String>> cache;
+	private final Pattern ignoredSubstringPattern;
+	private final Map<String, String> canonicalMap;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param canonicalValues      Canonical values that should be matched towards.
-	 * @param stringVariantChecker {@link StringVariantChecker} to use for matching.
+	 * @param canonicalValues   Canonical values that should be matched towards.
+	 * @param collator          Collator to use when comparing values.
+	 *                          Caution: The caller should make sure none of the canonical values are equal to each other with this collator.
+	 * @param ignoredSubstrings Substrings that should be ignored while matching.
+	 *                          For example, this can be used to treat {@code " and "} the same as {@code " & "}.
+	 *                          Caution: The caller should make sure none of the canonical values are equal to each other when ignoring these substrings.
+	 *                          Caution: These should be generic substrings that could be used interchangeably.
 	 */
-	public CanonicalStringMatcher(@NotNull Set<String> canonicalValues,
-								  @NotNull StringVariantChecker stringVariantChecker) {
-		this.stringVariantChecker = stringVariantChecker;
-		this.canonicalValues = Set.copyOf(canonicalValues);
+	public CanonicalStringMatcher(Set<String> canonicalValues,
+								  Collator collator, Set<String> ignoredSubstrings
+	) {
+		ignoredSubstringPattern = Pattern.compile(ignoredSubstrings.stream()
+			// Ensure long substrings are at the start so that for example " and " matches before " ".
+			.sorted(Comparator.comparing(String::length).reversed().thenComparing(Comparator.naturalOrder()))
+			.map(Pattern::quote)
+			.collect(Collectors.joining("|")));
 
-		// TODO: check if a bounded version of ConcurrentHashMap can be used instead
-		cache = Collections.synchronizedMap(new LRUMap<>(canonicalValues.size() * SIZE_FACTOR));
+		List<String> list = canonicalValues.stream().map(this::removeIgnoredSubstrings).toList();
+
+
+		// Using a tree map with the collator and the adjusted canonical value as key makes for fast lookups.
+		canonicalMap = new TreeMap<>(collator);
+		for (String canonicalValue : canonicalValues) {
+			String adjustedValue = removeIgnoredSubstrings(canonicalValue);
+			if (canonicalMap.containsKey(adjustedValue)) {
+				LOGGER.warn("Canonical value '{}' conflicts with '{}' which is equal when comparing.", canonicalValue, canonicalMap.get(adjustedValue));
+			}
+			canonicalMap.put(adjustedValue, canonicalValue);
+		}
 	}
 
 	/**
@@ -48,14 +66,13 @@ public class CanonicalStringMatcher {
 	 * @param unmatchedValue Value to get the canonical form of.
 	 * @return Canonical form, or empty if no canonical match was found.
 	 */
-	@NotNull
-	public Optional<String> canonicalize(@NotNull String unmatchedValue) {
-		return cache.computeIfAbsent(unmatchedValue, value -> {
-			Optional<String> match = canonicalValues.stream()
-				.filter(canonicalValue -> stringVariantChecker.isVariant(value, canonicalValue))
-				.findFirst();
-			LOGGER.trace("Matched '{}' to '{}'.", value, match);
-			return match;
-		});
+
+	public Optional<String> canonicalize(String unmatchedValue) {
+		String adjustedValue = removeIgnoredSubstrings(unmatchedValue);
+		return Optional.ofNullable(canonicalMap.get(adjustedValue));
+	}
+
+	private String removeIgnoredSubstrings(String string) {
+		return ignoredSubstringPattern.matcher(string).replaceAll("");
 	}
 }

@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.core.history;
 
 import dev.rilling.musicbrainzenricher.core.DataType;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
@@ -23,7 +22,7 @@ public class HistoryService {
 		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
 
-	public void markAsChecked(@NotNull DataType dataType, @NotNull UUID mbid) {
+	public void markAsChecked(DataType dataType, UUID mbid) {
 		if (dryRun) {
 			return;
 		}

@@ -49,7 +49,7 @@ class MergeUtilsTest {
 	}
 
 	@Test
-	@DisplayName("returns union if all items have same count.")
+	@DisplayName("returns union if all items have the same count.")
 	void getMostCommonUnion() {
 		Set<String> set1 = Set.of("foo", "bar");
 		Set<String> set2 = Set.of("fizz");

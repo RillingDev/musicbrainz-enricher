@@ -5,7 +5,6 @@ import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
 import org.jsoup.select.QueryParser;
@@ -14,9 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.HashSet;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -32,7 +30,7 @@ class BandcampReleaseEnricher implements GenreEnricher {
 	private static final Logger LOGGER = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
 
 	private static final Pattern HOST_REGEX = Pattern.compile(".+\\.bandcamp\\.com");
-	private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > a");
+	private static final Evaluator TAG_QUERY = QueryParser.parse(".tralbum-tags > .tag");
 
 	private final GenreMatcherService genreMatcherService;
 	private final ScrapingService scrapingService;
@@ -43,28 +41,28 @@ class BandcampReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	@NotNull
-	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+
+	public Set<String> fetchGenres(RelationWs2 relation) {
 		return scrapingService.load(relation.getTargetId())
 			.map(this::extractTags)
 			.map(genreMatcherService::match)
 			.orElse(Set.of());
 	}
 
-	@NotNull
-	private Set<String> extractTags(@NotNull Document document) {
-		return new HashSet<>(document.select(TAG_QUERY).eachText());
+
+	private Set<String> extractTags(Document document) {
+		return Set.copyOf(document.select(TAG_QUERY).eachText());
 	}
 
 	@Override
-	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+	public boolean isRelationSupported(RelationWs2 relation) {
 		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
 			return false;
 		}
-		URL url;
+		URI url;
 		try {
-			url = new URL(relation.getTargetId());
-		} catch (MalformedURLException e) {
+			url = new URI(relation.getTargetId());
+		} catch (URISyntaxException e) {
 			LOGGER.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
 			return false;
 		}
@@ -72,7 +70,7 @@ class BandcampReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	@NotNull
+
 	public DataType getDataType() {
 		return DataType.RELEASE;
 	}

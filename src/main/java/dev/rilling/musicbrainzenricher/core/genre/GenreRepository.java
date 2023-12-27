@@ -1,11 +1,9 @@
 package dev.rilling.musicbrainzenricher.core.genre;
 
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -14,26 +12,19 @@ import java.util.UUID;
 @ThreadSafe
 public class GenreRepository {
 
-	private final JdbcTemplate jdbcTemplate;
+	private final JdbcClient jdbcClient;
 
-	GenreRepository(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
+	public GenreRepository(JdbcClient jdbcClient) {
+		this.jdbcClient = jdbcClient;
 	}
 
-	@NotNull
+
 	public Set<String> findGenreNames() {
-		List<String> genreNames = jdbcTemplate.query("""
-			SELECT g.name FROM musicbrainz.genre g
-			ORDER BY g.name
-			""", (rs, rowNum) -> rs.getString("name"));
-		return Set.copyOf(genreNames);
+		return jdbcClient.sql("SELECT name FROM musicbrainz.genre").query(String.class).set();
 	}
 
-	public Optional<String> findGenreNameByMbid(@NotNull UUID mbid) {
-		return Optional.ofNullable(jdbcTemplate.queryForObject("""
-			SELECT g.name FROM musicbrainz.genre g
-				WHERE g.gid = ?
-			""", String.class, mbid));
+	public Optional<String> findGenreNameByMbid(UUID mbid) {
+		return jdbcClient.sql("SELECT name FROM musicbrainz.genre WHERE gid = ?").param(mbid).query(String.class).optional();
 	}
 
 }

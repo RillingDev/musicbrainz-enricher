@@ -7,7 +7,6 @@ import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import dev.rilling.musicbrainzenricher.util.RegexUtils;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,35 +36,36 @@ class DiscogsReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	@NotNull
-	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
+
+	public Set<String> fetchGenres(RelationWs2 relation) {
 		Optional<String> discogsId = RegexUtils.maybeGroup(URL_REGEX.matcher(relation.getTargetId()), "id");
 		if (discogsId.isEmpty()) {
 			LOGGER.warn("Could not find discogs ID: '{}'.", relation.getTargetId());
 			return Set.of();
 		}
 		return discogsQueryService.lookUpRelease(discogsId.get())
-			.map(release -> genreMatcherService.match(extractGenres(release)))
+			.map(this::extractGenres)
+			.map(genreMatcherService::match)
 			.orElse(Set.of());
 	}
 
-	@NotNull
-	private Set<String> extractGenres(@NotNull DiscogsRelease release) {
-		Set<String> genres = new HashSet<>(release.getGenres());
-		if (release.getStyles() != null) {
-			genres.addAll(release.getStyles());
+
+	private Set<String> extractGenres(DiscogsRelease release) {
+		Set<String> genres = new HashSet<>(release.genres());
+		if (release.styles() != null) {
+			genres.addAll(release.styles());
 		}
 		return genres;
 	}
 
 	@Override
-	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+	public boolean isRelationSupported(RelationWs2 relation) {
 		return "http://musicbrainz.org/ns/rel-2.0#discogs".equals(relation.getType()) &&
-			"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
+			   "http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType());
 	}
 
 	@Override
-	@NotNull
+
 	public DataType getDataType() {
 		return DataType.RELEASE;
 	}

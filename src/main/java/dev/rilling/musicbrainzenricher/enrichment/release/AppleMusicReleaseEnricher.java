@@ -5,7 +5,6 @@ import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import net.jcip.annotations.ThreadSafe;
-import org.jetbrains.annotations.NotNull;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
 import org.jsoup.select.QueryParser;
@@ -14,10 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,38 +45,37 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	@NotNull
-	public Set<String> fetchGenres(@NotNull RelationWs2 relation) {
-		Optional<Document> document = scrapingService.load(relation.getTargetId());
-		if (document.isEmpty()) {
-			return Set.of();
-		}
-
-		// We can only process genres if they are in english.
-		if (!hasLocaleLanguage(document.get(), Locale.ENGLISH)) {
-			LOGGER.debug("Skipping '{}' because the locale is not supported.", relation.getTargetId());
-			return Set.of();
-		}
-
-		return genreMatcherService.match(extractTags(document.get()));
+	public Set<String> fetchGenres(RelationWs2 relation) {
+		return scrapingService.load(relation.getTargetId())
+			.filter(document -> {
+				// We can only process genres if they are in english.
+				if (!hasLocaleLanguage(document, Locale.ENGLISH)) {
+					LOGGER.debug("Skipping '{}' because the locale is not supported.", relation.getTargetId());
+					return false;
+				}
+				return true;
+			})
+			.map(this::extractTags)
+			.map(genreMatcherService::match)
+			.orElse(Set.of());
 	}
 
-	@NotNull
-	private Set<String> extractTags(@NotNull Document document) {
+
+	private Set<String> extractTags(Document document) {
 		String metaText = document.select(TAG_QUERY).text();
 
 		Matcher matcher = META_REGEX.matcher(metaText);
 		if (!matcher.matches()) {
-			LOGGER.warn("Could not match meta text. This might be because we were redirected.");
+			LOGGER.warn("Could not match meta text. This may be because we were redirected.");
 			return Set.of();
 		}
 		return Set.of(matcher.group("genre"));
 	}
 
-	private boolean hasLocaleLanguage(@NotNull Document document, @NotNull Locale locale) {
+	private boolean hasLocaleLanguage(Document document, Locale locale) {
 		String parsedLocale = document.getElementsByTag("html").attr("lang");
 
-		// We manually extract just the language in order to not have to deal with different locale representations
+		// We manually extract just the language to not have to deal with different locale representations
 		// (es-mx in HTML vs es_MX in Java).
 		String parsedLanguage;
 		if (parsedLocale.contains("-")) {
@@ -91,14 +88,14 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 	}
 
 	@Override
-	public boolean isRelationSupported(@NotNull RelationWs2 relation) {
+	public boolean isRelationSupported(RelationWs2 relation) {
 		if (!"http://musicbrainz.org/ns/rel-2.0#url".equals(relation.getTargetType())) {
 			return false;
 		}
-		URL url;
+		URI url;
 		try {
-			url = new URL(relation.getTargetId());
-		} catch (MalformedURLException e) {
+			url = new URI(relation.getTargetId());
+		} catch (URISyntaxException e) {
 			LOGGER.warn("Could not parse as URL: '{}'.", relation.getTargetId(), e);
 			return false;
 		}
@@ -107,7 +104,7 @@ class AppleMusicReleaseEnricher implements GenreEnricher {
 
 
 	@Override
-	@NotNull
+
 	public DataType getDataType() {
 		return DataType.RELEASE;
 	}
