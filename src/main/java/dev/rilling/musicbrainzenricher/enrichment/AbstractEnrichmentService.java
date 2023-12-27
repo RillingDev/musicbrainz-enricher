@@ -22,7 +22,7 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 		completionService = new ExecutorCompletionService<>(executorService);
 	}
 
-	// TODO check if async handling can be replaced with spring tools
+	// TODO check if async handling can be simplified
 	public void executeEnrichment(UUID mbid) {
 		Optional<TEntity> entityOptional = fetchEntity(mbid);
 		if (entityOptional.isEmpty()) {
