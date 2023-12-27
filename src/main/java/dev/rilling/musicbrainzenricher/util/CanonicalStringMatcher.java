@@ -5,10 +5,10 @@ import org.apache.commons.collections4.map.LRUMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.text.Collator;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Allows matching a string to its canonical form.
@@ -30,11 +30,10 @@ public class CanonicalStringMatcher {
 	 * Constructor.
 	 *
 	 * @param canonicalValues      Canonical values that should be matched towards.
-	 * @param stringVariantChecker {@link StringVariantChecker} to use for matching.
 	 */
 	public CanonicalStringMatcher(Set<String> canonicalValues,
-								  StringVariantChecker stringVariantChecker) {
-		this.stringVariantChecker = stringVariantChecker;
+								  Set<String> delimiters, Collator collator) {
+		this.stringVariantChecker = new StringVariantChecker(delimiters, collator);
 		this.canonicalValues = Set.copyOf(canonicalValues);
 
 		// TODO: check if a bounded version of ConcurrentHashMap can be used instead
@@ -56,5 +55,59 @@ public class CanonicalStringMatcher {
 			LOGGER.trace("Matched '{}' to '{}'.", value, match);
 			return match;
 		});
+	}
+
+	/**
+	 * Tool allowing checking if two strings are variants of the same word.
+	 * This is done by using delimiters representing common string variant
+	 * delimiters in the english language, such as "-" (e.g. "hip-hop" vs "hip hop"),
+	 * and checking if two words are the same ignoring these delimiters.
+	 * <p>
+	 * Note that due to the complexity of language, this tool only covers basic cases.
+	 */
+	@ThreadSafe
+	static
+	class StringVariantChecker {
+
+		private static final Comparator<String> DESCENDING_LENGTH_COMPARATOR = Comparator.comparing(String::length)
+			.reversed()
+			.thenComparing(Comparator.naturalOrder());
+
+		private final Collator collator;
+		private final Pattern delimiterPattern;
+
+		/**
+		 * Constructor.
+		 *
+		 * @param delimiters Delimiters to use when checking for variants. E.g. {@code "-"} or {@code " and "}.
+		 * @param collator   Collator to use for comparing variants.
+		 */
+		public StringVariantChecker(Set<String> delimiters, Collator collator) {
+			if (delimiters.contains("")) {
+				throw new IllegalArgumentException("Empty string is not allowed in delimiters.");
+			}
+			delimiterPattern = Pattern.compile(delimiters.stream()
+				// Ensure long delimiters are at the start so that e.g " and " matches before " ".
+				.sorted(DESCENDING_LENGTH_COMPARATOR)
+				.map(Pattern::quote)
+				.collect(Collectors.joining("|")));
+			this.collator = collator;
+		}
+
+		/**
+		 * Checks if a and b are variants of each other.
+		 * Order of parameters does not affect the result.
+		 *
+		 * @param a Value a.
+		 * @param b Value b.
+		 * @return if a and b are variants of each other.
+		 */
+		public boolean isVariant(String a, String b) {
+			return collator.equals(normalize(a), normalize(b));
+		}
+
+		private String normalize(String string) {
+			return delimiterPattern.matcher(string).replaceAll("");
+		}
 	}
 }

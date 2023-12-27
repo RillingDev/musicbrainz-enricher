@@ -1,7 +1,6 @@
 package dev.rilling.musicbrainzenricher.core.genre;
 
 import dev.rilling.musicbrainzenricher.util.CanonicalStringMatcher;
-import dev.rilling.musicbrainzenricher.util.StringVariantChecker;
 import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +19,6 @@ public class GenreMatcherService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GenreMatcherService.class);
 
-	private static final StringVariantChecker STRING_VARIANT_CHECKER;
-
-	static {
-		Set<String> delimiters = Set.of("-", " ", " and ", " & ");
-		Collator collator = Collator.getInstance(Locale.ROOT);
-		collator.setStrength(Collator.PRIMARY);
-		STRING_VARIANT_CHECKER = new StringVariantChecker(delimiters, collator);
-	}
 
 	private final AtomicReference<CanonicalStringMatcher> canonicalStringMatcherRef = new AtomicReference<>(null);
 
@@ -51,10 +42,7 @@ public class GenreMatcherService {
 			return Set.of();
 		}
 
-		Set<String> matches = unmatchedGenres.stream()
-			.map(getCanonicalStringMatcher()::canonicalize)
-			.flatMap(Optional::stream)
-			.collect(Collectors.toUnmodifiableSet());
+		Set<String> matches = unmatchedGenres.stream().map(getCanonicalStringMatcher()::canonicalize).flatMap(Optional::stream).collect(Collectors.toUnmodifiableSet());
 
 		LOGGER.debug("Matched genres '{}' to '{}'.", unmatchedGenres, matches);
 
@@ -68,9 +56,14 @@ public class GenreMatcherService {
 		 * If that happens, the first one wins, with any further initialization still starting but never being applied.
 		 */
 		if (canonicalStringMatcherRef.get() == null) {
+			Set<String> delimiters = Set.of("-", " ", " and ", " & ");
+
+			Collator collator = Collator.getInstance(Locale.ROOT);
+			collator.setStrength(Collator.PRIMARY);
+
 			Set<String> canonicalGenres = genreRepository.findGenreNames();
-			CanonicalStringMatcher canonicalStringMatcher = new CanonicalStringMatcher(canonicalGenres,
-				STRING_VARIANT_CHECKER);
+
+			CanonicalStringMatcher canonicalStringMatcher = new CanonicalStringMatcher(canonicalGenres, delimiters, collator);
 			canonicalStringMatcherRef.compareAndSet(null, canonicalStringMatcher);
 		}
 		return canonicalStringMatcherRef.get();
