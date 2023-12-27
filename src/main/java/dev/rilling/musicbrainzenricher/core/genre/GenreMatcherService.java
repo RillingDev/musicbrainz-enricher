@@ -62,7 +62,9 @@ public class GenreMatcherService {
 			Set<String> delimiters = Set.of("-", " ", " and ", " & ");
 
 			Collator collator = Collator.getInstance(Locale.ROOT);
-			collator.setStrength(Collator.PRIMARY);
+			// While PRIMARY may seem fitting here, there are genres that would mistakenly be
+			// treated as identical (https://musicbrainz.org/genre/57a6dcc1-c3cd-4ce1-9fb2-e1783992a683 and https://musicbrainz.org/genre/c1f813d2-d21f-4eda-85e3-e8bfac92b3e1).
+			collator.setStrength(Collator.SECONDARY);
 
 			Set<String> canonicalGenres = genreRepository.findGenreNames();
 

@@ -31,9 +31,11 @@ public class CanonicalStringMatcher {
 	 *
 	 * @param canonicalValues   Canonical values that should be matched towards.
 	 * @param collator          Collator to use when comparing values.
+	 *                          Caution: The caller should make sure none of the canonical values are equal to each other with this collator.
 	 * @param ignoredSubstrings Substrings that should be ignored while matching.
 	 *                          For example, this can be used to treat {@code " and "} the same as {@code " & "}.
-	 *                          Caution: these should be generic substrings that could be used interchangeably.
+	 *                          Caution: The caller should make sure none of the canonical values are equal to each other when ignoring these substrings.
+	 *                          Caution: These should be generic substrings that could be used interchangeably.
 	 */
 	public CanonicalStringMatcher(Set<String> canonicalValues,
 								  Collator collator, Set<String> ignoredSubstrings
@@ -44,10 +46,17 @@ public class CanonicalStringMatcher {
 			.map(Pattern::quote)
 			.collect(Collectors.joining("|")));
 
+		List<String> list = canonicalValues.stream().map(this::removeIgnoredSubstrings).toList();
+
+
 		// Using a tree map with the collator and the adjusted canonical value as key makes for fast lookups.
 		canonicalMap = new TreeMap<>(collator);
 		for (String canonicalValue : canonicalValues) {
-			canonicalMap.put(removeIgnoredSubstrings(canonicalValue), canonicalValue);
+			String adjustedValue = removeIgnoredSubstrings(canonicalValue);
+			if (canonicalMap.containsKey(adjustedValue)) {
+				LOGGER.warn("Canonical value '{}' conflicts with '{}' which is equal when comparing.", canonicalValue, canonicalMap.get(adjustedValue));
+			}
+			canonicalMap.put(adjustedValue, canonicalValue);
 		}
 	}
 
@@ -59,7 +68,8 @@ public class CanonicalStringMatcher {
 	 */
 
 	public Optional<String> canonicalize(String unmatchedValue) {
-		return Optional.ofNullable(canonicalMap.get(removeIgnoredSubstrings(unmatchedValue)));
+		String adjustedValue = removeIgnoredSubstrings(unmatchedValue);
+		return Optional.ofNullable(canonicalMap.get(adjustedValue));
 	}
 
 	private String removeIgnoredSubstrings(String string) {
