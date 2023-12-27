@@ -140,13 +140,13 @@ public class ApplicationConfigurationProperties {
 		this.spotify = spotify;
 	}
 
-	private record MusicbrainzCredentials(@NotBlank String username, @NotBlank String password) {
+	public record MusicbrainzCredentials(@NotBlank String username, @NotBlank String password) {
 	}
 
 	// https://www.discogs.com/developers/#page:authentication
-	private record DiscogsCredentials(String token) {
+	public record DiscogsCredentials(String token) {
 	}
 
-	private record SpotifyCredentials(String clientId, String clientSecret) {
+	public record SpotifyCredentials(String clientId, String clientSecret) {
 	}
 }
