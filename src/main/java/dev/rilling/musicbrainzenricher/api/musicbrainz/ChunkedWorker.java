@@ -58,7 +58,7 @@ class ChunkedWorker<TItem> {
 	}
 
 	private void flush(boolean force) {
-		Set<TItem> chunk;
+		final Set<TItem> items;
 		synchronized (workChunkingLock) {
 			if (force) {
 				if (queue.isEmpty()) {
@@ -70,16 +70,14 @@ class ChunkedWorker<TItem> {
 				}
 			}
 
-			final Set<TItem> items = new HashSet<>(chunkSize);
 			// Note that the queue may be larger than chunkSize at this point as the queue can still be modified.
 			// Due to that, we only take chunkSize items.
+			items = new HashSet<>(chunkSize);
 			while (queue.peek() != null && items.size() < chunkSize) {
 				items.add(queue.poll());
 			}
-
-			chunk = Collections.unmodifiableSet(items);
 		}
 
-		workProcessor.accept(chunk);
+		workProcessor.accept(Collections.unmodifiableSet(items));
 	}
 }
