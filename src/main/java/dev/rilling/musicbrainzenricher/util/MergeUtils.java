@@ -17,7 +17,7 @@ public final class MergeUtils {
 	 *
 	 * @param sets               Collection of sets to analyze the contents of.
 	 * @param minUsagePercentage Percentage from 0 to 1.
-	 *                           If e.g. 0.9 is used, all values with a count of at least 90%
+	 *                           If e.g., 0.9 is used, all values with a count of at least 90%
 	 *                           of the item of the highest count are included.
 	 * @param <T>                Set item value.
 	 * @return Set containing items of the original sets with a high count.
