@@ -21,7 +21,7 @@ class SpotifyApiConfiguration {
 	Bucket spotifyBucket() {
 		// https://developer.spotify.com/documentation/web-api/guides/rate-limits/
 		// Spotify itself does not disclose an exact rate, this is only a guess to avoid running into it.
-		Bandwidth bandwidth = Bandwidth.simple(10, Duration.ofMinutes(1));
+		Bandwidth bandwidth = Bandwidth.builder().capacity(10).refillGreedy(10, Duration.ofMinutes(1)).build();
 
 		return Bucket.builder().addLimit(bandwidth).build().toListenable(new LoggingBucketListener("spotify"));
 	}

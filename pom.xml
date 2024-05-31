@@ -84,9 +84,9 @@
 
 		<!-- Utility -->
 		<dependency>
-			<groupId>com.github.vladimir-bukhtoyarov</groupId>
+			<groupId>com.bucket4j</groupId>
 			<artifactId>bucket4j-core</artifactId>
-			<version>7.6.0</version>
+			<version>8.10.1</version>
 		</dependency>
 		<dependency>
 			<groupId>net.jcip</groupId>
