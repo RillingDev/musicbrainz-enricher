@@ -14,7 +14,7 @@
 	<artifactId>musicbrainz-enricher</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<name>MusicbrainzEnricher</name> <!-- Should not contain spaces or special characters as it used as User Agent -->
-	<url>https://github.com/FelixRilling/musicbrainz-enricher</url>
+	<url>https://github.com/RillingDev/musicbrainz-enricher</url>
 
 	<properties>
 		<java.version>21</java.version>
@@ -30,7 +30,6 @@
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 
-		<!-- Dev Tools -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-devtools</artifactId>
@@ -38,23 +37,22 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-configuration-processor</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<!-- Drivers -->
-		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- For RestTemplate only-->
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<!-- Data Fetching -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<!-- For RestClient only-->
+			<artifactId>spring-web</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>info.schnatterer.musicbrainzws2-java</groupId>
 			<artifactId>musicbrainzws2-java</artifactId>
