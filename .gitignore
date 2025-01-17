@@ -34,5 +34,4 @@ target
 
 
 # Misc Files
-local/
-keystore/
+.local/
