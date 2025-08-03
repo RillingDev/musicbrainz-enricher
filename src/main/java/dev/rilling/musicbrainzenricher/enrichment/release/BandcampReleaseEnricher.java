@@ -3,7 +3,7 @@ package dev.rilling.musicbrainzenricher.enrichment.release;
 import dev.rilling.musicbrainzenricher.api.ScrapingService;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
-import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
+import dev.rilling.musicbrainzenricher.enrichment.Enricher;
 import net.jcip.annotations.ThreadSafe;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 // https://vectorlovers.bandcamp.com/album/separation-soundtrack
 @Service
 @ThreadSafe
-class BandcampReleaseEnricher implements GenreEnricher {
+class BandcampReleaseEnricher implements Enricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(BandcampReleaseEnricher.class);
 

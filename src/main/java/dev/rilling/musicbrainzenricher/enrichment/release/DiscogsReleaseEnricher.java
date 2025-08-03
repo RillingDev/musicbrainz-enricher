@@ -4,7 +4,7 @@ import dev.rilling.musicbrainzenricher.api.discogs.DiscogsQueryService;
 import dev.rilling.musicbrainzenricher.api.discogs.DiscogsRelease;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
-import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
+import dev.rilling.musicbrainzenricher.enrichment.Enricher;
 import dev.rilling.musicbrainzenricher.util.RegexUtils;
 import net.jcip.annotations.ThreadSafe;
 import org.musicbrainz.model.RelationWs2;
@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 // https://www.discogs.com/release/12168718
 @Service
 @ThreadSafe
-class DiscogsReleaseEnricher implements GenreEnricher {
+class DiscogsReleaseEnricher implements Enricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DiscogsReleaseEnricher.class);
 

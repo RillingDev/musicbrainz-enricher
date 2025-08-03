@@ -3,7 +3,7 @@ package dev.rilling.musicbrainzenricher.enrichment.releasegroup;
 import dev.rilling.musicbrainzenricher.api.ScrapingService;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
-import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
+import dev.rilling.musicbrainzenricher.enrichment.Enricher;
 import net.jcip.annotations.ThreadSafe;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
@@ -21,7 +21,7 @@ import java.util.Set;
 // https://www.allmusic.com/album/mw0003185404
 @Service
 @ThreadSafe
-class AllMusicReleaseGroupEnricher implements GenreEnricher {
+class AllMusicReleaseGroupEnricher implements Enricher {
 
 	private static final Evaluator GENRE_QUERY = QueryParser.parse(".genre > div > a");
 	private static final Evaluator STYLES_QUERY = QueryParser.parse(".styles > div > a");
