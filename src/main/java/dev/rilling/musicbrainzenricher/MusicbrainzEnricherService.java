@@ -6,15 +6,13 @@ import dev.rilling.musicbrainzenricher.core.DataTypeAware;
 import dev.rilling.musicbrainzenricher.core.WorkQueueRepository;
 import dev.rilling.musicbrainzenricher.core.history.HistoryService;
 import dev.rilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
-import dev.rilling.musicbrainzenricher.util.MergeUtils;
+import dev.rilling.musicbrainzenricher.enrichment.EntityEnrichmentResultRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class MusicbrainzEnricherService {
@@ -27,11 +25,14 @@ public class MusicbrainzEnricherService {
 	private final ApplicationContext applicationContext;
 	private final HistoryService historyService;
 	private final MusicbrainzEditController musicbrainzEditController;
+	private final EntityEnrichmentResultRepository entityEnrichmentResultRepository;
 
-	MusicbrainzEnricherService(ApplicationContext applicationContext, HistoryService historyService, MusicbrainzEditController musicbrainzEditController) {
+
+	MusicbrainzEnricherService(ApplicationContext applicationContext, HistoryService historyService, MusicbrainzEditController musicbrainzEditController, EntityEnrichmentResultRepository entityEnrichmentResultRepository) {
 		this.applicationContext = applicationContext;
 		this.historyService = historyService;
 		this.musicbrainzEditController = musicbrainzEditController;
+		this.entityEnrichmentResultRepository = entityEnrichmentResultRepository;
 	}
 
 	public void runInAutoQueryMode(DataType dataType) {
@@ -46,29 +47,28 @@ public class MusicbrainzEnricherService {
 			}
 			count = workQueueRepository.countWorkQueue();
 		}
+
+		submitTags();
 	}
 
 	public void runInSingleMode(DataType dataType, UUID mbid) {
 		executeEnrichment(dataType, mbid, findBeanForDataType(dataType, AbstractEnrichmentService.class));
+		submitTags();
 	}
 
 	private void executeEnrichment(DataType dataType, UUID mbid, AbstractEnrichmentService<?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
-		enrichmentService.executeEnrichment(mbid).ifPresent(enrichmentProcessResult -> {
-			if (enrichmentProcessResult.results().isEmpty()) {
-				return;
-			}
-
-			Set<String> newGenres = MergeUtils.getMostCommon(enrichmentProcessResult.results().stream()
-				.map(AbstractEnrichmentService.EnricherResult::genres)
-				.collect(Collectors.toSet()), MIN_GENRE_USAGE);
-
-			LOGGER.info("Submitting new tags '{}' for the release group '{}'.", newGenres, enrichmentProcessResult.targetEntity().getId());
-			// TODO move submission to the very end after all mbids have been analysed
-			musicbrainzEditController.submitReleaseGroupUserTags(enrichmentProcessResult.targetEntity(), newGenres);
-			LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
+		enrichmentService.executeEnrichment(mbid).ifPresent(entityEnrichmentResult -> {
+			// TODO run in transaction
+			entityEnrichmentResultRepository.persistReleaseGroupResult(entityEnrichmentResult);
 			historyService.markAsChecked(dataType, mbid);
+			LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
 		});
+	}
+
+	private void submitTags() {
+		// TODO load from merged view
+		//musicbrainzEditController.submitReleaseGroupUserTags(enrichmentProcessResult.targetEntity(), newGenres);
 	}
 
 

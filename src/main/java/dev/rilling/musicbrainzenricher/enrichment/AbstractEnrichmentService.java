@@ -16,7 +16,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEnrichmentService.class);
 
 	private final ApplicationContext applicationContext;
-	private final CompletionService<EnricherResult> completionService;
+	private final CompletionService<EntityEnrichmentResult.RelationEnrichmentResult> completionService;
 
 	protected AbstractEnrichmentService(ApplicationContext applicationContext, ExecutorService executorService) {
 		this.applicationContext = applicationContext;
@@ -24,7 +24,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 	}
 
 	// TODO check if async handling can be simplified
-	public Optional<EnrichmentProcessResult> executeEnrichment(UUID mbid) {
+	public Optional<EntityEnrichmentResult> executeEnrichment(UUID mbid) {
 		Optional<TEntity> entityOptional = fetchEntity(mbid);
 		if (entityOptional.isEmpty()) {
 			LOGGER.warn("Could not find '{}' for the data type '{}'.", mbid, getDataType());
@@ -34,7 +34,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 
 		Set<Enricher> enrichers = findFittingEnrichers();
 		Collection<RelationWs2> relations = extractRelations(entity);
-		Set<Future<EnricherResult>> futures = new HashSet<>(enrichers.size() * relations.size());
+		Set<Future<EntityEnrichmentResult.RelationEnrichmentResult>> futures = new HashSet<>(enrichers.size() * relations.size());
 		for (RelationWs2 relation : relations) {
 			for (Enricher enricher : enrichers) {
 				if (enricher.isRelationSupported(relation)) {
@@ -45,17 +45,17 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 							enricher.getClass().getSimpleName(),
 							genres,
 							relation);
-						return new EnricherResult(genres);
+						return new EntityEnrichmentResult.RelationEnrichmentResult(genres);
 					}));
 				}
 			}
 		}
 
-		Set<EnricherResult> results = new HashSet<>(futures.size());
+		Set<EntityEnrichmentResult.RelationEnrichmentResult> results = new HashSet<>(futures.size());
 		int received = 0;
 		while (received < futures.size()) {
 			try {
-				EnricherResult result = completionService.take().get(); // Blocks if none available
+				EntityEnrichmentResult.RelationEnrichmentResult result = completionService.take().get(); // Blocks if none available
 				results.add(result);
 				received++;
 			} catch (InterruptedException e) {
@@ -68,7 +68,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			}
 		}
 
-		return Optional.of(new EnrichmentProcessResult(extractTargetEntity(entity), Collections.unmodifiableSet(results)));
+		return Optional.of(new EntityEnrichmentResult(extractTargetEntity(entity), Collections.unmodifiableSet(results)));
 	}
 
 
@@ -88,10 +88,4 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			.collect(Collectors.toUnmodifiableSet());
 	}
 
-	// TODO include enricher type or URL for debugging
-	public record EnricherResult(Set<String> genres) {
-	}
-
-	public record EnrichmentProcessResult(ReleaseGroupWs2 targetEntity, Set<EnricherResult> results) {
-	}
 }
