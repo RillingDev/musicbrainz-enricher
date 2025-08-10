@@ -29,7 +29,7 @@ public class MusicbrainzEnricherService {
 
 	public void runInAutoQueryMode(DataType dataType) {
 		final WorkQueueRepository workQueueRepository = findBeanForDataType(dataType, WorkQueueRepository.class);
-		final AbstractEnrichmentService<?, ?> enrichmentService = findBeanForDataType(dataType, AbstractEnrichmentService.class);
+		final AbstractEnrichmentService<?> enrichmentService = findBeanForDataType(dataType, AbstractEnrichmentService.class);
 
 		long count = workQueueRepository.countWorkQueue();
 		while (count > 0) {
@@ -45,7 +45,7 @@ public class MusicbrainzEnricherService {
 		executeEnrichment(dataType, mbid, findBeanForDataType(dataType, AbstractEnrichmentService.class));
 	}
 
-	private void executeEnrichment(DataType dataType, UUID mbid, AbstractEnrichmentService<?, ?> enrichmentService) {
+	private void executeEnrichment(DataType dataType, UUID mbid, AbstractEnrichmentService<?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
 		enrichmentService.executeEnrichment(mbid);
 		LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
