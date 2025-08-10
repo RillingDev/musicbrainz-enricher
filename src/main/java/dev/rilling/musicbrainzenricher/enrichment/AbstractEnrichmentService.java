@@ -1,8 +1,6 @@
 package dev.rilling.musicbrainzenricher.enrichment;
 
-import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditController;
 import dev.rilling.musicbrainzenricher.core.DataTypeAware;
-import dev.rilling.musicbrainzenricher.util.MergeUtils;
 import org.musicbrainz.model.RelationWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.slf4j.Logger;
@@ -16,24 +14,21 @@ import java.util.stream.Collectors;
 public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAware {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEnrichmentService.class);
-	private static final double MIN_GENRE_USAGE = 0.90;
 
 	private final ApplicationContext applicationContext;
 	private final CompletionService<EnricherResult> completionService;
-	private final MusicbrainzEditController musicbrainzEditController;
 
-	protected AbstractEnrichmentService(ApplicationContext applicationContext, ExecutorService executorService, MusicbrainzEditController musicbrainzEditController) {
+	protected AbstractEnrichmentService(ApplicationContext applicationContext, ExecutorService executorService) {
 		this.applicationContext = applicationContext;
 		completionService = new ExecutorCompletionService<>(executorService);
-		this.musicbrainzEditController = musicbrainzEditController;
 	}
 
 	// TODO check if async handling can be simplified
-	public void executeEnrichment(UUID mbid) {
+	public Optional<EnrichmentProcessResult> executeEnrichment(UUID mbid) {
 		Optional<TEntity> entityOptional = fetchEntity(mbid);
 		if (entityOptional.isEmpty()) {
 			LOGGER.warn("Could not find '{}' for the data type '{}'.", mbid, getDataType());
-			return;
+			return Optional.empty();
 		}
 		TEntity entity = entityOptional.get();
 
@@ -66,21 +61,14 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			} catch (InterruptedException e) {
 				LOGGER.warn("Interrupted, skipping enrichment.", e);
 				Thread.currentThread().interrupt();
-				return;
+				return Optional.empty();
 			} catch (ExecutionException e) {
 				LOGGER.error("Execution of enricher failed.", e);
 				received++;
 			}
 		}
 
-		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
-			.map(EnricherResult::genres)
-			.collect(Collectors.toSet()), MIN_GENRE_USAGE);
-		if (!newGenres.isEmpty()) {
-			ReleaseGroupWs2 targetEntity = extractTargetEntity(entity);
-			LOGGER.info("Submitting new tags '{}' for the release group '{}'.", newGenres, targetEntity.getId());
-			musicbrainzEditController.submitReleaseGroupUserTags(targetEntity, newGenres);
-		}
+		return Optional.of(new EnrichmentProcessResult(extractTargetEntity(entity), Collections.unmodifiableSet(results)));
 	}
 
 
@@ -100,6 +88,10 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			.collect(Collectors.toUnmodifiableSet());
 	}
 
+	// TODO include enricher type or URL for debugging
 	public record EnricherResult(Set<String> genres) {
+	}
+
+	public record EnrichmentProcessResult(ReleaseGroupWs2 targetEntity, Set<EnricherResult> results) {
 	}
 }

@@ -43,6 +43,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 			LOGGER.info("Running in single mode for the data type {} with MBID '{}'.", dataType, mbid);
 			musicbrainzEnricherService.runInSingleMode(dataType, mbid);
 		} else {
+			// TODO: always run for all data types in auto query mode
 			LOGGER.info("Running in auto-query mode for the data type {}.", dataType);
 			musicbrainzEnricherService.runInAutoQueryMode(dataType);
 		}
