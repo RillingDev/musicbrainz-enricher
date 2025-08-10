@@ -3,7 +3,7 @@ package dev.rilling.musicbrainzenricher.enrichment.releasegroup;
 import dev.rilling.musicbrainzenricher.api.wikidata.WikidataService;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreRepository;
-import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
+import dev.rilling.musicbrainzenricher.enrichment.Enricher;
 import dev.rilling.musicbrainzenricher.util.RegexUtils;
 import net.jcip.annotations.ThreadSafe;
 import org.musicbrainz.model.RelationWs2;
@@ -37,7 +37,7 @@ import java.util.regex.Pattern;
 // https://www.wikidata.org/wiki/Q53020187
 @Service
 @ThreadSafe
-class WikidataReleaseGroupEnricher implements GenreEnricher {
+class WikidataReleaseGroupEnricher implements Enricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(WikidataReleaseGroupEnricher.class);
 

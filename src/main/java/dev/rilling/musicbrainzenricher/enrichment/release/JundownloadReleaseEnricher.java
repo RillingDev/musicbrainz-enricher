@@ -3,7 +3,7 @@ package dev.rilling.musicbrainzenricher.enrichment.release;
 import dev.rilling.musicbrainzenricher.api.ScrapingService;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
-import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
+import dev.rilling.musicbrainzenricher.enrichment.Enricher;
 import net.jcip.annotations.ThreadSafe;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Evaluator;
@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 // https://www.junodownload.com/products/indivision-mount-vesuvius-newborn-star/4144821-02/
 @Service
 @ThreadSafe
-class JundownloadReleaseEnricher implements GenreEnricher {
+class JundownloadReleaseEnricher implements Enricher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JundownloadReleaseEnricher.class);
 

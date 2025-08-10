@@ -17,7 +17,7 @@ public final class MergeUtils {
 	 *
 	 * @param sets               Collection of sets to analyze the contents of.
 	 * @param minUsagePercentage Percentage from 0 to 1.
-	 *                           If e.g. 0.9 is used, all values with a count of at least 90%
+	 *                           If e.g., 0.9 is used, all values with a count of at least 90%
 	 *                           of the item of the highest count are included.
 	 * @param <T>                Set item value.
 	 * @return Set containing items of the original sets with a high count.
@@ -35,41 +35,35 @@ public final class MergeUtils {
 			return Set.copyOf(sets.iterator().next());
 		}
 
-		List<T> all = mergeIntoList(sets);
-		return getMostCommon(all, minUsagePercentage);
+		List<T> allValues = sets.stream().flatMap(Collection::stream).toList();
+		return getMostCommon(allValues, minUsagePercentage);
 	}
 
 
-	private static <T> Set<T> getMostCommon(List<T> all, double minUsagePercentage) {
-		if (all.isEmpty()) {
+	private static <T> Set<T> getMostCommon(List<T> allValues, double minUsageRatio) {
+		if (allValues.isEmpty()) {
 			return Set.of();
 		}
 
 		// Roughly based on Musicbrainz Picard's picard.track.Track._convert_folksonomy_tags_to_genre
-		Map<T, Integer> counted = count(all);
+		Map<T, Integer> counted = count(allValues);
 		// Max count must be present as we know the map is not empty.
 		int maxCount = counted.values().stream().max(Integer::compareTo).orElseThrow();
 
 		return counted.entrySet().stream().filter(entry -> {
 			double usagePercentage = ((double) entry.getValue()) / maxCount;
-			return usagePercentage >= minUsagePercentage;
+			return usagePercentage >= minUsageRatio;
 		}).map(Map.Entry::getKey).collect(Collectors.toUnmodifiableSet());
 	}
 
 
 	private static <T> Map<T, Integer> count(Collection<T> all) {
 		Map<T, Integer> counted = new HashMap<>(all.size());
-		for (T t : all) {
-			counted.compute(t, (ignored, count) -> count == null ? 1 : count + 1);
+		for (T value : all) {
+			counted.compute(value, (ignored, count) -> count == null ? 1 : count + 1);
 		}
 		return counted;
 	}
 
-
-	private static <T> List<T> mergeIntoList(Collection<? extends Collection<T>> sets) {
-		List<T> all = new ArrayList<>(sets.size() * 5);
-		sets.forEach(all::addAll);
-		return all;
-	}
 
 }

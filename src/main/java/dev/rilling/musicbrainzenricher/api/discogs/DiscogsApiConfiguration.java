@@ -24,7 +24,7 @@ class DiscogsApiConfiguration {
 		// See https://www.discogs.com/developers/#page:home,header:home-rate-limiting,
 		// further slowed down to adapt for network fluctuations.
 		int capacity = authenticated ? 60 : 25;
-		Bandwidth bandwidth = Bandwidth.simple(capacity, Duration.ofSeconds(90));
+		Bandwidth bandwidth = Bandwidth.builder().capacity(capacity).refillGreedy(capacity, Duration.ofSeconds(90)).build();
 
 		return Bucket.builder().addLimit(bandwidth).build().toListenable(new LoggingBucketListener("discogs"));
 	}

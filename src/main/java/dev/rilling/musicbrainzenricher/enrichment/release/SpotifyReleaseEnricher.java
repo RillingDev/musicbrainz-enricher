@@ -3,7 +3,7 @@ package dev.rilling.musicbrainzenricher.enrichment.release;
 import dev.rilling.musicbrainzenricher.api.spotify.SpotifyQueryService;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
-import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
+import dev.rilling.musicbrainzenricher.enrichment.Enricher;
 import net.jcip.annotations.ThreadSafe;
 import org.musicbrainz.model.RelationWs2;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 @Service
 @ConditionalOnBean(SpotifyQueryService.class)
 @ThreadSafe
-class SpotifyReleaseEnricher implements GenreEnricher {
+class SpotifyReleaseEnricher implements Enricher {
 
 	private static final Pattern URL_REGEX = Pattern.compile("https?://open\\.spotify\\.com/album/(?<id>\\w+)");
 

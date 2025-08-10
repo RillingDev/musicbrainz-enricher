@@ -46,9 +46,6 @@ public class CanonicalStringMatcher {
 			.map(Pattern::quote)
 			.collect(Collectors.joining("|")));
 
-		List<String> list = canonicalValues.stream().map(this::removeIgnoredSubstrings).toList();
-
-
 		// Using a tree map with the collator and the adjusted canonical value as key makes for fast lookups.
 		canonicalMap = new TreeMap<>(collator);
 		for (String canonicalValue : canonicalValues) {

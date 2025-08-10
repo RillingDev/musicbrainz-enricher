@@ -6,7 +6,6 @@ import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
 import dev.rilling.musicbrainzenricher.enrichment.Enricher;
-import dev.rilling.musicbrainzenricher.enrichment.GenreEnricher;
 import dev.rilling.musicbrainzenricher.util.MergeUtils;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.musicbrainz.model.RelationWs2;
@@ -18,7 +17,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
@@ -76,18 +78,14 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 											 RelationWs2 relation,
 											 Enricher enricher) {
 		LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
-		Set<String> newGenres = new HashSet<>(5);
-		if (enricher instanceof GenreEnricher genreEnricher) {
-			Set<String> genres = genreEnricher.fetchGenres(relation);
-			LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
-				genreEnricher.getClass().getSimpleName(),
-				genres,
-				relation);
+		Set<String> genres = enricher.fetchGenres(relation);
+		LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
+			enricher.getClass().getSimpleName(),
+			genres,
+			relation);
 
-			newGenres.addAll(genres);
-		}
 		LOGGER.debug("Completed enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
-		return new ReleaseEnrichmentResult(newGenres);
+		return new ReleaseEnrichmentResult(genres);
 	}
 
 	@Override
