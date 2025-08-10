@@ -16,7 +16,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEnrichmentService.class);
 
 	private final ApplicationContext applicationContext;
-	private final CompletionService<EntityEnrichmentResult.RelationEnrichmentResult> completionService;
+	private final CompletionService<Set<String>> completionService;
 
 	protected AbstractEnrichmentService(ApplicationContext applicationContext, ExecutorService executorService) {
 		this.applicationContext = applicationContext;
@@ -24,7 +24,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 	}
 
 	// TODO check if async handling can be simplified
-	public Optional<EntityEnrichmentResult> executeEnrichment(UUID mbid) {
+	public Optional<Set<ReleaseGroupEnrichmentResult>> executeEnrichment(UUID mbid) {
 		Optional<TEntity> entityOptional = fetchEntity(mbid);
 		if (entityOptional.isEmpty()) {
 			LOGGER.warn("Could not find '{}' for the data type '{}'.", mbid, getDataType());
@@ -34,7 +34,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 
 		Set<Enricher> enrichers = findFittingEnrichers();
 		Collection<RelationWs2> relations = extractRelations(entity);
-		Set<Future<EntityEnrichmentResult.RelationEnrichmentResult>> futures = new HashSet<>(enrichers.size() * relations.size());
+		Set<Future<Set<String>>> futures = new HashSet<>(enrichers.size() * relations.size());
 		for (RelationWs2 relation : relations) {
 			for (Enricher enricher : enrichers) {
 				if (enricher.isRelationSupported(relation)) {
@@ -45,18 +45,20 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 							enricher.getClass().getSimpleName(),
 							genres,
 							relation);
-						return new EntityEnrichmentResult.RelationEnrichmentResult(genres);
+						return Collections.unmodifiableSet(genres);
 					}));
 				}
 			}
 		}
 
-		Set<EntityEnrichmentResult.RelationEnrichmentResult> results = new HashSet<>(futures.size());
+		Set<String> genres = new HashSet<>();
 		int received = 0;
 		while (received < futures.size()) {
 			try {
-				EntityEnrichmentResult.RelationEnrichmentResult result = completionService.take().get(); // Blocks if none available
-				results.add(result);
+				genres.addAll(
+					// Blocks if none available
+					completionService.take().get()
+				);
 				received++;
 			} catch (InterruptedException e) {
 				LOGGER.warn("Interrupted, skipping enrichment.", e);
@@ -68,7 +70,9 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			}
 		}
 
-		return Optional.of(new EntityEnrichmentResult(extractTargetEntity(entity), Collections.unmodifiableSet(results)));
+		final UUID targetGid = UUID.fromString(extractTargetEntity(entity).getId());
+		Set<ReleaseGroupEnrichmentResult> results = genres.stream().map(genre -> new ReleaseGroupEnrichmentResult(targetGid, genre)).collect(Collectors.toUnmodifiableSet());
+		return Optional.of(results);
 	}
 
 

@@ -6,12 +6,11 @@ import dev.rilling.musicbrainzenricher.core.DataTypeAware;
 import dev.rilling.musicbrainzenricher.core.WorkQueueRepository;
 import dev.rilling.musicbrainzenricher.core.history.ResultService;
 import dev.rilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
-import dev.rilling.musicbrainzenricher.enrichment.EntityEnrichmentResultRepository;
+import dev.rilling.musicbrainzenricher.enrichment.ReleaseGroupEnrichmentResultRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.UUID;
 
@@ -20,20 +19,20 @@ public class MusicbrainzEnricherService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherService.class);
 
-	private static final int AUTO_QUERY_CHUNK_SIZE = 100;
+	private static final int AUTO_QUERY_CHUNK_SIZE = 20;
 	private static final double MIN_GENRE_USAGE = 0.90;
 
 	private final ApplicationContext applicationContext;
 	private final ResultService resultService;
 	private final MusicbrainzEditController musicbrainzEditController;
-	private final EntityEnrichmentResultRepository entityEnrichmentResultRepository;
+	private final ReleaseGroupEnrichmentResultRepository releaseGroupEnrichmentResultRepository;
 
 
-	MusicbrainzEnricherService(ApplicationContext applicationContext, ResultService resultService, MusicbrainzEditController musicbrainzEditController, EntityEnrichmentResultRepository entityEnrichmentResultRepository, TransactionTemplate transactionTemplate) {
+	MusicbrainzEnricherService(ApplicationContext applicationContext, ResultService resultService, MusicbrainzEditController musicbrainzEditController, ReleaseGroupEnrichmentResultRepository releaseGroupEnrichmentResultRepository) {
 		this.applicationContext = applicationContext;
 		this.resultService = resultService;
 		this.musicbrainzEditController = musicbrainzEditController;
-		this.entityEnrichmentResultRepository = entityEnrichmentResultRepository;
+		this.releaseGroupEnrichmentResultRepository = releaseGroupEnrichmentResultRepository;
 	}
 
 	public void runInAutoQueryMode(DataType dataType) {
@@ -59,14 +58,15 @@ public class MusicbrainzEnricherService {
 
 	private void executeEnrichment(DataType dataType, UUID mbid, AbstractEnrichmentService<?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
-		enrichmentService.executeEnrichment(mbid).ifPresent(entityEnrichmentResult -> {
-			resultService.persistResult(dataType, mbid, entityEnrichmentResult);
+		enrichmentService.executeEnrichment(mbid).ifPresent(results -> {
+			resultService.persistResults(dataType, mbid, results);
 			LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
 		});
 	}
 
 	private void submitTags() {
 		// TODO load from merged view
+		releaseGroupEnrichmentResultRepository.findMergedResults().forEach(x -> LOGGER.info("FOO {}", x));
 		//musicbrainzEditController.submitReleaseGroupUserTags(enrichmentProcessResult.targetEntity(), newGenres);
 	}
 
