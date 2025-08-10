@@ -10,12 +10,12 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
-public abstract class AbstractEnrichmentService<TEntity, UResult> implements DataTypeAware {
+public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAware {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEnrichmentService.class);
 
 	private final ApplicationContext applicationContext;
-	private final CompletionService<UResult> completionService;
+	private final CompletionService<EnricherResult> completionService;
 
 	protected AbstractEnrichmentService(ApplicationContext applicationContext, ExecutorService executorService) {
 		this.applicationContext = applicationContext;
@@ -33,7 +33,7 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 
 		Set<Enricher> enrichers = findFittingEnrichers();
 		Collection<RelationWs2> relations = extractRelations(entity);
-		Set<Future<UResult>> futures = new HashSet<>(enrichers.size() * relations.size());
+		Set<Future<EnricherResult>> futures = new HashSet<>(enrichers.size() * relations.size());
 		for (RelationWs2 relation : relations) {
 			for (Enricher enricher : enrichers) {
 				if (enricher.isRelationSupported(relation)) {
@@ -42,11 +42,11 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 			}
 		}
 
-		Set<UResult> results = new HashSet<>(futures.size());
+		Set<EnricherResult> results = new HashSet<>(futures.size());
 		int received = 0;
 		while (received < futures.size()) {
 			try {
-				UResult result = completionService.take().get(); // Blocks if none available
+				EnricherResult result = completionService.take().get(); // Blocks if none available
 				results.add(result);
 				received++;
 			} catch (InterruptedException e) {
@@ -59,7 +59,7 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 			}
 		}
 
-		updateEntity(entity, mergeResults(results));
+		updateEntity(entity, results);
 	}
 
 
@@ -69,14 +69,12 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 	protected abstract Collection<RelationWs2> extractRelations(TEntity entity);
 
 
-	protected abstract UResult enrich(TEntity entity,
-									  RelationWs2 relation,
-									  Enricher enricher);
+	protected abstract EnricherResult enrich(TEntity entity,
+											 RelationWs2 relation,
+											 Enricher enricher);
 
 
-	protected abstract UResult mergeResults(Collection<UResult> results);
-
-	protected abstract void updateEntity(TEntity entity, UResult result);
+	protected abstract void updateEntity(TEntity entity, Set<EnricherResult> results);
 
 
 	private Set<Enricher> findFittingEnrichers() {
@@ -85,5 +83,8 @@ public abstract class AbstractEnrichmentService<TEntity, UResult> implements Dat
 			.stream()
 			.filter(enricher -> enricher.getDataType() == getDataType())
 			.collect(Collectors.toUnmodifiableSet());
+	}
+
+	public record EnricherResult(Set<String> genres) {
 	}
 }

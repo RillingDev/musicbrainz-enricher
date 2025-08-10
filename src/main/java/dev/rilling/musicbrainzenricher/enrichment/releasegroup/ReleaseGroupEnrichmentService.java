@@ -24,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 @Service
-public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<ReleaseGroupWs2, ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult> {
+public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<ReleaseGroupWs2> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseGroupEnrichmentService.class);
 
@@ -72,9 +72,9 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 
 	@Override
 
-	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult enrich(ReleaseGroupWs2 entity,
-																				RelationWs2 relation,
-																				Enricher enricher) {
+	protected EnricherResult enrich(ReleaseGroupWs2 entity,
+									RelationWs2 relation,
+									Enricher enricher) {
 		LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 		Set<String> genres = enricher.fetchGenres(relation);
 		LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
@@ -84,28 +84,16 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 
 		LOGGER.debug("Completed enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 
-		return new ReleaseGroupEnrichmentResult(genres);
+		return new EnricherResult(genres);
 	}
 
-	@Override
-
-	protected ReleaseGroupEnrichmentService.ReleaseGroupEnrichmentResult mergeResults(Collection<ReleaseGroupEnrichmentResult> results) {
+	protected void updateEntity(ReleaseGroupWs2 entity, Set<EnricherResult> results) {
 		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
-			.map(ReleaseGroupEnrichmentResult::genres)
+			.map(EnricherResult::genres)
 			.collect(Collectors.toSet()), MIN_GENRE_USAGE);
-
-		return new ReleaseGroupEnrichmentResult(newGenres);
-	}
-
-	@Override
-	protected void updateEntity(ReleaseGroupWs2 entity, ReleaseGroupEnrichmentResult result) {
-		if (!result.genres().isEmpty()) {
-			LOGGER.info("Submitting new tags '{}' for the release group '{}'.", result.genres(), entity.getId());
-			musicbrainzEditController.submitReleaseGroupUserTags(entity, result.genres());
+		if (!results.isEmpty()) {
+			LOGGER.info("Submitting new tags '{}' for the release group '{}'.", newGenres, entity.getId());
+			musicbrainzEditController.submitReleaseGroupUserTags(entity, newGenres);
 		}
 	}
-
-	protected record ReleaseGroupEnrichmentResult(Set<String> genres) {
-	}
-
 }

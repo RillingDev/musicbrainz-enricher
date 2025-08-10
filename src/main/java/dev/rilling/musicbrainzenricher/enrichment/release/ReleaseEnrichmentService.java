@@ -9,7 +9,6 @@ import dev.rilling.musicbrainzenricher.enrichment.Enricher;
 import dev.rilling.musicbrainzenricher.util.MergeUtils;
 import org.musicbrainz.includes.ReleaseIncludesWs2;
 import org.musicbrainz.model.RelationWs2;
-import org.musicbrainz.model.entity.ReleaseGroupWs2;
 import org.musicbrainz.model.entity.ReleaseWs2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 @Service
-public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseWs2, ReleaseEnrichmentService.ReleaseEnrichmentResult> {
+public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseWs2> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ReleaseEnrichmentService.class);
 
@@ -74,9 +73,9 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 
 	@Override
 
-	protected ReleaseEnrichmentResult enrich(ReleaseWs2 entity,
-											 RelationWs2 relation,
-											 Enricher enricher) {
+	protected EnricherResult enrich(ReleaseWs2 entity,
+									RelationWs2 relation,
+									Enricher enricher) {
 		LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 		Set<String> genres = enricher.fetchGenres(relation);
 		LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
@@ -85,29 +84,18 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 			relation);
 
 		LOGGER.debug("Completed enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
-		return new ReleaseEnrichmentResult(genres);
+		return new EnricherResult(genres);
 	}
 
 	@Override
-
-	protected ReleaseEnrichmentResult mergeResults(Collection<ReleaseEnrichmentResult> results) {
+	protected void updateEntity(ReleaseWs2 entity, Set<EnricherResult> results) {
 		Set<String> newGenres = MergeUtils.getMostCommon(results.stream()
-			.map(ReleaseEnrichmentResult::genres)
+			.map(EnricherResult::genres)
 			.collect(Collectors.toSet()), MIN_GENRE_USAGE);
-
-		return new ReleaseEnrichmentResult(newGenres);
-	}
-
-	@Override
-	protected void updateEntity(ReleaseWs2 entity, ReleaseEnrichmentResult result) {
-		if (!result.genres().isEmpty()) {
-			ReleaseGroupWs2 releaseGroup = entity.getReleaseGroup();
-			LOGGER.info("Submitting new tags '{}' for the release group '{}'.", result.genres(), releaseGroup.getId());
-			musicbrainzEditController.submitReleaseGroupUserTags(releaseGroup, result.genres());
+		if (!results.isEmpty()) {
+			LOGGER.info("Submitting new tags '{}' for the release group '{}'.", newGenres, entity.getReleaseGroup().getId());
+			musicbrainzEditController.submitReleaseGroupUserTags(entity.getReleaseGroup(), newGenres);
 		}
-	}
-
-	protected record ReleaseEnrichmentResult(Set<String> genres) {
 	}
 
 }
