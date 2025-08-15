@@ -4,13 +4,14 @@ import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditController
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.DataTypeAware;
 import dev.rilling.musicbrainzenricher.core.WorkQueueRepository;
-import dev.rilling.musicbrainzenricher.core.history.HistoryService;
+import dev.rilling.musicbrainzenricher.core.history.ResultService;
 import dev.rilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
 import dev.rilling.musicbrainzenricher.enrichment.EntityEnrichmentResultRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.UUID;
 
@@ -23,14 +24,14 @@ public class MusicbrainzEnricherService {
 	private static final double MIN_GENRE_USAGE = 0.90;
 
 	private final ApplicationContext applicationContext;
-	private final HistoryService historyService;
+	private final ResultService resultService;
 	private final MusicbrainzEditController musicbrainzEditController;
 	private final EntityEnrichmentResultRepository entityEnrichmentResultRepository;
 
 
-	MusicbrainzEnricherService(ApplicationContext applicationContext, HistoryService historyService, MusicbrainzEditController musicbrainzEditController, EntityEnrichmentResultRepository entityEnrichmentResultRepository) {
+	MusicbrainzEnricherService(ApplicationContext applicationContext, ResultService resultService, MusicbrainzEditController musicbrainzEditController, EntityEnrichmentResultRepository entityEnrichmentResultRepository, TransactionTemplate transactionTemplate) {
 		this.applicationContext = applicationContext;
-		this.historyService = historyService;
+		this.resultService = resultService;
 		this.musicbrainzEditController = musicbrainzEditController;
 		this.entityEnrichmentResultRepository = entityEnrichmentResultRepository;
 	}
@@ -59,9 +60,7 @@ public class MusicbrainzEnricherService {
 	private void executeEnrichment(DataType dataType, UUID mbid, AbstractEnrichmentService<?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
 		enrichmentService.executeEnrichment(mbid).ifPresent(entityEnrichmentResult -> {
-			// TODO run in transaction
-			entityEnrichmentResultRepository.persistReleaseGroupResult(entityEnrichmentResult);
-			historyService.markAsChecked(dataType, mbid);
+			resultService.persistResult(dataType, mbid, entityEnrichmentResult);
 			LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
 		});
 	}
