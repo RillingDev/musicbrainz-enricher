@@ -37,26 +37,35 @@ public class MusicbrainzEnricherService {
 		this.releaseGroupEnrichmentResultRepository = releaseGroupEnrichmentResultRepository;
 	}
 
-	public void runInAutoQueryMode(DataType dataType) {
+
+	public void runInAutoQueryMode() {
+		executeAutoQueryEnrichment(DataType.RELEASE_GROUP);
+		executeAutoQueryEnrichment(DataType.RELEASE);
+
+		submitTags();
+	}
+
+	private void executeAutoQueryEnrichment(DataType dataType) {
 		final WorkQueueRepository workQueueRepository = findBeanForDataType(dataType, WorkQueueRepository.class);
 		final AbstractEnrichmentService<?> enrichmentService = findBeanForDataType(dataType, AbstractEnrichmentService.class);
 
+		LOGGER.info("Starting auto-query for data type {}.", dataType);
 		long count = workQueueRepository.countWorkQueue();
 		while (count > 0) {
-		LOGGER.info("{} auto-query entities remaining.", count);
-		for (UUID mbid : workQueueRepository.queryWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
-			executeEnrichment(dataType, mbid, enrichmentService);
+			LOGGER.info("{} auto-query entities remaining.", count);
+			for (UUID mbid : workQueueRepository.queryWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
+				executeEnrichment(dataType, mbid, enrichmentService);
+			}
+			count = workQueueRepository.countWorkQueue();
 		}
-		count = workQueueRepository.countWorkQueue();
-		}
-
-		submitTags();
 	}
 
 	public void runInSingleMode(DataType dataType, UUID mbid) {
 		executeEnrichment(dataType, mbid, findBeanForDataType(dataType, AbstractEnrichmentService.class));
+
 		submitTags();
 	}
+
 
 	private void executeEnrichment(DataType dataType, UUID mbid, AbstractEnrichmentService<?> enrichmentService) {
 		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);

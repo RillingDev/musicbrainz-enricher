@@ -30,35 +30,25 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		if (args.length < 1) {
-			throw new IllegalArgumentException("Expected at least 1 argument but found none.");
-		}
-		if (args.length > 2) {
-			throw new IllegalArgumentException("Expected at most 2 parameters but found %d.".formatted(args.length));
-		}
-
-		DataType dataType = parseDataType(args[0]);
-		if (args.length == 2) {
+		if (args.length == 0) {
+			LOGGER.info("Running in auto-query mode.");
+			musicbrainzEnricherService.runInAutoQueryMode();
+		} else if (args.length == 2) {
+			DataType dataType = parseDataType(args[0]);
 			UUID mbid = UUID.fromString(args[1]);
 			LOGGER.info("Running in single mode for the data type {} with MBID '{}'.", dataType, mbid);
 			musicbrainzEnricherService.runInSingleMode(dataType, mbid);
 		} else {
-			// TODO: always run for all data types in auto query mode
-			LOGGER.info("Running in auto-query mode for the data type {}.", dataType);
-			musicbrainzEnricherService.runInAutoQueryMode(dataType);
+			throw new IllegalArgumentException("Expected either 0 or 2 parameters but found %d.".formatted(args.length));
 		}
 
-		shutdown();
-	}
-
-	private void shutdown() {
 		LOGGER.debug("Shutting down.");
 		// All pending tasks should be completed anyway, so a simple shutdown is enough.
 		enrichmentExecutor.shutdown();
 	}
 
 
-	private DataType parseDataType(String modeString) {
+	private static DataType parseDataType(String modeString) {
 		return switch (modeString) {
 			case "release" -> DataType.RELEASE;
 			case "release-group" -> DataType.RELEASE_GROUP;
