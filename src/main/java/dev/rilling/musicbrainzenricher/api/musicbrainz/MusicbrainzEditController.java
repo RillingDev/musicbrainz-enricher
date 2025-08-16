@@ -1,7 +1,8 @@
 package dev.rilling.musicbrainzenricher.api.musicbrainz;
 
-import jakarta.annotation.PreDestroy;
+import dev.rilling.musicbrainzenricher.enrichment.ReleaseGroupEnrichmentResult;
 import net.jcip.annotations.ThreadSafe;
+import org.musicbrainz.includes.ReleaseGroupIncludesWs2;
 import org.musicbrainz.model.TagWs2;
 import org.musicbrainz.model.entity.EntityWs2;
 import org.musicbrainz.model.entity.ReleaseGroupWs2;
@@ -9,50 +10,59 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Manages edits against the musicbrainz API.
- * <p>
- * This controller also attempts to reduce requests by grouping data submissions. During application shutdown,
- * {@link #flush()} is called to ensure all remaining data is submitted.
  */
 @Service
 @ThreadSafe
 public class MusicbrainzEditController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEditController.class);
 
-	static final int TAG_SUBMISSION_SIZE = 50;
 
+	private final MusicbrainzLookupService musicbrainzLookupService;
 	private final MusicbrainzEditService musicbrainzEditService;
 
-	private final ChunkedWorker<EntityWs2> tagSubmissionWorker;
-
-	public MusicbrainzEditController(MusicbrainzEditService musicbrainzEditService) {
+	public MusicbrainzEditController(MusicbrainzLookupService musicbrainzLookupService, MusicbrainzEditService musicbrainzEditService) {
+		this.musicbrainzLookupService = musicbrainzLookupService;
 		this.musicbrainzEditService = musicbrainzEditService;
-		tagSubmissionWorker = new ChunkedWorker<>(TAG_SUBMISSION_SIZE, this::doSubmitUserTags);
 	}
 
-	/**
-	 * Submits the given tags as tags for the entity.
-	 *
-	 * @param releaseGroup Entity to add tags to. Note that this is mutated to contain the new tags. Note that this
-	 *                     object may not be changed by the caller afterward.
-	 * @param tags         Tags to add.
-	 */
-	public void submitReleaseGroupUserTags(ReleaseGroupWs2 releaseGroup, Set<String> tags) {
-		addTags(releaseGroup, tags);
-		tagSubmissionWorker.add(releaseGroup);
+	// TODO cleanup
+	public void submitReleaseGroupUserTags(Collection<ReleaseGroupEnrichmentResult> chunk) {
+		Map<UUID, Set<String>> byGid =
+			chunk.stream()
+				.collect(Collectors.groupingBy(ReleaseGroupEnrichmentResult::gid,
+					Collectors.mapping(ReleaseGroupEnrichmentResult::genre, Collectors.toSet())));
+
+		Set<EntityWs2> enrichedEntities = new HashSet<>(byGid.keySet().size());
+		for (Map.Entry<UUID, Set<String>> entry : byGid.entrySet()) {
+			UUID gid = entry.getKey();
+			Set<String> genres = entry.getValue();
+
+			try {
+				LOGGER.info("Fetching entity {}.", gid);
+				musicbrainzLookupService.lookUpReleaseGroup(gid, new ReleaseGroupIncludesWs2()).ifPresent(releaseGroup -> {
+					setTags(releaseGroup, genres);
+					enrichedEntities.add(releaseGroup);
+				});
+			} catch (MusicbrainzException e) {
+				LOGGER.error("Could not fetch {}.", gid, e);
+			}
+		}
+
+		doSubmitUserTags(enrichedEntities);
 	}
 
-	/**
-	 * Flushes any pending changes.
-	 */
-	@PreDestroy
-	public void flush() {
-		LOGGER.debug("Flushing tag submission worker.");
-		tagSubmissionWorker.flush();
-		LOGGER.debug("Flushed pending edits.");
+	private static void setTags(ReleaseGroupWs2 releaseGroup, Set<String> genres) {
+		releaseGroup.getUserTags().clear();
+		for (String tag : genres) {
+			TagWs2 userTag = new TagWs2();
+			userTag.setName(tag);
+			releaseGroup.addUserTag(userTag);
+		}
 	}
 
 	private void doSubmitUserTags(Set<EntityWs2> submission) {
@@ -64,17 +74,4 @@ public class MusicbrainzEditController {
 			LOGGER.error("Could not submit user tags.", e);
 		}
 	}
-
-	private void addTags(ReleaseGroupWs2 releaseGroup, Set<String> tags) {
-		/*
-		 * This is a modified version of Controller#AddTags, adapted to avoid re-querying entities we already have.
-		 */
-		releaseGroup.getUserTags().clear();
-		for (String tag : tags) {
-			TagWs2 userTag = new TagWs2();
-			userTag.setName(tag);
-			releaseGroup.addUserTag(userTag);
-		}
-	}
-
 }

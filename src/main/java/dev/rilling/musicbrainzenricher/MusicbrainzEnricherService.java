@@ -12,15 +12,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 @Service
 public class MusicbrainzEnricherService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEnricherService.class);
 
-	private static final int AUTO_QUERY_CHUNK_SIZE = 20;
-	private static final double MIN_GENRE_USAGE = 0.90;
+	private static final int AUTO_QUERY_CHUNK_SIZE = 50;
+	private static final int TAG_SUBMISSION_CHUNK_SIZE = AUTO_QUERY_CHUNK_SIZE;
 
 	private final ApplicationContext applicationContext;
 	private final ResultService resultService;
@@ -41,11 +43,11 @@ public class MusicbrainzEnricherService {
 
 		long count = workQueueRepository.countWorkQueue();
 		while (count > 0) {
-			LOGGER.info("{} auto-query entities remaining.", count);
-			for (UUID mbid : workQueueRepository.queryWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
-				executeEnrichment(dataType, mbid, enrichmentService);
-			}
-			count = workQueueRepository.countWorkQueue();
+		LOGGER.info("{} auto-query entities remaining.", count);
+		for (UUID mbid : workQueueRepository.queryWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
+			executeEnrichment(dataType, mbid, enrichmentService);
+		}
+		count = workQueueRepository.countWorkQueue();
 		}
 
 		submitTags();
@@ -65,9 +67,18 @@ public class MusicbrainzEnricherService {
 	}
 
 	private void submitTags() {
-		// TODO load from merged view
-		releaseGroupEnrichmentResultRepository.findMergedResults().forEach(x -> LOGGER.info("FOO {}", x));
-		//musicbrainzEditController.submitReleaseGroupUserTags(enrichmentProcessResult.targetEntity(), newGenres);
+		processInChunks(releaseGroupEnrichmentResultRepository.findMergedResults(), TAG_SUBMISSION_CHUNK_SIZE, musicbrainzEditController::submitReleaseGroupUserTags);
+	}
+
+	private static <T> void processInChunks(Stream<T> stream, int chunkSize, Consumer<Collection<T>> consumer) {
+		Iterator<T> iterator = stream.iterator();
+		while (iterator.hasNext()) {
+			List<T> chunk = new ArrayList<>(chunkSize);
+			for (int i = 0; i < chunkSize && iterator.hasNext(); i++) {
+				chunk.add(iterator.next());
+			}
+			consumer.accept(chunk);
+		}
 	}
 
 
