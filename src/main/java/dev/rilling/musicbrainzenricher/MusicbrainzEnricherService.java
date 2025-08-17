@@ -10,6 +10,7 @@ import dev.rilling.musicbrainzenricher.enrichment.ResultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -24,17 +25,22 @@ public class MusicbrainzEnricherService {
 	private static final int AUTO_QUERY_CHUNK_SIZE = 50;
 	private static final int TAG_SUBMISSION_CHUNK_SIZE = AUTO_QUERY_CHUNK_SIZE;
 
+
+	private final boolean dryRun;
+
 	private final ApplicationContext applicationContext;
 	private final ResultService resultService;
 	private final MusicbrainzEditService musicbrainzEditService;
 	private final ReleaseGroupEnrichmentResultRepository releaseGroupEnrichmentResultRepository;
 
 
-	MusicbrainzEnricherService(ApplicationContext applicationContext, ResultService resultService, MusicbrainzEditService musicbrainzEditService, ReleaseGroupEnrichmentResultRepository releaseGroupEnrichmentResultRepository) {
+	MusicbrainzEnricherService(Environment environment, ApplicationContext applicationContext, ResultService resultService, MusicbrainzEditService musicbrainzEditService, ReleaseGroupEnrichmentResultRepository releaseGroupEnrichmentResultRepository) {
 		this.applicationContext = applicationContext;
 		this.resultService = resultService;
 		this.musicbrainzEditService = musicbrainzEditService;
 		this.releaseGroupEnrichmentResultRepository = releaseGroupEnrichmentResultRepository;
+
+		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 	}
 
 
@@ -76,6 +82,9 @@ public class MusicbrainzEnricherService {
 	}
 
 	private void submitTags() {
+		if (dryRun) {
+			return;
+		}
 		processInChunks(releaseGroupEnrichmentResultRepository.findMergedResults(), TAG_SUBMISSION_CHUNK_SIZE, musicbrainzEditService::submitUserTags);
 	}
 

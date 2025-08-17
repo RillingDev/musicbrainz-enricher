@@ -13,7 +13,6 @@ import org.musicbrainz.webservice.WebService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,28 +24,19 @@ public class MusicbrainzEditService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MusicbrainzEditService.class);
 
-
-	private final boolean dryRun;
-
 	private final WebService webService;
 	private final Bucket bucket;
 	private final MusicbrainzLookupService musicbrainzLookupService;
 
-	MusicbrainzEditService(Environment environment,
-						   @Qualifier("musicbrainzWebService") WebService webService,
-						   @Qualifier("musicbrainzBucket") Bucket bucket, MusicbrainzLookupService musicbrainzLookupService) {
+	MusicbrainzEditService(
+		@Qualifier("musicbrainzWebService") WebService webService,
+		@Qualifier("musicbrainzBucket") Bucket bucket, MusicbrainzLookupService musicbrainzLookupService) {
 		this.webService = webService;
 		this.bucket = bucket;
-
-		dryRun = environment.getRequiredProperty("musicbrainz-enricher.dry-run", Boolean.class);
 		this.musicbrainzLookupService = musicbrainzLookupService;
 	}
 
 	public void submitUserTags(Collection<ReleaseGroupEnrichmentResult> results) {
-		if (dryRun) {
-			return;
-		}
-
 		Map<UUID, Set<String>> resultsByMbid =
 			results.stream()
 				.collect(Collectors.groupingBy(ReleaseGroupEnrichmentResult::targetMbid,
