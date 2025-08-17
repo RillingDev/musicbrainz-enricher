@@ -48,16 +48,11 @@ for details.
 Before starting, set up a copy of the MusicBrainz database using <https://github.com/metabrainz/musicbrainz-docker>
 locally with the database port open.
 
-This tool can run in auto-query or single mode. Auto-query mode will enrich every entity from the MusicBrainz database.
-Single mode takes a MusicBrainz MBID and will enrich the matching entity.
+Auto-query mode will enrich every entity from the MusicBrainz database:
 
-Auto-query mode:
 `java -jar musicbrainz-enricher*.jar`.
 
-Single mode:
-`java -jar musicbrainz-enricher*.jar release 'MBID'`.
-
-### History Storage
+### History
 
 The application will remember entities checked already and will not re-check them. To reset this, truncate the
-`*_history_entry` tables in the schema `musicbrainz_enricher`.
+`*_history_entry` and `enricher_release_group_result` tables in the `musicbrainz_enricher` schema.
