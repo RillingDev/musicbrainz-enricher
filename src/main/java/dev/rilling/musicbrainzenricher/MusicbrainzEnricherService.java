@@ -1,6 +1,6 @@
 package dev.rilling.musicbrainzenricher;
 
-import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditController;
+import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.DataTypeAware;
 import dev.rilling.musicbrainzenricher.core.WorkQueueRepository;
@@ -26,14 +26,14 @@ public class MusicbrainzEnricherService {
 
 	private final ApplicationContext applicationContext;
 	private final ResultService resultService;
-	private final MusicbrainzEditController musicbrainzEditController;
+	private final MusicbrainzEditService musicbrainzEditService;
 	private final ReleaseGroupEnrichmentResultRepository releaseGroupEnrichmentResultRepository;
 
 
-	MusicbrainzEnricherService(ApplicationContext applicationContext, ResultService resultService, MusicbrainzEditController musicbrainzEditController, ReleaseGroupEnrichmentResultRepository releaseGroupEnrichmentResultRepository) {
+	MusicbrainzEnricherService(ApplicationContext applicationContext, ResultService resultService, MusicbrainzEditService musicbrainzEditService, ReleaseGroupEnrichmentResultRepository releaseGroupEnrichmentResultRepository) {
 		this.applicationContext = applicationContext;
 		this.resultService = resultService;
-		this.musicbrainzEditController = musicbrainzEditController;
+		this.musicbrainzEditService = musicbrainzEditService;
 		this.releaseGroupEnrichmentResultRepository = releaseGroupEnrichmentResultRepository;
 	}
 
@@ -76,7 +76,7 @@ public class MusicbrainzEnricherService {
 	}
 
 	private void submitTags() {
-		processInChunks(releaseGroupEnrichmentResultRepository.findMergedResults(), TAG_SUBMISSION_CHUNK_SIZE, musicbrainzEditController::submitReleaseGroupUserTags);
+		processInChunks(releaseGroupEnrichmentResultRepository.findMergedResults(), TAG_SUBMISSION_CHUNK_SIZE, musicbrainzEditService::submitUserTags);
 	}
 
 	private static <T> void processInChunks(Stream<T> stream, int chunkSize, Consumer<Collection<T>> consumer) {

@@ -1,6 +1,5 @@
 package dev.rilling.musicbrainzenricher.enrichment.release;
 
-import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditController;
 import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzException;
 import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzLookupService;
 import dev.rilling.musicbrainzenricher.core.DataType;
@@ -29,7 +28,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 
 	ReleaseEnrichmentService(ApplicationContext applicationContext,
 							 @Qualifier("enrichmentExecutor") ExecutorService executorService,
-							 MusicbrainzLookupService musicbrainzLookupService, MusicbrainzEditController musicbrainzEditController) {
+							 MusicbrainzLookupService musicbrainzLookupService) {
 		super(applicationContext, executorService);
 		this.musicbrainzLookupService = musicbrainzLookupService;
 	}
