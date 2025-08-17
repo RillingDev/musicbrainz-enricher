@@ -23,11 +23,10 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 		completionService = new ExecutorCompletionService<>(executorService);
 	}
 
-	// TODO check if async handling can be simplified
-	public Optional<Set<ReleaseGroupEnrichmentResult>> executeEnrichment(UUID mbid) {
-		Optional<TEntity> entityOptional = fetchEntity(mbid);
+	public Optional<Set<ReleaseGroupEnrichmentResult>> executeEnrichment(UUID sourceMbid) {
+		Optional<TEntity> entityOptional = fetchEntity(sourceMbid);
 		if (entityOptional.isEmpty()) {
-			LOGGER.warn("Could not find '{}' for the data type '{}'.", mbid, getDataType());
+			LOGGER.warn("Could not find '{}' for the data type '{}'.", sourceMbid, getDataType());
 			return Optional.empty();
 		}
 		TEntity entity = entityOptional.get();
@@ -70,13 +69,13 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			}
 		}
 
-		final UUID targetGid = UUID.fromString(extractTargetEntity(entity).getId());
-		Set<ReleaseGroupEnrichmentResult> results = genres.stream().map(genre -> new ReleaseGroupEnrichmentResult(targetGid, genre)).collect(Collectors.toUnmodifiableSet());
+		final UUID targetMbid = UUID.fromString(extractTargetEntity(entity).getId());
+		Set<ReleaseGroupEnrichmentResult> results = genres.stream().map(genre -> new ReleaseGroupEnrichmentResult(targetMbid, genre)).collect(Collectors.toUnmodifiableSet());
 		return Optional.of(results);
 	}
 
 
-	protected abstract Optional<TEntity> fetchEntity(UUID mbid);
+	protected abstract Optional<TEntity> fetchEntity(UUID sourceMbid);
 
 
 	protected abstract Collection<RelationWs2> extractRelations(TEntity entity);

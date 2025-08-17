@@ -39,7 +39,7 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 	}
 
 	@Override
-	protected Optional<ReleaseWs2> fetchEntity(UUID mbid) {
+	protected Optional<ReleaseWs2> fetchEntity(UUID sourceMbid) {
 		ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
 		includes.setUrlRelations(true);
 		includes.setTags(true);
@@ -47,9 +47,9 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 		includes.setReleaseGroups(true);
 
 		try {
-			return musicbrainzLookupService.lookUpRelease(mbid, includes);
+			return musicbrainzLookupService.lookUpRelease(sourceMbid, includes);
 		} catch (MusicbrainzException e) {
-			LOGGER.error("Could not query the release '{}'.", mbid, e);
+			LOGGER.error("Could not query the release '{}'.", sourceMbid, e);
 			return Optional.empty();
 		}
 	}

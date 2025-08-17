@@ -4,9 +4,9 @@ import dev.rilling.musicbrainzenricher.api.musicbrainz.MusicbrainzEditService;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.DataTypeAware;
 import dev.rilling.musicbrainzenricher.core.WorkQueueRepository;
-import dev.rilling.musicbrainzenricher.core.history.ResultService;
 import dev.rilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
 import dev.rilling.musicbrainzenricher.enrichment.ReleaseGroupEnrichmentResultRepository;
+import dev.rilling.musicbrainzenricher.enrichment.ResultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -53,25 +53,25 @@ public class MusicbrainzEnricherService {
 		long count = workQueueRepository.countWorkQueue();
 		while (count > 0) {
 			LOGGER.info("{} auto-query entities remaining.", count);
-			for (UUID mbid : workQueueRepository.queryWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
-				executeEnrichment(dataType, mbid, enrichmentService);
+			for (UUID sourceMbid : workQueueRepository.queryWorkQueue(AUTO_QUERY_CHUNK_SIZE)) {
+				executeEnrichment(dataType, sourceMbid, enrichmentService);
 			}
 			count = workQueueRepository.countWorkQueue();
 		}
 	}
 
-	public void runInSingleMode(DataType dataType, UUID mbid) {
-		executeEnrichment(dataType, mbid, findBeanForDataType(dataType, AbstractEnrichmentService.class));
+	public void runInSingleMode(DataType dataType, UUID sourceMbid) {
+		executeEnrichment(dataType, sourceMbid, findBeanForDataType(dataType, AbstractEnrichmentService.class));
 
 		submitTags();
 	}
 
 
-	private void executeEnrichment(DataType dataType, UUID mbid, AbstractEnrichmentService<?> enrichmentService) {
-		LOGGER.info("Starting enrichment for {} '{}'.", dataType, mbid);
-		enrichmentService.executeEnrichment(mbid).ifPresent(results -> {
-			resultService.persistResults(dataType, mbid, results);
-			LOGGER.info("Completed enrichment for {} '{}'.", dataType, mbid);
+	private void executeEnrichment(DataType dataType, UUID sourceMbid, AbstractEnrichmentService<?> enrichmentService) {
+		LOGGER.info("Starting enrichment for {} '{}'.", dataType, sourceMbid);
+		enrichmentService.executeEnrichment(sourceMbid).ifPresent(results -> {
+			resultService.persistResults(dataType, sourceMbid, results);
+			LOGGER.info("Completed enrichment for {} '{}'.", dataType, sourceMbid);
 		});
 	}
 

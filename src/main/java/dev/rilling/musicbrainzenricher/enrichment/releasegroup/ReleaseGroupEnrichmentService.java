@@ -38,16 +38,16 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	}
 
 	@Override
-	protected Optional<ReleaseGroupWs2> fetchEntity(UUID mbid) {
+	protected Optional<ReleaseGroupWs2> fetchEntity(UUID sourceMbid) {
 		ReleaseGroupIncludesWs2 includes = new ReleaseGroupIncludesWs2();
 		includes.setUrlRelations(true);
 		includes.setTags(true);
 		includes.setUserTags(true);
 
 		try {
-			return musicbrainzLookupService.lookUpReleaseGroup(mbid, includes);
+			return musicbrainzLookupService.lookUpReleaseGroup(sourceMbid, includes);
 		} catch (MusicbrainzException e) {
-			LOGGER.error("Could not query the release-group '{}'.", mbid, e);
+			LOGGER.error("Could not query the release-group '{}'.", sourceMbid, e);
 			return Optional.empty();
 		}
 	}

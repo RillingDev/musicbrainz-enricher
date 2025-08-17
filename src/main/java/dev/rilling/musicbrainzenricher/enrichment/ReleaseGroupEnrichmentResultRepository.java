@@ -26,7 +26,7 @@ public class ReleaseGroupEnrichmentResultRepository {
 
 	@Transactional
 	public void persistResults(Collection<ReleaseGroupEnrichmentResult> result) {
-		List<Object[]> batch = result.stream().map(r -> new Object[]{r.gid(), r.genre()}).toList();
+		List<Object[]> batch = result.stream().map(r -> new Object[]{r.targetMbid(), r.genre()}).toList();
 		// TODO merge duplicates and/or link to history entry to make resuming a stopped process easier
 		jdbcTemplate.batchUpdate("INSERT INTO musicbrainz_enricher.enricher_release_group_result (release_group_gid, genre_name) VALUES(?, ?)", batch);
 	}

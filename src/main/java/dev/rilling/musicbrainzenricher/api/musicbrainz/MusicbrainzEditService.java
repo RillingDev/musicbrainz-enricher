@@ -47,24 +47,24 @@ public class MusicbrainzEditService {
 			return;
 		}
 
-		Map<UUID, Set<String>> resultsByGid =
+		Map<UUID, Set<String>> resultsByMbid =
 			results.stream()
-				.collect(Collectors.groupingBy(ReleaseGroupEnrichmentResult::gid,
+				.collect(Collectors.groupingBy(ReleaseGroupEnrichmentResult::targetMbid,
 					Collectors.mapping(ReleaseGroupEnrichmentResult::genre, Collectors.toSet())));
 
-		Set<EntityWs2> entities = new HashSet<>(resultsByGid.keySet().size());
-		for (Map.Entry<UUID, Set<String>> entry : resultsByGid.entrySet()) {
-			UUID gid = entry.getKey();
+		Set<EntityWs2> entities = new HashSet<>(resultsByMbid.keySet().size());
+		for (Map.Entry<UUID, Set<String>> entry : resultsByMbid.entrySet()) {
+			UUID mbid = entry.getKey();
 			Set<String> genres = entry.getValue();
 
 			try {
-				LOGGER.info("Fetching entity {}.", gid);
-				musicbrainzLookupService.lookUpReleaseGroup(gid, new ReleaseGroupIncludesWs2()).ifPresent(releaseGroup -> {
+				LOGGER.info("Fetching entity {}.", mbid);
+				musicbrainzLookupService.lookUpReleaseGroup(mbid, new ReleaseGroupIncludesWs2()).ifPresent(releaseGroup -> {
 					addTags(releaseGroup, genres);
 					entities.add(releaseGroup);
 				});
 			} catch (MusicbrainzException e) {
-				LOGGER.error("Could not fetch {}.", gid, e);
+				LOGGER.error("Could not fetch {}.", mbid, e);
 			}
 		}
 

@@ -35,9 +35,9 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 			musicbrainzEnricherService.runInAutoQueryMode();
 		} else if (args.length == 2) {
 			DataType dataType = parseDataType(args[0]);
-			UUID mbid = UUID.fromString(args[1]);
-			LOGGER.info("Running in single mode for the data type {} with MBID '{}'.", dataType, mbid);
-			musicbrainzEnricherService.runInSingleMode(dataType, mbid);
+			UUID sourceMbid = UUID.fromString(args[1]);
+			LOGGER.info("Running in single mode for the data type {} with MBID '{}'.", dataType, sourceMbid);
+			musicbrainzEnricherService.runInSingleMode(dataType, sourceMbid);
 		} else {
 			throw new IllegalArgumentException("Expected either 0 or 2 parameters but found %d.".formatted(args.length));
 		}
