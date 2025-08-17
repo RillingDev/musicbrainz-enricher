@@ -1,4 +1,4 @@
-package dev.rilling.musicbrainzenricher.util;
+package dev.rilling.musicbrainzenricher.core.genre;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

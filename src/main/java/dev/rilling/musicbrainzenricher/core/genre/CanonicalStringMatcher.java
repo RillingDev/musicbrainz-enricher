@@ -1,4 +1,4 @@
-package dev.rilling.musicbrainzenricher.util;
+package dev.rilling.musicbrainzenricher.core.genre;
 
 import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * Note that due to the complexity of language, this tool only covers basic cases.
  */
 @ThreadSafe
-public class CanonicalStringMatcher {
+class CanonicalStringMatcher {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(CanonicalStringMatcher.class);
 

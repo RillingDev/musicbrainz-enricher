@@ -1,6 +1,5 @@
 package dev.rilling.musicbrainzenricher.core.genre;
 
-import dev.rilling.musicbrainzenricher.util.CanonicalStringMatcher;
 import net.jcip.annotations.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

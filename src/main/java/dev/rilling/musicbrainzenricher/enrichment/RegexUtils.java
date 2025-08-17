@@ -1,4 +1,4 @@
-package dev.rilling.musicbrainzenricher.util;
+package dev.rilling.musicbrainzenricher.enrichment;
 
 import net.jcip.annotations.ThreadSafe;
 

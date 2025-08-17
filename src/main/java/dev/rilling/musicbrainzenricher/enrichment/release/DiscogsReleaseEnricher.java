@@ -5,7 +5,7 @@ import dev.rilling.musicbrainzenricher.api.discogs.DiscogsRelease;
 import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.genre.GenreMatcherService;
 import dev.rilling.musicbrainzenricher.enrichment.Enricher;
-import dev.rilling.musicbrainzenricher.util.RegexUtils;
+import dev.rilling.musicbrainzenricher.enrichment.RegexUtils;
 import net.jcip.annotations.ThreadSafe;
 import org.musicbrainz.model.RelationWs2;
 import org.slf4j.Logger;
