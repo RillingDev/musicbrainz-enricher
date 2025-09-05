@@ -47,6 +47,7 @@ public class MusicbrainzEditService {
 			UUID mbid = entry.getKey();
 			Set<String> genres = entry.getValue();
 
+			// Technically the lookup is not necessary for submission, but the musicbrainz Java API forces it.
 			try {
 				LOGGER.info("Fetching entity {}.", mbid);
 				musicbrainzLookupService.lookUpReleaseGroup(mbid, new ReleaseGroupIncludesWs2()).ifPresent(releaseGroup -> {

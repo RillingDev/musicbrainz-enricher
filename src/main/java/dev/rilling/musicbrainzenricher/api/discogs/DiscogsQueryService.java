@@ -33,7 +33,7 @@ public class DiscogsQueryService {
 		bucket.asBlocking().consumeUninterruptibly(1);
 
 		try {
-			return Optional.ofNullable(restClient.get().uri("/releases/{id}", Map.of("id", id)).accept().retrieve().body(DiscogsRelease.class));
+			return Optional.of(restClient.get().uri("/releases/{id}", Map.of("id", id)).accept().retrieve().body(DiscogsRelease.class));
 		} catch (RestClientException e) {
 			LOGGER.warn("Could not look up release '{}'.", id, e);
 			return Optional.empty();
@@ -45,7 +45,7 @@ public class DiscogsQueryService {
 		bucket.asBlocking().consumeUninterruptibly(1);
 
 		try {
-			return Optional.ofNullable(restClient.get().uri("/masters/{id}", Map.of("id", id)).retrieve().body(DiscogsMaster.class));
+			return Optional.of(restClient.get().uri("/masters/{id}", Map.of("id", id)).retrieve().body(DiscogsMaster.class));
 		} catch (RestClientException e) {
 			LOGGER.warn("Could not look up master '{}'.", id, e);
 			return Optional.empty();

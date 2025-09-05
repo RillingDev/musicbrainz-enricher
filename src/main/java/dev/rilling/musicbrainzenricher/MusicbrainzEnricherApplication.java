@@ -34,6 +34,7 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 			LOGGER.info("Running in auto-query mode.");
 			musicbrainzEnricherService.runInAutoQueryMode();
 		} else if (args.length == 2) {
+			// This mode is for debugging. Make sure to manually clean the history/result tables.
 			DataType dataType = parseDataType(args[0]);
 			UUID sourceMbid = UUID.fromString(args[1]);
 			LOGGER.info("Running in single mode for the data type {} with MBID '{}'.", dataType, sourceMbid);

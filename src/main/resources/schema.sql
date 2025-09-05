@@ -45,8 +45,9 @@ WHERE rghe.release_group_gid IS NULL;
 
 CREATE TABLE IF NOT EXISTS musicbrainz_enricher.enricher_release_group_result
 (
-	release_group_gid uuid NOT NULL REFERENCES musicbrainz.release_group (gid) ON DELETE CASCADE,
-	genre_name        VARCHAR -- TODO reference genre UUID
+	release_group_gid uuid    NOT NULL REFERENCES musicbrainz.release_group (gid) ON DELETE CASCADE,
+	-- This implicitly references musicbrainz.genre. To make submission easier it is denormalized here
+	genre_name        VARCHAR NOT NULL
 	-- TODO include reference to enricher or URL for debugging
 );
 
