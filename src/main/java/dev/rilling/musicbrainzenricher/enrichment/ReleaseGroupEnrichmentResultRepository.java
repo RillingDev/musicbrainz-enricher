@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Stream;
 
 @Repository
 @ThreadSafe
@@ -32,8 +31,12 @@ public class ReleaseGroupEnrichmentResultRepository {
 	}
 
 
-	public Stream<ReleaseGroupEnrichmentResult> findMergedResults() {
-		return jdbcClient.sql("SELECT release_group_gid, genre_name FROM musicbrainz_enricher.enricher_release_group_result_merged").query((rs, rowNum) -> new ReleaseGroupEnrichmentResult(rs.getObject(1, UUID.class), rs.getString(2))).stream();
+	public List<ReleaseGroupEnrichmentResult> findMergedResults(int limit, int offset) {
+		return jdbcClient.sql("SELECT release_group_gid, genre_name FROM musicbrainz_enricher.enricher_release_group_result_merged LIMIT ? OFFSET ?")
+			.param(1, limit)
+			.param(2, offset)
+			.query((rs, rowNum) -> new ReleaseGroupEnrichmentResult(rs.getObject(1, UUID.class), rs.getString(2)))
+			.list();
 	}
 
 }

@@ -5,6 +5,7 @@ import dev.rilling.musicbrainzenricher.core.DataType;
 import dev.rilling.musicbrainzenricher.core.DataTypeAware;
 import dev.rilling.musicbrainzenricher.core.WorkQueueRepository;
 import dev.rilling.musicbrainzenricher.enrichment.AbstractEnrichmentService;
+import dev.rilling.musicbrainzenricher.enrichment.ReleaseGroupEnrichmentResult;
 import dev.rilling.musicbrainzenricher.enrichment.ReleaseGroupEnrichmentResultRepository;
 import dev.rilling.musicbrainzenricher.enrichment.ResultService;
 import org.slf4j.Logger;
@@ -13,9 +14,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class MusicbrainzEnricherService {
@@ -85,18 +85,14 @@ public class MusicbrainzEnricherService {
 		if (dryRun) {
 			return;
 		}
-		processInChunks(releaseGroupEnrichmentResultRepository.findMergedResults(), TAG_SUBMISSION_CHUNK_SIZE, musicbrainzEditService::submitUserTags);
-	}
 
-	private static <T> void processInChunks(Stream<T> stream, int chunkSize, Consumer<Collection<T>> consumer) {
-		Iterator<T> iterator = stream.iterator();
-		while (iterator.hasNext()) {
-			List<T> chunk = new ArrayList<>(chunkSize);
-			for (int i = 0; i < chunkSize && iterator.hasNext(); i++) {
-				chunk.add(iterator.next());
-			}
-			consumer.accept(chunk);
-		}
+		int offset = 0;
+		List<ReleaseGroupEnrichmentResult> results;
+		do {
+			results = releaseGroupEnrichmentResultRepository.findMergedResults(TAG_SUBMISSION_CHUNK_SIZE, offset);
+			musicbrainzEditService.submitUserTags(results);
+			offset += results.size();
+		} while (!results.isEmpty());
 	}
 
 
