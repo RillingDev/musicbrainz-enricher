@@ -95,14 +95,6 @@ public class ApplicationConfigurationProperties {
 		this.contact = contact;
 	}
 
-	public boolean isDryRun() {
-		return dryRun;
-	}
-
-	public void setDryRun(boolean dryRun) {
-		this.dryRun = dryRun;
-	}
-
 	public MusicbrainzCredentials getMusicbrainz() {
 		return musicbrainz;
 	}

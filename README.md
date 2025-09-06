@@ -48,9 +48,16 @@ for details.
 Before starting, set up a copy of the MusicBrainz database using <https://github.com/metabrainz/musicbrainz-docker>
 locally with the database port open.
 
-Auto-query mode will enrich every entity from the MusicBrainz database:
+The first step is gathering data:
 
-`java -jar musicbrainz-enricher*.jar`.
+`java -jar musicbrainz-enricher*.jar gather`.
+
+This will go through every relevant relationship and gather data from the referenced URLs. The results are persisted
+locally and are not submitted yet.
+
+After gathering is complete, you can submit the merged data that was collected to MusicBrainz:
+
+`java -jar musicbrainz-enricher*.jar gather`.
 
 ### History
 

@@ -30,20 +30,32 @@ public class MusicbrainzEnricherApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		if (args.length == 0) {
-			LOGGER.info("Running in auto-query mode.");
-			musicbrainzEnricherService.runInAutoQueryMode();
-		} else if (args.length == 2) {
-			// This mode is for debugging. Make sure to manually clean the history/result tables.
-			DataType dataType = parseDataType(args[0]);
-			UUID sourceMbid = UUID.fromString(args[1]);
-			LOGGER.info("Running in single mode for the data type {} with MBID '{}'.", dataType, sourceMbid);
-			musicbrainzEnricherService.runInSingleMode(dataType, sourceMbid);
+		if (args.length != 1 && args.length != 3) {
+			throw new IllegalArgumentException("Expected either 1 or 3 parameters but found %d.".formatted(args.length));
 		} else {
-			throw new IllegalArgumentException("Expected either 0 or 2 parameters but found %d.".formatted(args.length));
+			String command = args[0];
+			switch (command) {
+				case "gather" -> {
+					if (args.length == 3) {
+						// This mode is for debugging. Make sure to manually clean the history/result tables.
+						DataType dataType = parseDataType(args[1]);
+						UUID sourceMbid = UUID.fromString(args[2]);
+						LOGGER.info("Running in gather mode for the data type {} with MBID '{}'.", dataType, sourceMbid);
+						musicbrainzEnricherService.gather(dataType, sourceMbid);
+					} else {
+						LOGGER.info("Running in gather mode.");
+						musicbrainzEnricherService.gatherAll();
+					}
+				}
+				case "submit" -> {
+					LOGGER.info("Running in submit mode.");
+					musicbrainzEnricherService.submitTags();
+				}
+				default -> throw new IllegalArgumentException("Could not process the command '%s'.".formatted(command));
+			}
 		}
 
-		LOGGER.debug("Shutting down.");
+		LOGGER.info("Shutting down.");
 		// All pending tasks should be completed anyway, so a simple shutdown is enough.
 		enrichmentExecutor.shutdown();
 	}
