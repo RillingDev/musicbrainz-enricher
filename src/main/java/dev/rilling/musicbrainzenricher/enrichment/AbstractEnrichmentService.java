@@ -33,19 +33,11 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 
 		Set<Enricher> enrichers = findFittingEnrichers();
 		Collection<RelationWs2> relations = extractRelations(entity);
-		Set<Future<Set<String>>> futures = new HashSet<>(enrichers.size() * relations.size());
+		Set<Future<Set<String>>> futures = new HashSet<>(relations.size());
 		for (RelationWs2 relation : relations) {
 			for (Enricher enricher : enrichers) {
 				if (enricher.isRelationSupported(relation)) {
-					futures.add(completionService.submit(() -> {
-						LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
-						Set<String> genres = enricher.fetchGenres(relation);
-						LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
-							enricher.getClass().getSimpleName(),
-							genres,
-							relation);
-						return Collections.unmodifiableSet(genres);
-					}));
+					futures.add(completionService.submit(() -> doEnrich(relation, enricher)));
 				}
 			}
 		}
@@ -72,6 +64,16 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 		final UUID targetMbid = UUID.fromString(extractTargetEntity(entity).getId());
 		Set<ReleaseGroupEnrichmentResult> results = genres.stream().map(genre -> new ReleaseGroupEnrichmentResult(targetMbid, genre)).collect(Collectors.toUnmodifiableSet());
 		return Optional.of(results);
+	}
+
+	private static Set<String> doEnrich(RelationWs2 relation, Enricher enricher) {
+		LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
+		Set<String> genres = enricher.fetchGenres(relation);
+		LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
+			enricher.getClass().getSimpleName(),
+			genres,
+			relation);
+		return Collections.unmodifiableSet(genres);
 	}
 
 
