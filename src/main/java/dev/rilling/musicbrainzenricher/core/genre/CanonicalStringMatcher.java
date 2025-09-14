@@ -1,8 +1,6 @@
 package dev.rilling.musicbrainzenricher.core.genre;
 
 import net.jcip.annotations.ThreadSafe;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.Collator;
 import java.util.*;
@@ -20,11 +18,9 @@ import java.util.stream.Collectors;
  */
 @ThreadSafe
 class CanonicalStringMatcher {
-
-	private static final Logger LOGGER = LoggerFactory.getLogger(CanonicalStringMatcher.class);
-
 	private final Pattern ignoredSubstringPattern;
 	private final Map<String, String> canonicalMap;
+	private final Map<String, String> normalizedCanonicalMap;
 
 	/**
 	 * Constructor.
@@ -34,7 +30,6 @@ class CanonicalStringMatcher {
 	 *                          Caution: The caller should make sure none of the canonical values are equal to each other with this collator.
 	 * @param ignoredSubstrings Substrings that should be ignored while matching.
 	 *                          For example, this can be used to treat {@code " and "} the same as {@code " & "}.
-	 *                          Caution: The caller should make sure none of the canonical values are equal to each other when ignoring these substrings.
 	 *                          Caution: These should be generic substrings that could be used interchangeably.
 	 */
 	public CanonicalStringMatcher(Set<String> canonicalValues,
@@ -46,15 +41,24 @@ class CanonicalStringMatcher {
 			.map(Pattern::quote)
 			.collect(Collectors.joining("|")));
 
-		// Using a tree map with the collator and the adjusted canonical value as key makes for fast lookups.
 		canonicalMap = new TreeMap<>(collator);
+		normalizedCanonicalMap = new TreeMap<>(collator);
+
+		Set<String> collidingKeys = new HashSet<>();
 		for (String canonicalValue : canonicalValues) {
-			String adjustedValue = removeIgnoredSubstrings(canonicalValue);
-			if (canonicalMap.containsKey(adjustedValue)) {
-				LOGGER.warn("Canonical value '{}' conflicts with '{}' which is equal when comparing.", canonicalValue, canonicalMap.get(adjustedValue));
+			// Having a value->value map may seem silly, but it is useful for applying the collator.
+			canonicalMap.put(canonicalValue, canonicalValue);
+
+			String normalizedValue = normalize(canonicalValue);
+			if (normalizedCanonicalMap.containsKey(normalizedValue)) {
+				collidingKeys.add(normalizedValue);
+				collidingKeys.add(canonicalValue);
+				continue;
 			}
-			canonicalMap.put(adjustedValue, canonicalValue);
+			normalizedCanonicalMap.put(normalizedValue, canonicalValue);
 		}
+		// If keys collide, we opt out of the normalized resolving, as it pick whatever was inserted first
+		collidingKeys.forEach(normalizedCanonicalMap::remove);
 	}
 
 	/**
@@ -65,11 +69,15 @@ class CanonicalStringMatcher {
 	 */
 
 	public Optional<String> canonicalize(String unmatchedValue) {
-		String adjustedValue = removeIgnoredSubstrings(unmatchedValue);
-		return Optional.ofNullable(canonicalMap.get(adjustedValue));
+		// We first search for exact matches.
+		// This helps avoid situations where multiple canonical values have colliding replaced values.
+		if (canonicalMap.containsKey(unmatchedValue)) {
+			return Optional.of(canonicalMap.get(unmatchedValue));
+		}
+		return Optional.ofNullable(normalizedCanonicalMap.get(normalize(unmatchedValue)));
 	}
 
-	private String removeIgnoredSubstrings(String string) {
+	private String normalize(String string) {
 		return ignoredSubstringPattern.matcher(string).replaceAll("");
 	}
 }

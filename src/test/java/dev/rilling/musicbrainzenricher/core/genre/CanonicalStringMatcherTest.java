@@ -71,4 +71,15 @@ class CanonicalStringMatcherTest {
 		assertThat(new CanonicalStringMatcher(Set.of("hip hop"), caseSensitiveCollator, ignoredSubstrings).canonicalize("Hip Hop")).isEmpty();
 	}
 
+
+	@Test
+	@DisplayName("works with colliding normalized keys.")
+	void worksWithCollidingNormalizedKeys() {
+		Set<String> canonicalValues = Set.of("techhouse", "tech house");
+		CanonicalStringMatcher canonicalStringMatcher = new CanonicalStringMatcher(canonicalValues, Collator.getInstance(Locale.ROOT), Set.of("-", " "));
+
+		assertThat(canonicalStringMatcher.canonicalize("tech house")).contains("tech house");
+		assertThat(canonicalStringMatcher.canonicalize("techhouse")).contains("techhouse");
+		assertThat(canonicalStringMatcher.canonicalize("tech-house")).isEmpty();
+	}
 }
