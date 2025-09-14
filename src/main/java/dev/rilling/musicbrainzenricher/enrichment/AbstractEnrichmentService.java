@@ -72,7 +72,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			enricher.getClass().getSimpleName(),
 			genres,
 			relation);
-		return genres.stream().map(genre -> new ReleaseGroupEnrichmentResult(targetMbid, genre)).collect(Collectors.toSet());
+		return genres.stream().map(genre -> new ReleaseGroupEnrichmentResult(targetMbid, relation.getTargetId(), genre)).collect(Collectors.toSet());
 	}
 
 
