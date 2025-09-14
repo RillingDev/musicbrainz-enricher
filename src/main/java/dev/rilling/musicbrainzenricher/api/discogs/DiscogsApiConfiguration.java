@@ -21,9 +21,10 @@ class DiscogsApiConfiguration {
 	Bucket discogsBucket(Environment environment) {
 		boolean authenticated = environment.containsProperty("musicbrainz-enricher.discogs.token");
 
-		// See https://www.discogs.com/developers/#page:home,header:home-rate-limiting
+		// See https://www.discogs.com/developers/#page:home,header:home-rate-limiting,
+		// further slowed down to adapt for network fluctuations.
 		int capacity = authenticated ? 60 : 25;
-		Bandwidth bandwidth = Bandwidth.builder().capacity(capacity).refillGreedy(capacity, Duration.ofSeconds(60)).build();
+		Bandwidth bandwidth = Bandwidth.builder().capacity(capacity).refillGreedy(capacity, Duration.ofSeconds(90)).build();
 
 		return Bucket.builder().addLimit(bandwidth).build().toListenable(new LoggingBucketListener("discogs"));
 	}

@@ -48,8 +48,9 @@ class MusicbrainzApiConfiguration {
 
 	@Bean("musicbrainzBucket")
 	Bucket musicbrainzBucket() {
-		// See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting
-		Bandwidth bandwidth = Bandwidth.builder().capacity(1).refillGreedy(1, Duration.ofSeconds(1)).build();
+		// See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting,
+		// further slowed down to adapt for network fluctuations.
+		Bandwidth bandwidth = Bandwidth.builder().capacity(1).refillGreedy(1, Duration.ofMillis(1500)).build();
 
 		return Bucket.builder().addLimit(bandwidth).build().toListenable(new LoggingBucketListener("musicbrainz"));
 	}
