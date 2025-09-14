@@ -16,7 +16,7 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractEnrichmentService.class);
 
 	private final ApplicationContext applicationContext;
-	private final CompletionService<Set<String>> completionService;
+	private final CompletionService<Set<ReleaseGroupEnrichmentResult>> completionService;
 
 	protected AbstractEnrichmentService(ApplicationContext applicationContext, ExecutorService executorService) {
 		this.applicationContext = applicationContext;
@@ -30,23 +30,24 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			return Optional.empty();
 		}
 		TEntity entity = entityOptional.get();
+		final UUID targetMbid = UUID.fromString(extractTargetEntity(entity).getId());
 
 		Set<Enricher> enrichers = findFittingEnrichers();
 		Collection<RelationWs2> relations = extractRelations(entity);
-		Set<Future<Set<String>>> futures = new HashSet<>(relations.size());
+		Set<Future<Set<ReleaseGroupEnrichmentResult>>> futures = new HashSet<>(relations.size());
 		for (RelationWs2 relation : relations) {
 			for (Enricher enricher : enrichers) {
 				if (enricher.isRelationSupported(relation)) {
-					futures.add(completionService.submit(() -> doEnrich(relation, enricher)));
+					futures.add(completionService.submit(() -> doEnrich(relation, enricher, targetMbid)));
 				}
 			}
 		}
 
-		Set<String> genres = new HashSet<>();
+		Set<ReleaseGroupEnrichmentResult> results = new HashSet<>();
 		int received = 0;
 		while (received < futures.size()) {
 			try {
-				genres.addAll(
+				results.addAll(
 					// Blocks if none available
 					completionService.take().get()
 				);
@@ -61,19 +62,17 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 			}
 		}
 
-		final UUID targetMbid = UUID.fromString(extractTargetEntity(entity).getId());
-		Set<ReleaseGroupEnrichmentResult> results = genres.stream().map(genre -> new ReleaseGroupEnrichmentResult(targetMbid, genre)).collect(Collectors.toUnmodifiableSet());
-		return Optional.of(results);
+		return Optional.of(Collections.unmodifiableSet(results));
 	}
 
-	private static Set<String> doEnrich(RelationWs2 relation, Enricher enricher) {
+	private static Set<ReleaseGroupEnrichmentResult> doEnrich(RelationWs2 relation, Enricher enricher, UUID targetMbid) {
 		LOGGER.debug("Starting enricher {} for '{}'.", enricher.getClass().getSimpleName(), relation);
 		Set<String> genres = enricher.fetchGenres(relation);
 		LOGGER.debug("Enricher {} found genres '{}' for '{}'.",
 			enricher.getClass().getSimpleName(),
 			genres,
 			relation);
-		return Collections.unmodifiableSet(genres);
+		return genres.stream().map(genre -> new ReleaseGroupEnrichmentResult(targetMbid, genre)).collect(Collectors.toSet());
 	}
 
 
