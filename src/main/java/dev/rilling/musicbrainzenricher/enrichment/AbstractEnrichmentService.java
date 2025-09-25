@@ -23,11 +23,11 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 		completionService = new ExecutorCompletionService<>(executorService);
 	}
 
-	public Optional<Set<ReleaseGroupEnrichmentResult>> executeEnrichment(UUID sourceMbid) {
+	public Set<ReleaseGroupEnrichmentResult> executeEnrichment(UUID sourceMbid) throws InterruptedException {
 		Optional<TEntity> entityOptional = fetchEntity(sourceMbid);
 		if (entityOptional.isEmpty()) {
 			LOGGER.warn("Could not find '{}' for the data type '{}'.", sourceMbid, getDataType());
-			return Optional.empty();
+			return Set.of();
 		}
 		TEntity entity = entityOptional.get();
 		final UUID targetMbid = UUID.fromString(extractTargetEntity(entity).getId());
@@ -52,17 +52,13 @@ public abstract class AbstractEnrichmentService<TEntity> implements DataTypeAwar
 					completionService.take().get()
 				);
 				received++;
-			} catch (InterruptedException e) {
-				LOGGER.warn("Interrupted, skipping enrichment.", e);
-				Thread.currentThread().interrupt();
-				return Optional.empty();
 			} catch (ExecutionException e) {
 				LOGGER.error("Execution of enricher failed.", e);
 				received++;
 			}
 		}
 
-		return Optional.of(Collections.unmodifiableSet(results));
+		return Collections.unmodifiableSet(results);
 	}
 
 	private static Set<ReleaseGroupEnrichmentResult> doEnrich(RelationWs2 relation, Enricher enricher, UUID targetMbid) {

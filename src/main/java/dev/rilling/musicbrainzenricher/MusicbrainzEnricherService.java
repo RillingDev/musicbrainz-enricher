@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -62,16 +63,21 @@ public class MusicbrainzEnricherService {
 
 	private void doGather(DataType dataType, UUID sourceMbid, AbstractEnrichmentService<?> enrichmentService) {
 		LOGGER.info("Starting to gather data for {} '{}'.", dataType, sourceMbid);
-		enrichmentService.executeEnrichment(sourceMbid).ifPresent(results -> {
+		try {
+			Set<ReleaseGroupEnrichmentResult> results = enrichmentService.executeEnrichment(sourceMbid);
 			resultService.persistResults(dataType, sourceMbid, results);
 			LOGGER.info("Completed gathering data for {} '{}'.", dataType, sourceMbid);
-		});
+		} catch (InterruptedException e) {
+			LOGGER.warn("Interrupted, skipping enrichment.", e);
+			Thread.currentThread().interrupt();
+		}
 	}
 
 	public void submitTags() {
 		int offset = 0;
 		List<ReleaseGroupEnrichmentResult> results;
 		do {
+			// TODO: should group by release group, because otherwise we may replace submitted tags when the same release group has more results
 			results = releaseGroupEnrichmentResultRepository.findMergedResults(TAG_SUBMISSION_CHUNK_SIZE, offset);
 			LOGGER.info("Submitting data for {} results.", results.size());
 			musicbrainzEditService.submitUserTags(results);
