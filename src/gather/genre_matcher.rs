@@ -93,15 +93,6 @@ pub fn default_genre_canonical_string_matcher(
 	))
 }
 
-pub fn canonicalize_genres(
-	unmatched_genres: &HashSet<&str>,
-	canonical_string_matcher: &CanonicalStringMatcher,
-) -> impl Iterator<Item = String> {
-	unmatched_genres
-		.iter()
-		.filter_map(|unmatched_genre| canonical_string_matcher.canonicalize(unmatched_genre))
-}
-
 #[cfg(test)]
 mod tests {
 	use icu::collator::Collator;
@@ -227,19 +218,6 @@ mod tests {
 		assert_eq!(
 			matcher.canonicalize("hyper techno"),
 			Some(String::from("hyper techno"))
-		);
-
-		Ok(())
-	}
-
-	#[test]
-	fn canonicalize_genres_canonicalizes() -> anyhow::Result<()> {
-		let matcher = default_genre_canonical_string_matcher(HashSet::from(["hip-hop", "rock"]))?;
-
-		assert_eq!(
-			canonicalize_genres(&HashSet::from(["hip hop", "jazz"]), &matcher)
-				.collect::<Vec<String>>(),
-			[String::from("hip-hop")]
 		);
 
 		Ok(())

@@ -1,8 +1,9 @@
 use reqwest::Url;
-use std::collections::HashSet;
 
-mod dummy;
+pub mod dummy;
 
 pub trait ReleaseGroupGatherer {
-	fn gather_genres(&self, entity_url: Url) -> anyhow::Result<HashSet<String>>;
+	fn can_gather(&self, entity_url: &Url) -> bool;
+
+	async fn gather_genres(&self, entity_url: &Url) -> anyhow::Result<Vec<String>>;
 }

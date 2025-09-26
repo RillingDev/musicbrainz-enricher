@@ -1,6 +1,6 @@
 use anyhow::Context;
 use itertools::Itertools;
-use tokio_postgres::Client;
+use tokio_postgres::{Client, GenericClient};
 use uuid::Uuid;
 
 pub async fn init_schema(db_client: &Client) -> anyhow::Result<()> {
@@ -10,7 +10,19 @@ pub async fn init_schema(db_client: &Client) -> anyhow::Result<()> {
 		.context("Failed to initialize schema.")
 }
 
-// TODO: add newtype for release group ID
+pub async fn select_genre_names(db_client: &Client) -> anyhow::Result<Vec<String>> {
+	let res = db_client
+		.query("SELECT name FROM musicbrainz.genre", &[])
+		.await?;
+
+	Ok(res
+		.iter()
+		.map(|row| {
+			let name: String = row.get(0);
+			name
+		})
+		.collect())
+}
 
 #[derive(Debug)]
 pub struct UrlAndReleaseGroupId {
@@ -49,13 +61,30 @@ pub async fn select_release_group_urls(
 }
 
 #[derive(Debug)]
-pub struct ReleaseGroupEnrichmentResult {}
+pub struct ReleaseGroupEnrichmentResult {
+	pub genre: String,
+	pub url: String,
+	pub target_mbid: Uuid,
+}
 
-pub async fn insert_release_group_enrichment_result(
+pub async fn insert_release_group_enrichment_results(
 	db_client: &Client,
 	vec: Vec<ReleaseGroupEnrichmentResult>,
 ) -> anyhow::Result<()> {
-	todo!()
+	// TODO should have a transaction
+	let statement = db_client
+		.prepare(
+			"INSERT INTO
+			musicbrainz_enricher.enricher_release_group_result (target_release_group_gid, source_url, genre_name)
+			VALUES ($1, $2, $3)",
+		)
+		.await?;
+	for ele in vec {
+		db_client
+			.execute(&statement, &[&ele.target_mbid, &ele.url, &ele.genre])
+			.await?;
+	}
+	Ok(())
 }
 
 #[derive(Debug)]
