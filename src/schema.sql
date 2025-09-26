@@ -1,5 +1,24 @@
 CREATE SCHEMA IF NOT EXISTS musicbrainz_enricher;
 --
+CREATE OR REPLACE VIEW musicbrainz_enricher.release_group_url AS
+SELECT u.url,
+    rg.gid AS release_group_gid
+FROM l_release_group_url lrgu
+    LEFT JOIN release_group rg ON rg.id = lrgu.entity0
+    LEFT JOIN url u ON u.id = lrgu.entity1
+    LEFT JOIN link l ON l.id = lrgu.link
+    LEFT JOIN link_type lt ON lt.id = l.link_type
+WHERE l.ended = FALSE
+    AND lt.name NOT IN (
+        -- These link types are not interesting for genre data gathering
+        'BookBrainz',
+        'fanpage',
+        'IMDb',
+        'crowdfunding',
+        'lyrics',
+        'review'
+    );
+--
 CREATE TABLE IF NOT EXISTS musicbrainz_enricher.release_group_result (
 -- Until we switch to using lookups against the DB instead of the API, this is not hard reference
 target_release_group_gid uuid NOT NULL
