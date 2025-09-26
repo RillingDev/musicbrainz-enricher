@@ -4,10 +4,12 @@ use reqwest::Url;
 use tokio_postgres::NoTls;
 
 use crate::{
+	gather::run_gather,
 	sql::init_schema,
 	submit::{MusicbrainzCredentials, run_submit},
 };
 
+mod gather;
 mod sql;
 mod submit;
 
@@ -24,6 +26,9 @@ struct Cli {
 #[derive(Subcommand)]
 #[command()]
 enum Command {
+	#[command(about = "Gathered data from relations")]
+	Gather {},
+
 	#[command(about = "Submit gathered data")]
 	Submit {
 		#[arg(
@@ -72,6 +77,7 @@ async fn main() -> anyhow::Result<()> {
 	init_schema(&db_client).await?;
 
 	match args.command {
+		Command::Gather {} => run_gather(db_client).await,
 		Command::Submit {
 			musicbrainz_url,
 			musicbrainz_username,
