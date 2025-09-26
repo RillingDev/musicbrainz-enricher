@@ -26,9 +26,9 @@ pub async fn select_merged_results(
 	// We limit on the distinct ID instead of the rows as we need to submit all data for one ID together.
 	let res = db_client.query(
         "SELECT target_release_group_gid, genre_name
-        FROM musicbrainz_enricher.enricher_release_group_result_merged
+        FROM musicbrainz_enricher.release_group_result_merged
         WHERE target_release_group_gid IN (
-            SELECT DISTINCT(target_release_group_gid) FROM musicbrainz_enricher.enricher_release_group_result_merged
+            SELECT DISTINCT(target_release_group_gid) FROM musicbrainz_enricher.release_group_result_merged
             LIMIT $1 OFFSET $2
         )",
         &[&limit, &offset],
