@@ -1,5 +1,7 @@
 use tokio_postgres::Client;
 
-pub async fn run_gather(mut db_client: Client) -> anyhow::Result<()> {
+mod genre_matcher;
+
+pub async fn run_gather(db_client: Client) -> anyhow::Result<()> {
 	Ok(())
 }
