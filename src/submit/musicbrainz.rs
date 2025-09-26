@@ -1,5 +1,4 @@
-use crate::sql::ReleaseGroupEnrichmentMergedResult;
-use anyhow::{Context, Ok};
+use anyhow::Context;
 use diqwest::WithDigestAuth;
 use leaky_bucket::RateLimiter;
 use log::debug;
@@ -9,6 +8,8 @@ use reqwest::{Client, Url, header};
 use std::fmt;
 use std::io::Cursor;
 use std::time::Duration;
+
+use crate::sql::ReleaseGroupEnrichmentMergedResult;
 
 // See https://musicbrainz.org/doc/MusicBrainz_API
 const USER_AGENT: &str = concat!(

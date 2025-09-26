@@ -1,14 +1,15 @@
-use anyhow::Ok;
 use clap::{Parser, Subcommand};
-use log::{error, info};
+use log::error;
 use reqwest::Url;
-use tokio_postgres::{Client, NoTls};
+use tokio_postgres::NoTls;
 
-use crate::musicbrainz::{MusicbrainzClient, MusicbrainzCredentials};
-use crate::sql::{init_schema, select_merged_results};
+use crate::{
+	sql::init_schema,
+	submit::{MusicbrainzCredentials, run_submit},
+};
 
-mod musicbrainz;
 mod sql;
+mod submit;
 
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
@@ -87,33 +88,4 @@ async fn main() -> anyhow::Result<()> {
 			.await
 		}
 	}
-}
-
-const TAG_SUBMISSION_CHUNK_SIZE: u32 = 25;
-
-async fn run_submit(
-	mut db_client: Client,
-	musicbrainz_url: Url,
-	musicbrainz_credentials: MusicbrainzCredentials,
-) -> anyhow::Result<()> {
-	let mb_client = MusicbrainzClient::new(musicbrainz_url, musicbrainz_credentials)?;
-
-	let mut offset: u32 = 0;
-	let mut results;
-
-	loop {
-		results = select_merged_results(&mut db_client, TAG_SUBMISSION_CHUNK_SIZE, offset).await?;
-		let result_len: u32 = results.len().try_into()?;
-
-		if result_len == 0 {
-			break;
-		}
-
-		info!("Selected {result_len} results for submission.");
-		mb_client.submit_tags(results).await?;
-
-		offset += result_len;
-	}
-
-	Ok(())
 }

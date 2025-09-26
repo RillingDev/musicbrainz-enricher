@@ -1,4 +1,4 @@
-use anyhow::{Context, Ok};
+use anyhow::Context;
 use itertools::Itertools;
 use tokio_postgres::Client;
 use uuid::Uuid;
