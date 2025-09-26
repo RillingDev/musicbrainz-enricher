@@ -18,34 +18,34 @@ struct Cli {
 
 	#[command(subcommand)]
 	command: Command,
-
-	#[arg(
-		long = "musicbrainz-url",
-		required = true,
-		help = "Musicbrainz base URL, e.g. `https://musicbrainz.org` or `https://test.musicbrainz.org`."
-	)]
-	musicbrainz_url: Url,
-
-	#[arg(
-		long = "musicbrainz-username",
-		required = true,
-		help = "Musicbrainz username."
-	)]
-	musicbrainz_username: String,
-
-	#[arg(
-		long = "musicbrainz-password",
-		required = true,
-		help = "Musicbrainz password."
-	)]
-	musicbrainz_password: String,
 }
 
 #[derive(Subcommand)]
 #[command()]
 enum Command {
 	#[command(about = "Submit gathered data")]
-	Submit,
+	Submit {
+		#[arg(
+			long = "musicbrainz-url",
+			required = true,
+			help = "Musicbrainz base URL, e.g. `https://musicbrainz.org` or `https://test.musicbrainz.org`"
+		)]
+		musicbrainz_url: Url,
+
+		#[arg(
+			long = "musicbrainz-username",
+			required = true,
+			help = "Musicbrainz bot account username"
+		)]
+		musicbrainz_username: String,
+
+		#[arg(
+			long = "musicbrainz-password",
+			required = true,
+			help = "Musicbrainz bot account password"
+		)]
+		musicbrainz_password: String,
+	},
 }
 
 #[tokio::main]
@@ -54,12 +54,6 @@ async fn main() -> anyhow::Result<()> {
 	env_logger::builder()
 		.filter_level(args.verbosity.into())
 		.init();
-
-	let musicbrainz_url = args.musicbrainz_url;
-	let musicbrainz_credentials = MusicbrainzCredentials {
-		username: args.musicbrainz_username,
-		password: args.musicbrainz_password,
-	};
 
 	let (mut db_client, db_connection) = tokio_postgres::connect(
 		// This is hardcoded as the application is supposed to run against a local copy of the musicbrainz mirror database
@@ -77,7 +71,21 @@ async fn main() -> anyhow::Result<()> {
 	init_schema(&mut db_client).await?;
 
 	match args.command {
-		Command::Submit => run_submit(db_client, musicbrainz_url, musicbrainz_credentials).await,
+		Command::Submit {
+			musicbrainz_url,
+			musicbrainz_username,
+			musicbrainz_password,
+		} => {
+			run_submit(
+				db_client,
+				musicbrainz_url,
+				MusicbrainzCredentials {
+					username: musicbrainz_username,
+					password: musicbrainz_password,
+				},
+			)
+			.await
+		}
 	}
 }
 
