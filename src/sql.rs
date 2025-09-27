@@ -1,6 +1,6 @@
 use anyhow::Context;
 use itertools::Itertools;
-use tokio_postgres::{Client, GenericClient};
+use tokio_postgres::Client;
 use uuid::Uuid;
 
 pub async fn init_schema(db_client: &Client) -> anyhow::Result<()> {
