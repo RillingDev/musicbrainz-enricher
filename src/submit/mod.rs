@@ -11,7 +11,7 @@ mod musicbrainz;
 const TAG_SUBMISSION_CHUNK_SIZE: u32 = 25;
 
 pub async fn run_submit(
-	mut db_client: Client,
+	db_client: Client,
 	musicbrainz_url: Url,
 	musicbrainz_credentials: MusicbrainzCredentials,
 ) -> anyhow::Result<()> {
@@ -21,7 +21,7 @@ pub async fn run_submit(
 	let mut results;
 
 	loop {
-		results = select_merged_results(&mut db_client, TAG_SUBMISSION_CHUNK_SIZE, offset).await?;
+		results = select_merged_results(&db_client, TAG_SUBMISSION_CHUNK_SIZE, offset).await?;
 		let result_len: u32 = results.len().try_into()?;
 
 		if result_len == 0 {

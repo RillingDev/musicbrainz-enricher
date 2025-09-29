@@ -56,7 +56,7 @@ async fn main() -> anyhow::Result<()> {
 		.filter_level(args.verbosity.into())
 		.init();
 
-	let (mut db_client, db_connection) = tokio_postgres::connect(
+	let (db_client, db_connection) = tokio_postgres::connect(
 		// This is hardcoded as the application is supposed to run against a local copy of the musicbrainz mirror database
 		"host=localhost port=5432 user=musicbrainz password=musicbrainz dbname=musicbrainz_db",
 		NoTls,
@@ -69,7 +69,7 @@ async fn main() -> anyhow::Result<()> {
 			error!("Connection error: {e}");
 		}
 	});
-	init_schema(&mut db_client).await?;
+	init_schema(&db_client).await?;
 
 	match args.command {
 		Command::Submit {

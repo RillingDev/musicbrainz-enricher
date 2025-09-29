@@ -3,7 +3,7 @@ use itertools::Itertools;
 use tokio_postgres::Client;
 use uuid::Uuid;
 
-pub async fn init_schema(db_client: &mut Client) -> anyhow::Result<()> {
+pub async fn init_schema(db_client: &Client) -> anyhow::Result<()> {
 	db_client
 		.batch_execute(include_str!("schema.sql"))
 		.await
@@ -17,7 +17,7 @@ pub struct ReleaseGroupEnrichmentMergedResult {
 }
 
 pub async fn select_merged_results(
-	db_client: &mut Client,
+	db_client: &Client,
 	limit: u32,
 	offset: u32,
 ) -> anyhow::Result<Vec<ReleaseGroupEnrichmentMergedResult>> {
