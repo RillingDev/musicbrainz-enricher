@@ -9,10 +9,16 @@ CREATE TABLE IF NOT EXISTS musicbrainz_enricher.release_history_entry
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS musicbrainz_enricher.release_with_relationships AS
-SELECT *
-FROM musicbrainz.release r
-WHERE r.id IN
-	  (SELECT lru.entity0 FROM musicbrainz.l_release_url lru);
+SELECT DISTINCT (r.gid)
+FROM musicbrainz.l_release_url lru
+		 JOIN musicbrainz.release r ON r.id = lru.entity0
+		 JOIN musicbrainz.url u ON u.id = lru.entity1
+		 JOIN musicbrainz.link l ON l.id = lru.link
+WHERE l.ended = FALSE
+  -- See list of enrichers
+  AND (u.url LIKE '%itunes.apple.com%' OR u.url LIKE '%music.apple.com%' OR u.url LIKE '%.bandcamp.com%' OR
+	   u.url LIKE '%www.discogs.com%' OR u.url LIKE '%www.junodownload.com%' OR u.url LIKE '%open.spotify.com%');
+
 
 CREATE OR REPLACE VIEW musicbrainz_enricher.release_work_queue AS
 SELECT *
@@ -29,10 +35,13 @@ CREATE TABLE IF NOT EXISTS musicbrainz_enricher.release_group_history_entry
 );
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS musicbrainz_enricher.release_group_with_relationships AS
-SELECT *
-FROM musicbrainz.release_group rg
-WHERE rg.id IN
-	  (SELECT lrgu.entity0 FROM musicbrainz.l_release_group_url lrgu);
+SELECT DISTINCT (rg.gid)
+FROM l_release_group_url lrgu
+		 JOIN release_group rg ON rg.id = lrgu.entity0
+		 JOIN url u ON u.id = lrgu.entity1
+		 JOIN link l ON l.id = lrgu.link
+WHERE l.ended = FALSE
+  AND (u.url LIKE '%www.discogs.com%' OR u.url LIKE '%www.allmusic.com%' OR u.url LIKE '%www.wikidata.com%');
 
 CREATE OR REPLACE VIEW musicbrainz_enricher.release_group_work_queue AS
 SELECT *
