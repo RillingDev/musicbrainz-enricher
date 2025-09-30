@@ -23,7 +23,7 @@ pub async fn run_gather(db_client: Client) -> anyhow::Result<()> {
 			.collect(),
 	)?;
 
-	gather_release_groups(&db_client, genre_matcher).await?;
+	gather_release_groups(&db_client, &genre_matcher).await?;
 	Ok(())
 }
 
@@ -31,11 +31,10 @@ const SELECT_CHUNK_SIZE: u32 = 100;
 
 async fn gather_release_groups(
 	db_client: &Client,
-	genre_matcher: CanonicalStringMatcher,
+	genre_matcher: &CanonicalStringMatcher,
 ) -> anyhow::Result<()> {
 	// TODO
 	let gatherer_service = ReleaseGroupGatherService {
-		genre_matcher,
 		gatherers: vec![
 			DummyGatherer {
 				delay_s: 1,
@@ -60,7 +59,8 @@ async fn gather_release_groups(
 		}
 
 		info!("Selected {result_len} entities for gathering.");
-		let gather_results = do_gather_release_groups(&gatherer_service, results).await?;
+		let gather_results =
+			do_gather_release_groups(genre_matcher, &gatherer_service, results).await?;
 		info!(
 			"Gathered {} results for {result_len} entities.",
 			gather_results.len()
@@ -74,15 +74,17 @@ async fn gather_release_groups(
 }
 
 async fn do_gather_release_groups(
+	genre_matcher: &CanonicalStringMatcher,
 	gatherer_service: &ReleaseGroupGatherService,
 	items: Vec<UrlAndReleaseGroupId>,
 ) -> anyhow::Result<Vec<ReleaseGroupEnrichmentResult>> {
 	// TODO: add concurrency
 	let mut res = Vec::new();
 	for item in items {
-		let genres = gatherer_service.gather_genres(&item.url).await?;
-		let mut gatherer_res = genres
+		let unmatched_genres = gatherer_service.gather_genres(&item.url).await?;
+		let mut gatherer_res = unmatched_genres
 			.iter()
+			.filter_map(|unmatched_genre| genre_matcher.canonicalize(unmatched_genre))
 			.map(|genre| ReleaseGroupEnrichmentResult {
 				target_mbid: item.target_mbid,
 				url: item.url.clone(),
