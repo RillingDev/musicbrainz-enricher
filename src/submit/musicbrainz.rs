@@ -48,7 +48,7 @@ impl MusicbrainzClient {
 		// See per-IP-address limit https://musicbrainz.org/doc/MusicBrainz_API/Rate_Limiting,
 		// further slowed down to adapt for network fluctuations.
 		let limiter = RateLimiter::builder()
-			.interval(Duration::from_secs(2))
+			.interval(Duration::from_millis(1500))
 			.refill(1)
 			.initial(1)
 			.build();

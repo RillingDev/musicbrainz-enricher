@@ -9,7 +9,6 @@ use regex::Regex;
 use reqwest::{Client, ClientBuilder, Url, header};
 use serde::Deserialize;
 
-
 #[derive(Debug)]
 pub struct DiscogsCredentials {
 	pub token: String,
@@ -37,21 +36,20 @@ struct DiscogsReleaseGroup {
 static RELEASE_GROUP_ID_PATTERN: LazyLock<Regex> =
 	LazyLock::new(|| Regex::new("/master/(?<id>\\d+)").expect("Regex construction failed."));
 
-// TODO async
+// See https://www.discogs.com/developers/
 impl DiscogsClient {
 	pub fn new(credentials: Option<DiscogsCredentials>) -> Result<Self, anyhow::Error> {
 		let base_url = Url::parse("https://api.discogs.com")?;
 
 		// See https://www.discogs.com/developers/#page:home,header:home-rate-limiting,
 		// further slowed down to adapt for network fluctuations.
-		let tokens = match credentials {
-			Some(_) => 60,
-			None => 25,
-		};
 		let limiter = RateLimiter::builder()
-			.interval(Duration::from_secs(60))
-			.refill(tokens)
-			.initial(tokens)
+			.interval(Duration::from_secs(15))
+			.refill(match credentials {
+				Some(_) => 5,
+				None => 15,
+			})
+			.initial(5)
 			.build();
 
 		let mut headers = header::HeaderMap::new();
@@ -86,6 +84,7 @@ impl DiscogsClient {
 			.header(header::ACCEPT, "application/json")
 			.send()
 			.await?
+			.error_for_status()?
 			.json::<DiscogsReleaseGroup>()
 			.await?;
 		Ok(release_group)
