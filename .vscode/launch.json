@@ -1,0 +1,45 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug executable 'musicbrainz_enricher' with mode 'gather'",
+			"cargo": {
+				"args": [
+					"build",
+					"--bin=musicbrainz_enricher",
+					"--package=musicbrainz_enricher"
+				],
+				"filter": {
+					"name": "musicbrainz_enricher",
+					"kind": "bin"
+				}
+			},
+			"args": ["gather"],
+			"cwd": "${workspaceFolder}"
+		},
+		{
+			"type": "lldb",
+			"request": "launch",
+			"name": "Debug unit tests in executable 'musicbrainz_enricher'",
+			"cargo": {
+				"args": [
+					"test",
+					"--no-run",
+					"--bin=musicbrainz_enricher",
+					"--package=musicbrainz_enricher"
+				],
+				"filter": {
+					"name": "musicbrainz_enricher",
+					"kind": "bin"
+				}
+			},
+			"args": [],
+			"cwd": "${workspaceFolder}"
+		}
+	]
+}
