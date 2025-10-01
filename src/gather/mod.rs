@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
 	gather::{
 		gatherer::{ReleaseGroupGatherService, dummy::DummyGatherer},
@@ -8,7 +10,9 @@ use crate::{
 		insert_release_group_enrichment_results, select_genre_names, select_release_group_urls,
 	},
 };
-use log::info;
+use futures::future::join_all;
+use log::{info, warn};
+use tokio::task::{self};
 use tokio_postgres::Client;
 
 mod gatherer;
@@ -34,7 +38,7 @@ async fn gather_release_groups(
 	genre_matcher: &CanonicalStringMatcher,
 ) -> anyhow::Result<()> {
 	// TODO
-	let gatherer_service = ReleaseGroupGatherService {
+	let gatherer_service = Arc::new(ReleaseGroupGatherService {
 		gatherers: vec![
 			DummyGatherer {
 				delay_s: 1,
@@ -45,7 +49,7 @@ async fn gather_release_groups(
 				match_on_substr: "spotify".to_string(),
 			},
 		],
-	};
+	});
 
 	let mut offset: u32 = 0;
 	let mut results;
@@ -60,7 +64,7 @@ async fn gather_release_groups(
 
 		info!("Selected {result_len} entities for gathering.");
 		let gather_results =
-			do_gather_release_groups(genre_matcher, &gatherer_service, results).await?;
+			do_gather_release_groups(genre_matcher, Arc::clone(&gatherer_service), results).await?;
 		info!(
 			"Gathered {} results for {result_len} entities.",
 			gather_results.len()
@@ -75,23 +79,49 @@ async fn gather_release_groups(
 
 async fn do_gather_release_groups(
 	genre_matcher: &CanonicalStringMatcher,
-	gatherer_service: &ReleaseGroupGatherService,
-	items: Vec<UrlAndReleaseGroupId>,
+	gatherer_service: Arc<ReleaseGroupGatherService>,
+	url_and_release_groups: Vec<UrlAndReleaseGroupId>,
 ) -> anyhow::Result<Vec<ReleaseGroupEnrichmentResult>> {
-	// TODO: add concurrency
-	let mut res = Vec::new();
-	for item in items {
-		let unmatched_genres = gatherer_service.gather_genres(&item.url).await?;
-		let mut gatherer_res = unmatched_genres
-			.iter()
-			.filter_map(|unmatched_genre| genre_matcher.canonicalize(unmatched_genre))
-			.map(|genre| ReleaseGroupEnrichmentResult {
-				target_mbid: item.target_mbid,
-				url: item.url.clone(),
-				genre: genre.clone(),
+	let futures = url_and_release_groups
+		.into_iter()
+		.map(|url_and_release_group| {
+			let gatherer_service = Arc::clone(&gatherer_service);
+			task::spawn(async move {
+				gatherer_service
+					.gather_genres(&url_and_release_group.url)
+					.await
+					.map(|unmatched_genres| (url_and_release_group, unmatched_genres))
 			})
-			.collect();
-		res.append(&mut gatherer_res);
-	}
-	Ok(res)
+		});
+
+	let join_results = join_all(futures).await;
+
+	let mapped_results: Vec<ReleaseGroupEnrichmentResult> = join_results
+		.into_iter()
+		.filter_map(|join_result| match join_result {
+			Ok(gather_result) => match gather_result {
+				Ok(inner) => Some(inner),
+				Err(e) => {
+					warn!("Gathering failed, ignoring it: {e}");
+					None
+				}
+			},
+			Err(e) => {
+				warn!("Joining failed, ignoring it: {e}");
+				None
+			}
+		})
+		.flat_map(|(url_and_release_group, unmatched_genres)| {
+			unmatched_genres
+				.into_iter()
+				.filter_map(|unmatched_genre| genre_matcher.canonicalize(&unmatched_genre))
+				.map(move |genre| ReleaseGroupEnrichmentResult {
+					target_mbid: url_and_release_group.target_mbid,
+					url: url_and_release_group.url.to_string(),
+					genre,
+				})
+		})
+		.collect();
+
+	Ok(mapped_results)
 }
