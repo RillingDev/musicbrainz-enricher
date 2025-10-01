@@ -1,5 +1,5 @@
 [package]
-name = "musicbrainz_enricher_ng"
+name = "musicbrainz_enricher"
 version = "0.1.0"
 edition = "2024"
 homepage = "https://github.com/RillingDev/musicbrainz-enricher"
