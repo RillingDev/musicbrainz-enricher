@@ -9,7 +9,6 @@ use regex::Regex;
 use reqwest::{Client, ClientBuilder, Url, header};
 use serde::Deserialize;
 
-use crate::gather::gatherer::ReleaseGroupGatherer;
 
 #[derive(Debug)]
 pub struct DiscogsCredentials {
@@ -34,6 +33,9 @@ struct DiscogsReleaseGroup {
 	genres: HashSet<String>,
 	styles: HashSet<String>,
 }
+
+static RELEASE_GROUP_ID_PATTERN: LazyLock<Regex> =
+	LazyLock::new(|| Regex::new("/master/(\\d+)").expect("Regex construction failed."));
 
 // TODO async
 impl DiscogsClient {
@@ -88,17 +90,12 @@ impl DiscogsClient {
 			.await?;
 		Ok(release_group)
 	}
-}
 
-static RELEASE_GROUP_ID_PATTERN: LazyLock<Regex> =
-	LazyLock::new(|| Regex::new("/master/(\\d+)").expect("Regex construction failed."));
-
-impl ReleaseGroupGatherer for DiscogsClient {
-	fn can_gather(&self, entity_url: &Url) -> bool {
-		entity_url.host_str() == Some("www.discogs.com")
+	pub fn supported_hosts() -> HashSet<String> {
+		HashSet::from(["www.discogs.com".to_string()])
 	}
 
-	async fn gather_genres(&self, entity_url: &Url) -> anyhow::Result<Vec<String>> {
+	pub async fn gather_genres(&self, entity_url: &Url) -> anyhow::Result<Vec<String>> {
 		if let Some(regex_match) = RELEASE_GROUP_ID_PATTERN.find(entity_url.path()) {
 			let id = regex_match.as_str();
 			self.lookup_release_group(id).await.map(|release_group| {
