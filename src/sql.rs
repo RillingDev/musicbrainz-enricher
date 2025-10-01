@@ -11,11 +11,11 @@ pub async fn init_schema(db_client: &Client) -> anyhow::Result<()> {
 }
 
 pub async fn select_genre_names(db_client: &Client) -> anyhow::Result<Vec<String>> {
-	let res = db_client
+	let rows = db_client
 		.query("SELECT name FROM musicbrainz.genre", &[])
 		.await?;
 
-	Ok(res
+	Ok(rows
 		.iter()
 		.map(|row| {
 			let name: String = row.get(0);
@@ -38,7 +38,7 @@ pub async fn select_release_group_urls(
 ) -> anyhow::Result<Vec<UrlAndReleaseGroupId>> {
 	let limit: i64 = limit.into();
 	let offset: i64 = offset.into();
-	let res = db_client
+	let rows = db_client
 		.query(
 			"SELECT url, release_group_gid
         FROM musicbrainz_enricher.release_group_url
@@ -47,7 +47,7 @@ pub async fn select_release_group_urls(
 		)
 		.await?;
 
-	Ok(res
+	Ok(rows
 		.iter()
 		.map(|row| {
 			let url: String = row.get(0);
@@ -67,21 +67,24 @@ pub struct ReleaseGroupEnrichmentResult {
 	pub target_mbid: Uuid,
 }
 
+// Should be called in a transaction
 pub async fn insert_release_group_enrichment_results(
 	db_client: &Client,
-	vec: Vec<ReleaseGroupEnrichmentResult>,
+	results: Vec<ReleaseGroupEnrichmentResult>,
 ) -> anyhow::Result<()> {
-	// TODO should have a transaction
 	let statement = db_client
 		.prepare(
 			"INSERT INTO
-			musicbrainz_enricher.enricher_release_group_result (target_release_group_gid, source_url, genre_name)
+			musicbrainz_enricher.release_group_result (target_release_group_gid, source_url, genre_name)
 			VALUES ($1, $2, $3)",
 		)
 		.await?;
-	for ele in vec {
+	for result in results {
 		db_client
-			.execute(&statement, &[&ele.target_mbid, &ele.url, &ele.genre])
+			.execute(
+				&statement,
+				&[&result.target_mbid, &result.url, &result.genre],
+			)
 			.await?;
 	}
 	Ok(())
@@ -102,7 +105,7 @@ pub async fn select_merged_results(
 	let limit: i64 = limit.into();
 	let offset: i64 = offset.into();
 	// We limit on the distinct ID instead of the rows as we need to submit all data for one ID together.
-	let res = db_client.query(
+	let rows = db_client.query(
         "SELECT target_release_group_gid, genre_name
         FROM musicbrainz_enricher.release_group_result_merged
         WHERE target_release_group_gid IN (
@@ -112,7 +115,7 @@ pub async fn select_merged_results(
         &[&limit, &offset],
     ).await?;
 
-	Ok(res
+	Ok(rows
 		.iter()
 		.map(|row| {
 			let target_release_group_gid: Uuid = row.get(0);

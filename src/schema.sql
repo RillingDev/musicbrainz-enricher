@@ -20,10 +20,7 @@ WHERE l.ended = FALSE
     );
 --
 CREATE TABLE IF NOT EXISTS musicbrainz_enricher.release_group_result (
--- Until we switch to using lookups against the DB instead of the API, this is not hard reference
-target_release_group_gid uuid NOT NULL
-/*REFERENCES musicbrainz.release_group (gid) ON DELETE CASCADE*/
-,
+target_release_group_gid uuid NOT NULL REFERENCES musicbrainz.release_group (gid) ON DELETE CASCADE,
 -- This implicitly references musicbrainz.url. As its only used for debugging, no constraint is used.
 source_url VARCHAR NOT NULL,
 -- This implicitly references musicbrainz.genre. To make submission easier it is denormalized here

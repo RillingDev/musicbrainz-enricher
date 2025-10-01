@@ -18,7 +18,7 @@ use tokio_postgres::Client;
 mod gatherer;
 mod genre_matcher;
 
-pub async fn run_gather(db_client: Client) -> anyhow::Result<()> {
+pub async fn run_gather(mut db_client: Client) -> anyhow::Result<()> {
 	let genre_names = select_genre_names(&db_client).await?;
 	let genre_matcher = default_genre_canonical_string_matcher(
 		genre_names
@@ -27,14 +27,14 @@ pub async fn run_gather(db_client: Client) -> anyhow::Result<()> {
 			.collect(),
 	)?;
 
-	gather_release_groups(&db_client, &genre_matcher).await?;
+	gather_release_groups(&mut db_client, &genre_matcher).await?;
 	Ok(())
 }
 
 const SELECT_CHUNK_SIZE: u32 = 100;
 
 async fn gather_release_groups(
-	db_client: &Client,
+	db_client: &mut Client,
 	genre_matcher: &CanonicalStringMatcher,
 ) -> anyhow::Result<()> {
 	// TODO
@@ -69,7 +69,10 @@ async fn gather_release_groups(
 			"Gathered {} results for {result_len} entities.",
 			gather_results.len()
 		);
-		insert_release_group_enrichment_results(db_client, gather_results).await?;
+
+		let tx = db_client.transaction().await?;
+		insert_release_group_enrichment_results(tx.client(), gather_results).await?;
+		tx.commit().await?;
 
 		offset += result_len;
 	}
