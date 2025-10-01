@@ -9,17 +9,8 @@ use std::fmt;
 use std::io::Cursor;
 use std::time::Duration;
 
+use crate::http::USER_AGENT;
 use crate::sql::ReleaseGroupEnrichmentMergedResult;
-
-// See https://musicbrainz.org/doc/MusicBrainz_API
-const USER_AGENT: &str = concat!(
-	env!("CARGO_PKG_NAME"),
-	"/",
-	env!("CARGO_PKG_VERSION"),
-	" (",
-	env!("CARGO_PKG_HOMEPAGE"),
-	" )",
-);
 
 // See https://musicbrainz.org/doc/MusicBrainz_API, different from user agent
 const CLIENT_NAME: &str = concat!(env!("CARGO_PKG_NAME"), "-", env!("CARGO_PKG_VERSION"));

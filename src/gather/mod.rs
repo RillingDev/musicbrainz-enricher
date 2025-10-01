@@ -2,7 +2,10 @@ use std::sync::Arc;
 
 use crate::{
 	gather::{
-		gatherer::{ReleaseGroupGatherService, dummy::DummyGatherer},
+		gatherer::{
+			ReleaseGroupGatherService,
+			discogs::DiscogsCredentials,
+		},
 		genre_matcher::{CanonicalStringMatcher, default_genre_canonical_string_matcher},
 	},
 	sql::{
@@ -15,10 +18,13 @@ use log::{info, warn};
 use tokio::task::{self};
 use tokio_postgres::Client;
 
-mod gatherer;
+pub mod gatherer;
 mod genre_matcher;
 
-pub async fn run_gather(mut db_client: Client) -> anyhow::Result<()> {
+pub async fn run_gather(
+	mut db_client: Client,
+	discogs_credentials: Option<DiscogsCredentials>,
+) -> anyhow::Result<()> {
 	let genre_names = select_genre_names(&db_client).await?;
 	let genre_matcher = default_genre_canonical_string_matcher(
 		genre_names
@@ -27,7 +33,10 @@ pub async fn run_gather(mut db_client: Client) -> anyhow::Result<()> {
 			.collect(),
 	)?;
 
-	gather_release_groups(&mut db_client, &genre_matcher).await?;
+	// TODO
+	let gatherer_service = Arc::new(ReleaseGroupGatherService::new(discogs_credentials)?);
+
+	gather_release_groups(&mut db_client, gatherer_service, &genre_matcher).await?;
 	Ok(())
 }
 
@@ -37,22 +46,9 @@ const SELECT_CHUNK_SIZE: u32 = 100;
 
 async fn gather_release_groups(
 	db_client: &mut Client,
+	gatherer_service: Arc<ReleaseGroupGatherService>,
 	genre_matcher: &CanonicalStringMatcher,
 ) -> anyhow::Result<()> {
-	// TODO
-	let gatherer_service = Arc::new(ReleaseGroupGatherService {
-		gatherers: vec![
-			DummyGatherer {
-				delay_s: 1,
-				match_on_substr: "discogs".to_string(),
-			},
-			DummyGatherer {
-				delay_s: 2,
-				match_on_substr: "spotify".to_string(),
-			},
-		],
-	});
-
 	let mut offset: u32 = 0;
 	let mut results;
 
