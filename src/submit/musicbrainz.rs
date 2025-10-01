@@ -1,5 +1,6 @@
 use anyhow::Context;
 use diqwest::WithDigestAuth;
+use itertools::Itertools;
 use leaky_bucket::RateLimiter;
 use log::debug;
 use quick_xml::Writer;
@@ -8,6 +9,7 @@ use reqwest::{Client, Url, header};
 use std::fmt;
 use std::io::Cursor;
 use std::time::Duration;
+use uuid::Uuid;
 
 use crate::http::USER_AGENT;
 use crate::sql::ReleaseGroupEnrichmentMergedResult;
@@ -63,12 +65,12 @@ impl MusicbrainzClient {
 
 	pub async fn submit_tags(
 		&self,
-		data: Vec<ReleaseGroupEnrichmentMergedResult>,
+		results: Vec<ReleaseGroupEnrichmentMergedResult>,
 	) -> anyhow::Result<reqwest::Response> {
 		let mut url = self.base_url.clone();
 		url.set_path("/ws/2/tag");
 
-		let body = serialize_tags(data.into_iter())?;
+		let body = serialize_tags(results)?;
 
 		self.limiter.acquire_one().await;
 
@@ -86,10 +88,14 @@ impl MusicbrainzClient {
 	}
 }
 
-fn serialize_tags<T>(tags_by_release_group: T) -> anyhow::Result<Vec<u8>>
-where
-	T: Iterator<Item = ReleaseGroupEnrichmentMergedResult>,
-{
+fn serialize_tags(results: Vec<ReleaseGroupEnrichmentMergedResult>) -> anyhow::Result<Vec<u8>> {
+	let grouped_by_mbid: Vec<(Uuid, Vec<String>)> = results
+		.into_iter()
+		.chunk_by(|r| r.target_mbid)
+		.into_iter()
+		.map(|(target_mbid, grouped)| (target_mbid, grouped.map(|r| r.genre).collect()))
+		.collect();
+
 	let mut buf = Cursor::new(Vec::new());
 	let mut writer = Writer::new(&mut buf);
 
@@ -98,16 +104,16 @@ where
 	writer.write_event(Event::Start(root))?;
 	writer.write_event(Event::Start(BytesStart::new("release-group-list")))?;
 
-	for release_group in tags_by_release_group {
+	for (target_mbid, genres) in grouped_by_mbid {
 		let mut artist = BytesStart::new("release-group");
-		artist.push_attribute(("id", release_group.target_mbid.to_string().as_str()));
+		artist.push_attribute(("id", target_mbid.to_string().as_str()));
 		writer.write_event(Event::Start(artist))?;
 		writer.write_event(Event::Start(BytesStart::new("user-tag-list")))?;
 
-		for genre in &release_group.genres {
+		for genre in genres {
 			writer.write_event(Event::Start(BytesStart::new("user-tag")))?;
 			writer.write_event(Event::Start(BytesStart::new("name")))?;
-			writer.write_event(Event::Text(BytesText::new(genre)))?;
+			writer.write_event(Event::Text(BytesText::new(&genre)))?;
 			writer.write_event(Event::End(BytesEnd::new("name")))?;
 			writer.write_event(Event::End(BytesEnd::new("user-tag")))?;
 		}
@@ -147,15 +153,23 @@ mod tests {
 		let tags_by_release_group = vec![
 			ReleaseGroupEnrichmentMergedResult {
 				target_mbid: Uuid::from_str("b1392450-e666-3926-a536-22c65f834433")?,
-				genres: vec!["rock".to_string(), "afoxê".to_string(), "yé-yé".to_string()],
+				genre: "rock".to_string(),
+			},
+			ReleaseGroupEnrichmentMergedResult {
+				target_mbid: Uuid::from_str("b1392450-e666-3926-a536-22c65f834433")?,
+				genre: "afoxê".to_string(),
+			},
+			ReleaseGroupEnrichmentMergedResult {
+				target_mbid: Uuid::from_str("b1392450-e666-3926-a536-22c65f834433")?,
+				genre: "yé-yé".to_string(),
 			},
 			ReleaseGroupEnrichmentMergedResult {
 				target_mbid: Uuid::from_str("e75c0549-ad55-39e3-8025-c72c5d4a3c5d")?,
-				genres: vec!["rock".to_string()],
+				genre: "rock".to_string(),
 			},
 		];
 
-		let actual = String::from_utf8(serialize_tags(tags_by_release_group.into_iter())?)?;
+		let actual = String::from_utf8(serialize_tags(tags_by_release_group)?)?;
 
 		assert_eq!(actual, expected);
 

@@ -1,5 +1,4 @@
 use anyhow::Context;
-use itertools::Itertools;
 use tokio_postgres::Client;
 use uuid::Uuid;
 
@@ -92,10 +91,9 @@ pub async fn insert_release_group_enrichment_results(
 #[derive(Debug)]
 pub struct ReleaseGroupEnrichmentMergedResult {
 	pub target_mbid: Uuid,
-	pub genres: Vec<String>,
+	pub genre: String,
 }
 
-// TODO move out grouping?
 pub async fn select_merged_results(
 	db_client: &Client,
 	limit: u32,
@@ -119,15 +117,10 @@ pub async fn select_merged_results(
 		.map(|row| {
 			let target_release_group_gid: Uuid = row.get(0);
 			let genre_name: String = row.get(1);
-			(target_release_group_gid, genre_name)
-		})
-		.chunk_by(|(target_release_group_gid, _)| *target_release_group_gid)
-		.into_iter()
-		.map(
-			|(target_release_group_gid, grouped)| ReleaseGroupEnrichmentMergedResult {
+			ReleaseGroupEnrichmentMergedResult {
 				target_mbid: target_release_group_gid,
-				genres: grouped.map(|(_, genre)| genre).collect(),
-			},
-		)
+				genre: genre_name,
+			}
+		})
 		.collect())
 }
