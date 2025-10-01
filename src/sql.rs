@@ -30,7 +30,6 @@ pub struct UrlAndReleaseGroupId {
 	pub target_mbid: Uuid,
 }
 
-// TODO: allow gatherers to inject regex pattern to match directly in DB
 pub async fn select_release_group_urls(
 	db_client: &Client,
 	limit: u32,

@@ -8,7 +8,7 @@ FROM l_release_group_url lrgu
     LEFT JOIN url u ON u.id = lrgu.entity1
     LEFT JOIN link l ON l.id = lrgu.link
     LEFT JOIN link_type lt ON lt.id = l.link_type
-WHERE l.ended = FALSE
+WHERE l.ended = FALSE -- TODO: filter URL by existing enrichers
     AND lt.name NOT IN (
         -- These link types are not interesting for genre data gathering
         'BookBrainz',

@@ -31,6 +31,8 @@ pub async fn run_gather(mut db_client: Client) -> anyhow::Result<()> {
 	Ok(())
 }
 
+// TODO history saving
+
 const SELECT_CHUNK_SIZE: u32 = 100;
 
 async fn gather_release_groups(
