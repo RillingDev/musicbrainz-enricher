@@ -35,7 +35,7 @@ struct DiscogsReleaseGroup {
 }
 
 static RELEASE_GROUP_ID_PATTERN: LazyLock<Regex> =
-	LazyLock::new(|| Regex::new("/master/(\\d+)").expect("Regex construction failed."));
+	LazyLock::new(|| Regex::new("/master/(?<id>\\d+)").expect("Regex construction failed."));
 
 // TODO async
 impl DiscogsClient {
@@ -76,7 +76,7 @@ impl DiscogsClient {
 
 	async fn lookup_release_group(&self, id: &str) -> anyhow::Result<DiscogsReleaseGroup> {
 		let mut url = self.base_url.clone();
-		url.set_path(format!("/releases/{id}").as_str());
+		url.set_path(format!("masters/{id}").as_str());
 
 		self.limiter.acquire_one().await;
 
@@ -96,8 +96,8 @@ impl DiscogsClient {
 	}
 
 	pub async fn gather_genres(&self, entity_url: &Url) -> anyhow::Result<Vec<String>> {
-		if let Some(regex_match) = RELEASE_GROUP_ID_PATTERN.find(entity_url.path()) {
-			let id = regex_match.as_str();
+		if let Some(captures) = RELEASE_GROUP_ID_PATTERN.captures(entity_url.path()) {
+			let id = &captures["id"];
 			self.lookup_release_group(id).await.map(|release_group| {
 				release_group
 					.genres
