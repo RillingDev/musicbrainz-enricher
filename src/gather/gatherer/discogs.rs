@@ -110,3 +110,22 @@ impl DiscogsClient {
 		}
 	}
 }
+
+#[cfg(test)]
+mod tests {
+
+	use super::*;
+
+	#[tokio::test]
+	#[ignore]
+	async fn gather_genres_manual_test() -> anyhow::Result<()> {
+		let client = DiscogsClient::new(None)?;
+		let url = Url::parse("https://www.discogs.com/master/96559")?;
+
+		let result = client.gather_genres(&url).await;
+		println!("Result is {result:?}");
+		assert!(result.is_ok());
+
+		Ok(())
+	}
+}
