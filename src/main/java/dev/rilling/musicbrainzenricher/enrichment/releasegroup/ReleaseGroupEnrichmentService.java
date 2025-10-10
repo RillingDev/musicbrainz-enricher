@@ -41,8 +41,6 @@ public class ReleaseGroupEnrichmentService extends AbstractEnrichmentService<Rel
 	protected Optional<ReleaseGroupWs2> fetchEntity(UUID sourceMbid) {
 		ReleaseGroupIncludesWs2 includes = new ReleaseGroupIncludesWs2();
 		includes.setUrlRelations(true);
-		includes.setTags(true);
-		includes.setUserTags(true);
 
 		try {
 			return musicbrainzLookupService.lookUpReleaseGroup(sourceMbid, includes);

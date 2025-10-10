@@ -42,8 +42,6 @@ public class ReleaseEnrichmentService extends AbstractEnrichmentService<ReleaseW
 	protected Optional<ReleaseWs2> fetchEntity(UUID sourceMbid) {
 		ReleaseIncludesWs2 includes = new ReleaseIncludesWs2();
 		includes.setUrlRelations(true);
-		includes.setTags(true);
-		includes.setUserTags(true);
 		includes.setReleaseGroups(true);
 
 		try {
