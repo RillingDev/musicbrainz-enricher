@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use anyhow::Context;
 use tokio_postgres::Client;
 use uuid::Uuid;
@@ -9,16 +11,17 @@ pub async fn init_schema(db_client: &Client) -> anyhow::Result<()> {
 		.context("Failed to initialize schema.")
 }
 
-pub async fn select_genre_names(db_client: &Client) -> anyhow::Result<Vec<String>> {
+pub async fn select_genres(db_client: &Client) -> anyhow::Result<HashMap<Uuid, String>> {
 	let rows = db_client
-		.query("SELECT name FROM musicbrainz.genre", &[])
+		.query("SELECT gid, name FROM musicbrainz.genre", &[])
 		.await?;
 
 	Ok(rows
 		.iter()
 		.map(|row| {
-			let name: String = row.get(0);
-			name
+			let gid: Uuid = row.get(0);
+			let name: String = row.get(1);
+			(gid, name)
 		})
 		.collect())
 }

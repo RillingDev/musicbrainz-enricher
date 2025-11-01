@@ -2,15 +2,12 @@ use std::sync::Arc;
 
 use crate::{
 	gather::{
-		gatherer::{
-			ReleaseGroupGatherService,
-			discogs::DiscogsCredentials,
-		},
+		gatherer::{ReleaseGroupGatherService, discogs::DiscogsCredentials},
 		genre_matcher::{CanonicalStringMatcher, default_genre_canonical_string_matcher},
 	},
 	sql::{
 		ReleaseGroupEnrichmentResult, UrlAndReleaseGroupId,
-		insert_release_group_enrichment_results, select_genre_names, select_release_group_urls,
+		insert_release_group_enrichment_results, select_genres, select_release_group_urls,
 	},
 };
 use futures::future::join_all;
@@ -25,16 +22,18 @@ pub async fn run_gather(
 	mut db_client: Client,
 	discogs_credentials: Option<DiscogsCredentials>,
 ) -> anyhow::Result<()> {
-	let genre_names = select_genre_names(&db_client).await?;
+	let known_genres = select_genres(&db_client).await?;
 	let genre_matcher = default_genre_canonical_string_matcher(
-		genre_names
-			.iter()
+		known_genres
+			.values()
 			.map(std::string::String::as_str)
 			.collect(),
 	)?;
 
-	// TODO
-	let gatherer_service = Arc::new(ReleaseGroupGatherService::new(discogs_credentials)?);
+	let gatherer_service = Arc::new(ReleaseGroupGatherService::new(
+		known_genres,
+		discogs_credentials,
+	)?);
 
 	gather_release_groups(&mut db_client, gatherer_service, &genre_matcher).await?;
 	Ok(())
@@ -118,7 +117,7 @@ async fn do_gather_release_groups(
 				.filter_map(|unmatched_genre| genre_matcher.canonicalize(&unmatched_genre))
 				.map(move |genre| ReleaseGroupEnrichmentResult {
 					target_mbid: url_and_release_group.target_mbid,
-					url: url_and_release_group.url.to_string(),
+					url: url_and_release_group.url.clone(),
 					genre,
 				})
 		})

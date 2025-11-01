@@ -1,16 +1,24 @@
-use std::{collections::HashSet, time::Duration};
-
 use anyhow::Ok;
 use log::{debug, info};
 use reqwest::Url;
+use std::{
+	collections::{HashMap, HashSet},
+	time::Duration,
+};
+use uuid::Uuid;
 
-use crate::gather::gatherer::discogs::{DiscogsClient, DiscogsCredentials};
+use crate::gather::gatherer::{
+	discogs::{DiscogsClient, DiscogsCredentials},
+	wikidata::WikidataClient,
+};
 
 pub mod discogs;
+pub mod wikidata;
 
 #[derive(Debug)]
 pub enum ReleaseGroupGatherer {
 	Discogs(DiscogsClient),
+	Wikidata(WikidataClient),
 	Dummy,
 }
 
@@ -18,6 +26,7 @@ impl ReleaseGroupGatherer {
 	fn supported_hosts(&self) -> HashSet<String> {
 		match self {
 			ReleaseGroupGatherer::Discogs(_) => DiscogsClient::supported_hosts(),
+			ReleaseGroupGatherer::Wikidata(_) => WikidataClient::supported_hosts(),
 			ReleaseGroupGatherer::Dummy => HashSet::from(["open.spotify.com".to_string()]),
 		}
 	}
@@ -26,6 +35,9 @@ impl ReleaseGroupGatherer {
 		match self {
 			ReleaseGroupGatherer::Discogs(discogs_client) => {
 				discogs_client.gather_genres(entity_url).await
+			}
+			ReleaseGroupGatherer::Wikidata(wikidata_client) => {
+				wikidata_client.gather_genres(entity_url).await
 			}
 			ReleaseGroupGatherer::Dummy => {
 				let () = tokio::time::sleep(Duration::from_secs(1)).await;
@@ -41,13 +53,18 @@ pub struct ReleaseGroupGatherService {
 }
 
 impl ReleaseGroupGatherService {
-	pub fn new(discogs_credentials: Option<DiscogsCredentials>) -> anyhow::Result<Self> {
+	pub fn new(
+		known_genres: HashMap<Uuid, String>,
+		discogs_credentials: Option<DiscogsCredentials>,
+	) -> anyhow::Result<Self> {
 		let discogs_client = DiscogsClient::new(discogs_credentials)?;
+		let wikidata_client = WikidataClient::new(known_genres)?;
 
 		Ok(ReleaseGroupGatherService {
 			gatherers: vec![
 				ReleaseGroupGatherer::Dummy,
 				ReleaseGroupGatherer::Discogs(discogs_client),
+				ReleaseGroupGatherer::Wikidata(wikidata_client),
 			],
 		})
 	}
