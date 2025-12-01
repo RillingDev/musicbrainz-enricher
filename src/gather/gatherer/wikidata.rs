@@ -16,18 +16,16 @@ use crate::http::USER_AGENT;
 const GENRE_PROPERTY_ID: &str = "P136";
 const MUSICBRAINZ_LINK_PROPERTY_ID: &str = "P8052";
 
+// Minimal subset of the schema described at https://doc.wikimedia.org/Wikibase/master/js/rest-api/#/statements/getItemStatements
 type WikidataItems = HashMap<String, Vec<WikidataStatement>>;
 
 #[derive(Debug, Deserialize)]
 struct WikidataStatement {
-	id: String,
 	value: WikidataStatementValue,
 }
 
 #[derive(Debug, Deserialize)]
 struct WikidataStatementValue {
-	#[serde(rename = "type")]
-	statement_type: String,
 	content: String,
 }
 
@@ -102,14 +100,17 @@ impl WikidataClient {
 
 		let mut genres = Vec::new();
 		for stmt in statements {
-			if let Some(gb) = self.lookup_genre(&stmt.value.content).await? {
-				genres.push(gb);
+			if let Some(genre) = self.lookup_musicbrainz_genre(&stmt.value.content).await? {
+				genres.push(genre);
 			}
 		}
 		Ok(genres)
 	}
 
-	async fn lookup_genre(&self, wikidata_genre_id: &str) -> anyhow::Result<Option<String>> {
+	async fn lookup_musicbrainz_genre(
+		&self,
+		wikidata_genre_id: &str,
+	) -> anyhow::Result<Option<String>> {
 		// e.g. https://www.wikidata.org/w/rest.php/wikibase/v1/entities/items/Q968730/statements?property=P8052
 		// TODO: this request could be cached as the result rarely changes
 		let genre_items = self
@@ -168,7 +169,7 @@ mod tests {
 	#[tokio::test]
 	#[ignore]
 	async fn get_statements_manual_test() -> anyhow::Result<()> {
-		let client = WikidataClient::new(HashMap::new()).await?;
+		let client = WikidataClient::new(HashMap::new())?;
 
 		let result = client.get_statements("Q53020187", "P136").await;
 		println!("Result is {result:?}");
@@ -180,6 +181,19 @@ mod tests {
 	#[tokio::test]
 	#[ignore]
 	async fn gather_genres_manual_test() -> anyhow::Result<()> {
-		todo!()
+		let mut genre_mbid_map = HashMap::new();
+		genre_mbid_map.insert(
+			Uuid::parse_str("b739a895-85ed-4ad3-8717-4e9ef5387dd8")?,
+			"dance-pop".to_string(),
+		);
+		let client = WikidataClient::new(genre_mbid_map)?;
+
+		let result = client
+			.gather_genres(&Url::parse("https://www.wikidata.org/wiki/Q106406249")?)
+			.await;
+		println!("Result is {result:?}");
+		assert!(result.is_ok());
+
+		Ok(())
 	}
 }
