@@ -44,6 +44,7 @@ enum Command {
 
 		#[arg(
 			long = "musicbrainz-username",
+			short = 'u',
 			required = true,
 			help = "Musicbrainz bot account username"
 		)]
@@ -51,6 +52,7 @@ enum Command {
 
 		#[arg(
 			long = "musicbrainz-password",
+			short = 'p',
 			required = true,
 			help = "Musicbrainz bot account password"
 		)]
