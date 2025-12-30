@@ -20,6 +20,10 @@ pub async fn run_submit(
 	let mut offset: u32 = 0;
 	let mut results;
 
+	info!("Refreshing results...");
+	refresh_merged_results(&db_client).await?;
+	info!("Refreshed results.");
+
 	loop {
 		results = select_merged_results(&db_client, TAG_SUBMISSION_CHUNK_SIZE, offset).await?;
 		let result_len: u32 = results.len().try_into()?;

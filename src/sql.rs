@@ -97,6 +97,17 @@ pub struct ReleaseGroupEnrichmentMergedResult {
 	pub genre: String,
 }
 
+pub async fn refresh_merged_results(db_client: &Client) -> anyhow::Result<()> {
+	db_client
+		.execute(
+			"REFRESH MATERIALIZED VIEW musicbrainz_enricher.release_group_result_merged;",
+			&[],
+		)
+		.await?;
+
+	Ok(())
+}
+
 pub async fn select_merged_results(
 	db_client: &Client,
 	limit: u32,
