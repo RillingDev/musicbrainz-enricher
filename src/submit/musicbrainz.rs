@@ -71,6 +71,7 @@ impl MusicbrainzClient {
 		url.set_path("/ws/2/tag");
 
 		let body = serialize_tags(results)?;
+		debug!("Created body:\n{:?}", String::from_utf8(body.clone())?);
 
 		self.limiter.acquire_one().await;
 
@@ -96,8 +97,7 @@ fn serialize_tags(results: Vec<ReleaseGroupEnrichmentMergedResult>) -> anyhow::R
 		.map(|(target_mbid, grouped)| (target_mbid, grouped.map(|r| r.genre).collect()))
 		.collect();
 
-	let mut buf = Cursor::new(Vec::new());
-	let mut writer = Writer::new(&mut buf);
+	let mut writer = Writer::new(Cursor::new(Vec::new()));
 
 	let mut root = BytesStart::new("metadata");
 	root.push_attribute(("xmlns", "http://musicbrainz.org/ns/mmd-2.0#"));
@@ -125,7 +125,7 @@ fn serialize_tags(results: Vec<ReleaseGroupEnrichmentMergedResult>) -> anyhow::R
 	writer.write_event(Event::End(BytesEnd::new("release-group-list")))?;
 	writer.write_event(Event::End(BytesEnd::new("metadata")))?;
 
-	Ok(buf.into_inner())
+	Ok(writer.into_inner().into_inner())
 }
 
 #[cfg(test)]
