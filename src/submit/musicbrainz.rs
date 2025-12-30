@@ -2,7 +2,7 @@ use anyhow::Context;
 use diqwest::WithDigestAuth;
 use itertools::Itertools;
 use leaky_bucket::RateLimiter;
-use log::debug;
+use log::{debug, info};
 use quick_xml::Writer;
 use quick_xml::events::{BytesEnd, BytesStart, BytesText, Event};
 use reqwest::{Client, Url, header};
@@ -83,7 +83,7 @@ impl MusicbrainzClient {
 			.body(body)
 			.send_with_digest_auth(&self.credentials.username, &self.credentials.password)
 			.await?;
-		debug!("Submitted tags.");
+		info!("Submitted tags.");
 
 		response.error_for_status().context("Failed to submit tags")
 	}

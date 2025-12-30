@@ -28,7 +28,6 @@ pub async fn run_submit(
 	info!("Refreshed results.");
 
 	loop {
-		info!("Selecting results with offset {offset}.");
 		results = select_merged_results(&db_client, TAG_SUBMISSION_CHUNK_SIZE, offset).await?;
 		let result_len: u32 = results.len().try_into()?;
 
@@ -36,7 +35,7 @@ pub async fn run_submit(
 			break;
 		}
 
-		info!("Selected {result_len} results for submission.");
+		info!("Selected {result_len} results (offset {offset}) for submission.");
 		// TODO: if a single release-group cannot be found, this fails. Maybe check for existence beforehand?
 		if let Err(err) = mb_client.submit_tags(results).await {
 			warn!("Failed to submit: {err}.");
