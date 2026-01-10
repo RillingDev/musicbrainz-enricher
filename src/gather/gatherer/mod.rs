@@ -1,10 +1,7 @@
 use anyhow::Ok;
 use log::{debug, info};
 use reqwest::Url;
-use std::{
-	collections::{HashMap, HashSet},
-	time::Duration,
-};
+use std::collections::{HashMap, HashSet};
 use uuid::Uuid;
 
 use crate::gather::gatherer::{
@@ -19,7 +16,6 @@ pub mod wikidata;
 pub enum ReleaseGroupGatherer {
 	Discogs(DiscogsClient),
 	Wikidata(WikidataClient),
-	Dummy,
 }
 
 impl ReleaseGroupGatherer {
@@ -27,7 +23,6 @@ impl ReleaseGroupGatherer {
 		match self {
 			ReleaseGroupGatherer::Discogs(_) => DiscogsClient::supported_hosts(),
 			ReleaseGroupGatherer::Wikidata(_) => WikidataClient::supported_hosts(),
-			ReleaseGroupGatherer::Dummy => HashSet::from(["open.spotify.com".to_string()]),
 		}
 	}
 
@@ -38,10 +33,6 @@ impl ReleaseGroupGatherer {
 			}
 			ReleaseGroupGatherer::Wikidata(wikidata_client) => {
 				wikidata_client.gather_genres(entity_url).await
-			}
-			ReleaseGroupGatherer::Dummy => {
-				let () = tokio::time::sleep(Duration::from_secs(1)).await;
-				Ok(["fizz".to_string(), "rock".to_string()].to_vec())
 			}
 		}
 	}
@@ -62,7 +53,6 @@ impl ReleaseGroupGatherService {
 
 		Ok(ReleaseGroupGatherService {
 			gatherers: vec![
-				ReleaseGroupGatherer::Dummy,
 				ReleaseGroupGatherer::Discogs(discogs_client),
 				ReleaseGroupGatherer::Wikidata(wikidata_client),
 			],
