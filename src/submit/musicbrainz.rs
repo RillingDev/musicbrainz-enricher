@@ -1,18 +1,17 @@
 use anyhow::Context;
-use diqwest::WithDigestAuth;
-use itertools::Itertools;
+use diqwest::{Credentials, WithDigestAuth};
 use leaky_bucket::RateLimiter;
 use log::{debug, info};
 use quick_xml::Writer;
 use quick_xml::events::{BytesEnd, BytesStart, BytesText, Event};
 use reqwest::{Client, Url, header};
+use std::collections::HashMap;
 use std::fmt;
 use std::io::Cursor;
 use std::time::Duration;
 use uuid::Uuid;
 
 use crate::http::USER_AGENT;
-use crate::sql::ReleaseGroupEnrichmentMergedResult;
 
 // See https://musicbrainz.org/doc/MusicBrainz_API, different from user agent
 const CLIENT_NAME: &str = concat!(env!("CARGO_PKG_NAME"), "-", env!("CARGO_PKG_VERSION"));
@@ -28,6 +27,19 @@ impl fmt::Display for MusicbrainzCredentials {
 		write!(f, "(username={}, password=<REDACTED>)", self.username)
 	}
 }
+
+#[derive(Debug)]
+pub struct UserTag {
+	name: String,
+}
+
+impl UserTag {
+	pub fn new(name: String) -> Self {
+		UserTag { name }
+	}
+}
+
+pub type ReleaseGroupTags = HashMap<Uuid, Vec<UserTag>>;
 
 #[derive(Debug)]
 pub struct MusicbrainzClient {
@@ -63,14 +75,14 @@ impl MusicbrainzClient {
 		})
 	}
 
-	pub async fn submit_tags(
+	pub async fn submit_release_group_tags(
 		&self,
-		results: Vec<ReleaseGroupEnrichmentMergedResult>,
+		results: ReleaseGroupTags,
 	) -> anyhow::Result<reqwest::Response> {
 		let mut url = self.base_url.clone();
 		url.set_path("/ws/2/tag");
 
-		let body = serialize_tags(results)?;
+		let body = MusicbrainzClient::serialize_release_group_tags(results)?;
 		debug!("Created body:\n{:?}", String::from_utf8(body.clone())?);
 
 		self.limiter.acquire_one().await;
@@ -81,51 +93,50 @@ impl MusicbrainzClient {
 			.post(url)
 			.header(header::CONTENT_TYPE, "application/xml; charset=UTF-8")
 			.body(body)
-			.send_with_digest_auth(&self.credentials.username, &self.credentials.password)
+			.send_digest_auth(Credentials::new(
+				&self.credentials.username,
+				&self.credentials.password,
+			))
 			.await?;
 		info!("Submitted tags.");
 
 		response.error_for_status().context("Failed to submit tags")
 	}
-}
 
-fn serialize_tags(results: Vec<ReleaseGroupEnrichmentMergedResult>) -> anyhow::Result<Vec<u8>> {
-	let grouped_by_mbid: Vec<(Uuid, Vec<String>)> = results
-		.into_iter()
-		.chunk_by(|r| r.target_mbid)
-		.into_iter()
-		.map(|(target_mbid, grouped)| (target_mbid, grouped.map(|r| r.genre).collect()))
-		.collect();
+	// https://musicbrainz.org/doc/MusicBrainz_API#Submitting_data
+	pub(crate) fn serialize_release_group_tags(
+		release_group_tags: ReleaseGroupTags,
+	) -> anyhow::Result<Vec<u8>> {
+		let mut writer = Writer::new(Cursor::new(Vec::new()));
 
-	let mut writer = Writer::new(Cursor::new(Vec::new()));
+		let mut root_node = BytesStart::new("metadata");
+		root_node.push_attribute(("xmlns", "http://musicbrainz.org/ns/mmd-2.0#"));
+		writer.write_event(Event::Start(root_node))?;
+		writer.write_event(Event::Start(BytesStart::new("release-group-list")))?;
 
-	let mut root = BytesStart::new("metadata");
-	root.push_attribute(("xmlns", "http://musicbrainz.org/ns/mmd-2.0#"));
-	writer.write_event(Event::Start(root))?;
-	writer.write_event(Event::Start(BytesStart::new("release-group-list")))?;
+		for (target_mbid, tags) in release_group_tags {
+			let mut artist = BytesStart::new("release-group");
+			artist.push_attribute(("id", target_mbid.to_string().as_str()));
+			writer.write_event(Event::Start(artist))?;
+			writer.write_event(Event::Start(BytesStart::new("user-tag-list")))?;
 
-	for (target_mbid, genres) in grouped_by_mbid {
-		let mut artist = BytesStart::new("release-group");
-		artist.push_attribute(("id", target_mbid.to_string().as_str()));
-		writer.write_event(Event::Start(artist))?;
-		writer.write_event(Event::Start(BytesStart::new("user-tag-list")))?;
+			for tag in tags {
+				writer.write_event(Event::Start(BytesStart::new("user-tag")))?;
+				writer.write_event(Event::Start(BytesStart::new("name")))?;
+				writer.write_event(Event::Text(BytesText::new(&tag.name)))?;
+				writer.write_event(Event::End(BytesEnd::new("name")))?;
+				writer.write_event(Event::End(BytesEnd::new("user-tag")))?;
+			}
 
-		for genre in genres {
-			writer.write_event(Event::Start(BytesStart::new("user-tag")))?;
-			writer.write_event(Event::Start(BytesStart::new("name")))?;
-			writer.write_event(Event::Text(BytesText::new(&genre)))?;
-			writer.write_event(Event::End(BytesEnd::new("name")))?;
-			writer.write_event(Event::End(BytesEnd::new("user-tag")))?;
+			writer.write_event(Event::End(BytesEnd::new("user-tag-list")))?;
+			writer.write_event(Event::End(BytesEnd::new("release-group")))?;
 		}
 
-		writer.write_event(Event::End(BytesEnd::new("user-tag-list")))?;
-		writer.write_event(Event::End(BytesEnd::new("release-group")))?;
+		writer.write_event(Event::End(BytesEnd::new("release-group-list")))?;
+		writer.write_event(Event::End(BytesEnd::new("metadata")))?;
+
+		Ok(writer.into_inner().into_inner())
 	}
-
-	writer.write_event(Event::End(BytesEnd::new("release-group-list")))?;
-	writer.write_event(Event::End(BytesEnd::new("metadata")))?;
-
-	Ok(writer.into_inner().into_inner())
 }
 
 #[cfg(test)]
@@ -136,7 +147,7 @@ mod tests {
 	use super::*;
 
 	#[test]
-	fn serialize_tags_serializes() -> anyhow::Result<()> {
+	fn serialize_release_group_tags_serializes() -> anyhow::Result<()> {
 		let expected = concat!(
 			"<metadata xmlns=\"http://musicbrainz.org/ns/mmd-2.0#\"><release-group-list>",
 			"<release-group id=\"b1392450-e666-3926-a536-22c65f834433\"><user-tag-list>",
@@ -150,26 +161,23 @@ mod tests {
 			"</release-group-list></metadata>"
 		);
 
-		let tags_by_release_group = vec![
-			ReleaseGroupEnrichmentMergedResult {
-				target_mbid: Uuid::from_str("b1392450-e666-3926-a536-22c65f834433")?,
-				genre: "rock".to_string(),
-			},
-			ReleaseGroupEnrichmentMergedResult {
-				target_mbid: Uuid::from_str("b1392450-e666-3926-a536-22c65f834433")?,
-				genre: "afoxê".to_string(),
-			},
-			ReleaseGroupEnrichmentMergedResult {
-				target_mbid: Uuid::from_str("b1392450-e666-3926-a536-22c65f834433")?,
-				genre: "yé-yé".to_string(),
-			},
-			ReleaseGroupEnrichmentMergedResult {
-				target_mbid: Uuid::from_str("e75c0549-ad55-39e3-8025-c72c5d4a3c5d")?,
-				genre: "rock".to_string(),
-			},
-		];
+		let mut release_group_tags: ReleaseGroupTags = HashMap::new();
+		release_group_tags.insert(
+			Uuid::from_str("b1392450-e666-3926-a536-22c65f834433")?,
+			vec![
+				UserTag::new("rock".to_string()),
+				UserTag::new("afoxê".to_string()),
+				UserTag::new("yé-yé".to_string()),
+			],
+		);
+		release_group_tags.insert(
+			Uuid::from_str("e75c0549-ad55-39e3-8025-c72c5d4a3c5d")?,
+			vec![UserTag::new("rock".to_string())],
+		);
 
-		let actual = String::from_utf8(serialize_tags(tags_by_release_group)?)?;
+		let actual = String::from_utf8(MusicbrainzClient::serialize_release_group_tags(
+			release_group_tags,
+		)?)?;
 
 		assert_eq!(actual, expected);
 

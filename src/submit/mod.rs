@@ -1,10 +1,11 @@
+use itertools::Itertools;
 use log::{info, warn};
 use reqwest::Url;
 use tokio_postgres::Client;
 
 use crate::{
-	sql::{refresh_merged_results, select_merged_results},
-	submit::musicbrainz::MusicbrainzClient,
+	sql::{ReleaseGroupEnrichmentMergedResult, refresh_merged_results, select_merged_results},
+	submit::musicbrainz::{MusicbrainzClient, ReleaseGroupTags, UserTag},
 };
 
 pub use crate::submit::musicbrainz::MusicbrainzCredentials;
@@ -37,7 +38,10 @@ pub async fn run_submit(
 
 		info!("Selected {result_len} results (offset {offset}) for submission.");
 		// TODO: if a single release-group cannot be found, this fails. Maybe check for existence beforehand?
-		if let Err(err) = mb_client.submit_tags(results).await {
+		if let Err(err) = mb_client
+			.submit_release_group_tags(results_to_tags(results))
+			.await
+		{
 			warn!("Failed to submit: {err}.");
 		}
 
@@ -45,4 +49,18 @@ pub async fn run_submit(
 	}
 
 	Ok(())
+}
+
+fn results_to_tags(results: Vec<ReleaseGroupEnrichmentMergedResult>) -> ReleaseGroupTags {
+	results
+		.into_iter()
+		.chunk_by(|r| r.target_mbid)
+		.into_iter()
+		.map(|(target_mbid, grouped)| {
+			(
+				target_mbid,
+				grouped.map(|r| UserTag::new(r.genre)).collect(),
+			)
+		})
+		.collect()
 }
